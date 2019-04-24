@@ -645,7 +645,7 @@ test('given `blueprint`', {
     expect(actual.err).to.be.null
   },
   'it should support adding blueprints as new validators with `registerBlueprint`': (expect) => {
-    registerBlueprint('registerBlueprint:user', blueprint('user', {
+    registerBlueprint(blueprint('registerBlueprint:user', {
       firstName: 'string',
       lastName: 'string'
     }))
@@ -666,11 +666,11 @@ test('given `blueprint`', {
     expect(actual.err).to.be.null
     expect(actual.value).to.deep.equal(expected)
     expect(actualInvalid.err).to.not.be.null
-    expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: user.firstName {string} is required, user.lastName {string} is required')
+    expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid registerBlueprint:user: registerBlueprint:user.firstName {string} is required, registerBlueprint:user.lastName {string} is required')
     expect(actualInvalid.value).to.be.null
   },
   '`registerBlueprint` should support null values': (expect) => {
-    registerBlueprint('registerBlueprint:null:user', blueprint('user', {
+    registerBlueprint(blueprint('registerBlueprint:null:user', {
       firstName: 'string',
       lastName: 'string'
     }))
@@ -683,7 +683,7 @@ test('given `blueprint`', {
     expect(actual.err).to.be.null
   },
   '`registerBlueprint` should support arrays': (expect) => {
-    registerBlueprint('registerBlueprint:array:user', blueprint('user', {
+    registerBlueprint(blueprint('registerBlueprint:array:user', {
       firstName: 'string',
       lastName: 'string'
     }))
@@ -717,7 +717,7 @@ test('given `blueprint`', {
     expect(actualInvalid.value).to.be.null
   },
   '`registerBlueprint` should support nullable arrays': (expect) => {
-    registerBlueprint('registerBlueprint:null:array:user', blueprint('user', {
+    registerBlueprint(blueprint('registerBlueprint:null:array:user', {
       firstName: 'string',
       lastName: 'string'
     }))

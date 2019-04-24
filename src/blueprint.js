@@ -101,6 +101,7 @@
 
     return {
       err: null,
+      name,
       validate: validate(name, blueprint)
     }
   }
@@ -131,11 +132,10 @@
 
   /**
    * Registers a blueprint that can be used as a validator
-   * @param {string} name - the name of the validator
    * @param {IBlueprint} blueprint - the blueprint
    */
-  const registerBlueprint = (name, bp) => {
-    const arrayName = `array<${name}>`
+  const registerBlueprint = (bp) => {
+    const arrayName = `array<${bp.name}>`
     const validateOne = ({ value }) => {
       const validation = bp.validate(value)
 
@@ -149,14 +149,14 @@
       if (is.not.array(value)) {
         return { err: new Error(`${arrayName} {array} is required`), value: null }
       } else if (value.filter((val) => validateOne({ value: val }).err).length) {
-        return { err: new Error(`All values for ${arrayName} must be of type, '${name}'`), value: null }
+        return { err: new Error(`All values for ${arrayName} must be of type, '${bp.name}'`), value: null }
       } else {
         return { err: null, value: value }
       }
     }
 
-    registerValidator(name, validateOne)
-    registerValidator(`${name}?`, ({ value }) => {
+    registerValidator(bp.name, validateOne)
+    registerValidator(`${bp.name}?`, ({ value }) => {
       if (is.nullOrUndefined(value)) {
         return { err: null, value
         }

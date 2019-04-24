@@ -13,6 +13,7 @@ export interface IValueOrError {
 
 export interface IBlueprint {
   err: any | null;
+  name: string;
   validate: (input: any) => IValueOrError
 }
 
