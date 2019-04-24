@@ -1,0 +1,38 @@
+{
+  "name": "@polyn/blueprint",
+  "version": "1.0.0",
+  "description": "An easy to use validation library for nodejs and browsers",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/losandes/polyn-blueprint.git"
+  },
+  "author": "Andy Wright <andes.collab@gmail.com> (https://github.com/losandes)",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/losandes/polyn-blueprint/issues"
+  },
+  "homepage": "https://github.com/losandes/polyn-blueprint#readme",
+  "keywords": [
+    "polymorphism",
+    "interface",
+    "class",
+    "blueprint",
+    "hilary"
+  ],
+  "devDependencies": {
+    "chai": "^4.2.0",
+    "eslint": "^5.16.0",
+    "eslint-config-standard": "^12.0.0",
+    "eslint-plugin-import": "^2.17.2",
+    "eslint-plugin-node": "^8.0.1",
+    "eslint-plugin-promise": "^4.1.1",
+    "eslint-plugin-standard": "^4.0.0",
+    "supposed": "^0.2.0"
+  },
+  "dependencies": {}
+}
