@@ -728,5 +728,12 @@ test('given `blueprint`', {
     })
 
     expect(actual.err).to.be.null
+  },
+  'it should not throw when a null object is validated': (expect) => {
+    const actual = blueprint('sut', { string: 'string' })
+      .validate()
+
+    expect(actual.err).to.not.be.null
+    expect(actual.err.message).to.equal('Invalid sut: sut.string {string} is required')
   }
 })
