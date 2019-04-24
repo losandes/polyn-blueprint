@@ -1,2 +1,1 @@
-const { blueprint, registerValidator } = require('./src/blueprint')
-module.exports = { blueprint, registerValidator }
+module.exports = require('./src/blueprint')
