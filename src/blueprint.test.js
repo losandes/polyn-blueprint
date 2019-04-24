@@ -645,10 +645,10 @@ test('given `blueprint`', {
     expect(actual.err).to.be.null
   },
   'it should support adding blueprints as new validators with `registerBlueprint`': (expect) => {
-    registerBlueprint(blueprint('registerBlueprint:user', {
+    registerBlueprint('registerBlueprint:user', {
       firstName: 'string',
       lastName: 'string'
-    }))
+    })
     const expected = {
       user: {
         firstName: 'John',
@@ -670,10 +670,10 @@ test('given `blueprint`', {
     expect(actualInvalid.value).to.be.null
   },
   '`registerBlueprint` should support null values': (expect) => {
-    registerBlueprint(blueprint('registerBlueprint:null:user', {
+    registerBlueprint('registerBlueprint:null:user', {
       firstName: 'string',
       lastName: 'string'
-    }))
+    })
     const actual = blueprint('sut', {
       user: 'registerBlueprint:null:user?'
     }).validate({
@@ -683,10 +683,10 @@ test('given `blueprint`', {
     expect(actual.err).to.be.null
   },
   '`registerBlueprint` should support arrays': (expect) => {
-    registerBlueprint(blueprint('registerBlueprint:array:user', {
+    registerBlueprint('registerBlueprint:array:user', {
       firstName: 'string',
       lastName: 'string'
-    }))
+    })
     const bp = blueprint('sut', {
       users: 'array<registerBlueprint:array:user>'
     })
@@ -717,10 +717,10 @@ test('given `blueprint`', {
     expect(actualInvalid.value).to.be.null
   },
   '`registerBlueprint` should support nullable arrays': (expect) => {
-    registerBlueprint(blueprint('registerBlueprint:null:array:user', {
+    registerBlueprint('registerBlueprint:null:array:user', {
       firstName: 'string',
       lastName: 'string'
-    }))
+    })
     const actual = blueprint('sut', {
       users: 'array<registerBlueprint:null:array:user>?'
     }).validate({

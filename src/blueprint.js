@@ -132,9 +132,16 @@
 
   /**
    * Registers a blueprint that can be used as a validator
-   * @param {IBlueprint} blueprint - the blueprint
+  * @param {string} name - the name of the model being validated
+  * @param {object} blueprint - the type definitions
    */
-  const registerBlueprint = (bp) => {
+  const registerBlueprint = (name, definition) => {
+    const bp = blueprint(name, definition)
+
+    if (bp.err) {
+      return bp
+    }
+
     const arrayName = `array<${bp.name}>`
     const validateOne = ({ value }) => {
       const validation = bp.validate(value)
@@ -172,6 +179,8 @@
 
       return validateMany({ value })
     })
+
+    return { err: null }
   }
 
   const register = (isKey, scrub) => {

@@ -26,4 +26,4 @@ export interface IValidatorArg {
 
 export function blueprint (name: string, blueprint: any): IBlueprint;
 export function registerValidator (name: string, validator: Function): IValueOrError;
-export function registerBlueprint (name: string, blueprint: IBlueprint): IValueOrError;
+export function registerBlueprint (name: string, blueprint: any): IValueOrError;
