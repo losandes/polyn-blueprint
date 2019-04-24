@@ -1,6 +1,6 @@
 const { expect } = require('chai')
 const test = require('supposed').Suite({ assertionLibrary: expect })
-const { blueprint, registerValidator } = require('./blueprint.js')
+const { blueprint, registerValidator, registerBlueprint } = require('./blueprint.js')
 
 test('given `blueprint`', {
   'when a blueprint is constructed with a name, and a blueprint, it should return a `validate` function': (expect) => {
@@ -613,10 +613,10 @@ test('given `blueprint`', {
     expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: user.firstName {string} is required, user.lastName {string} is required')
     expect(actualInvalid.value).to.be.null
   },
-  'it should pass `key`, `value`, and `input` to registered validators': (expect) => {
+  'it should pass `key`, `value`, `input`, and `root` to registered validators': (expect) => {
     let actual
-    registerValidator('registerValidatorArgs', ({ key, value, input }) => {
-      actual = { key, value, input }
+    registerValidator('registerValidatorArgs', ({ key, value, input, root }) => {
+      actual = { key, value, input, root }
       return { err: null }
     })
 
@@ -630,7 +630,8 @@ test('given `blueprint`', {
     expect(actual).to.deep.equal({
       key: 'sut.args',
       value: 'args-value',
-      input: { args: 'args-value', other: 'other-value' }
+      input: { args: 'args-value', other: 'other-value' },
+      root: { args: 'args-value', other: 'other-value' }
     })
   },
   'it should NOT throw if a validator doesn\'t return anything': (expect) => {
@@ -639,6 +640,91 @@ test('given `blueprint`', {
       something: 'registerValidatorWithNoReturn'
     }).validate({
       something: 'value'
+    })
+
+    expect(actual.err).to.be.null
+  },
+  'it should support adding blueprints as new validators with `registerBlueprint`': (expect) => {
+    registerBlueprint('registerBlueprint:user', blueprint('user', {
+      firstName: 'string',
+      lastName: 'string'
+    }))
+    const expected = {
+      user: {
+        firstName: 'John',
+        lastName: 'Doe'
+      }
+    }
+    const bp = blueprint('sut', {
+      user: 'registerBlueprint:user'
+    })
+    const actual = bp.validate(expected)
+    const actualInvalid = bp.validate({
+      firstName: 'missing user object'
+    })
+
+    expect(actual.err).to.be.null
+    expect(actual.value).to.deep.equal(expected)
+    expect(actualInvalid.err).to.not.be.null
+    expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: user.firstName {string} is required, user.lastName {string} is required')
+    expect(actualInvalid.value).to.be.null
+  },
+  '`registerBlueprint` should support null values': (expect) => {
+    registerBlueprint('registerBlueprint:null:user', blueprint('user', {
+      firstName: 'string',
+      lastName: 'string'
+    }))
+    const actual = blueprint('sut', {
+      user: 'registerBlueprint:null:user?'
+    }).validate({
+      user: null
+    })
+
+    expect(actual.err).to.be.null
+  },
+  '`registerBlueprint` should support arrays': (expect) => {
+    registerBlueprint('registerBlueprint:array:user', blueprint('user', {
+      firstName: 'string',
+      lastName: 'string'
+    }))
+    const bp = blueprint('sut', {
+      users: 'array<registerBlueprint:array:user>'
+    })
+
+    const expected = {
+      users: [{
+        firstName: 'John',
+        lastName: 'Doe'
+      }, {
+        firstName: 'John',
+        lastName: 'Doe'
+      }]
+    }
+    const actual = bp.validate(expected)
+    const actualInvalid = bp.validate({
+      users: [{
+        firstName: 'John',
+        lastName: 'Doe'
+      }, {
+        firstName: 'John'
+      }]
+    })
+
+    expect(actual.err).to.be.null
+    expect(actual.value).to.deep.equal(expected)
+    expect(actualInvalid.err).to.not.be.null
+    expect(actualInvalid.err.message).to.equal('Invalid sut: All values for array<registerBlueprint:array:user> must be of type, \'registerBlueprint:array:user\'')
+    expect(actualInvalid.value).to.be.null
+  },
+  '`registerBlueprint` should support nullable arrays': (expect) => {
+    registerBlueprint('registerBlueprint:null:array:user', blueprint('user', {
+      firstName: 'string',
+      lastName: 'string'
+    }))
+    const actual = blueprint('sut', {
+      users: 'array<registerBlueprint:null:array:user>?'
+    }).validate({
+      users: null
     })
 
     expect(actual.err).to.be.null

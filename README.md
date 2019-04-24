@@ -11,7 +11,11 @@ $ npm install -save @polyn/blueprint
 ```
 
 ```JavaScript
-const { blueprint, registerValidator } = require('@polyn/blueprint')
+const {
+  blueprint,
+  registerValidator,
+  registerBlueprint
+} = require('@polyn/blueprint')
 
 const actual = blueprint('requestBody', {
   name: 'string',
@@ -149,63 +153,34 @@ assert.strictEqual(actual.value.age, 20)
 ```
 
 #### Registering Blueprints
-Sometimes it's useful to register another blueprint as a validator
+Sometimes it's useful to register another blueprint as a validator. `registerBlueprint` accepts a blueprint, and registers validators for it, including support for nulls, and arrays.
 
 ```JavaScript
-const { blueprint, registerValidator } = require('@polyn/blueprint')
+const { blueprint, registerBlueprint } = require('@polyn/blueprint')
 
-const isPerson = blueprint('person', {
+registerBlueprint('person', blueprint('person', {
   firstName: 'string',
   lastName: 'string'
-})
-
-// register a 'person' type
-registerValidator('person', ({ key, value }) => {
-  const validation = isPerson.validate(value)
-
-  if (validation.err) {
-    return {
-      err: validation.err,
-      value: null
-    }
-  }
-
-  return {
-    err: null,
-    value: validation.value
-  }
-})
-
-// or maybe an array of 'person'
-registerValidator('array<person>', ({ key, value }) => {
-  if (!Array.isArray(value)) {
-    return {
-      err: new Error(`${key} is required`),
-      value: null
-    }
-  } else if (value.filter((person) => isPerson.validate(person).err).length) {
-    return {
-      err: new Error(`All values in ${key} must be of type, 'person'`),
-      value: null
-    }
-  }
-
-  return {
-    err: null,
-    value: validation.value
-  }
-})
+}))
 
 const actual = blueprint('requestBody', {
-  person: 'person'
+  person: 'person',
+  optionalPerson: 'person?',
+  people: 'array<person>',
+  optionalPeople: 'array<person>?'
 }).validate({
   person: {
     firstName: 'John',
     lastName: 'Doe'
-  }
+  },
+  people: [{
+    firstName: 'John',
+    lastName: 'Doe'
+  }]
 })
 
 assert.ifError(actual.err)
-assert.strictEqual(actual.value.firstName, 'John')
-assert.strictEqual(actual.value.lastName, 'Doe')
+assert.strictEqual(actual.value.person.firstName, 'John')
+assert.strictEqual(actual.value.person.lastName, 'Doe')
+// ...
 ```

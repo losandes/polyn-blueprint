@@ -16,7 +16,13 @@ export interface IBlueprint {
   validate: (input: any) => IValueOrError
 }
 
-export interface IPolynBlueprint {
-  blueprint (name: string, blueprint: any): IBlueprint;
-  registerValidator (name: string, validator: Function): IValueOrError
+export interface IValidatorArg {
+  key: string;
+  value: any;
+  input: any;
+  root: any;
 }
+
+export function blueprint (name: string, blueprint: any): IBlueprint;
+export function registerValidator (name: string, validator: Function): IValueOrError;
+export function registerBlueprint (name: string, blueprint: IBlueprint): IValueOrError;

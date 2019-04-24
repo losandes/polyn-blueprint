@@ -57,7 +57,7 @@
         key: `${name}.${key}`,
         value: input && input[key],
         input,
-        root
+        root: root || input
       })
 
       if (result && result.err) {
@@ -129,6 +129,51 @@
     }
   }
 
+  /**
+   * Registers a blueprint that can be used as a validator
+   * @param {string} name - the name of the validator
+   * @param {IBlueprint} blueprint - the blueprint
+   */
+  const registerBlueprint = (name, bp) => {
+    const arrayName = `array<${name}>`
+    const validateOne = ({ value }) => {
+      const validation = bp.validate(value)
+
+      if (validation.err) {
+        return { err: validation.err, value: null }
+      }
+
+      return { err: null, value: validation.value }
+    }
+    const validateMany = ({ value }) => {
+      if (is.not.array(value)) {
+        return { err: new Error(`${arrayName} {array} is required`), value: null }
+      } else if (value.filter((val) => validateOne({ value: val }).err).length) {
+        return { err: new Error(`All values for ${arrayName} must be of type, '${name}'`), value: null }
+      } else {
+        return { err: null, value: value }
+      }
+    }
+
+    registerValidator(name, validateOne)
+    registerValidator(`${name}?`, ({ value }) => {
+      if (is.nullOrUndefined(value)) {
+        return { err: null, value
+        }
+      }
+
+      return validateOne({ value })
+    })
+    registerValidator(arrayName, validateMany)
+    registerValidator(`${arrayName}?`, ({ value }) => {
+      if (is.nullOrUndefined(value)) {
+        return { err: null, value: value }
+      }
+
+      return validateMany({ value })
+    })
+  }
+
   const register = (isKey, scrub) => {
     scrub = is.function(scrub) ? scrub : (input) => input
 
@@ -194,7 +239,7 @@
     register(type)
     registerArrayOfType(type)
   })
-  register('string', (input) => input.trim())
+  register('string', (input) => is.string(input) ? input.trim() : input)
   registerArrayOfType('string')
 
   // support up to 15 decimal places for decimal precision
@@ -225,5 +270,5 @@
       : { err: new Error(`${key} does not match ${regex.toString()}`), value: null }
   })
 
-  return Object.freeze({ blueprint, registerValidator })
+  return Object.freeze({ blueprint, registerValidator, registerBlueprint })
 }))
