@@ -127,9 +127,14 @@ const allTheTypes = blueprint('allTheTypes', {
   optionalObject: 'object?',
   requiredArrayOfObjects: 'object[]',
   optionalArrayOfObjects: 'object[]?',
+  // any
+  requiredAny: 'any',
+  optionalAny: 'any?',
+  requiredArrayOfAny: 'any[]',
+  optionalArrayOfAny: 'any[]?',
   // weakly typed arrays
-  requiredArray: 'array',
-  optionalArray: 'array?',
+  requiredArray: 'array',  // same as any[]
+  optionalArray: 'array?', // same as any[]?
   // decimals
   requiredDecimal: 'decimal',
   optionalDecimal: 'decimal?',
@@ -169,7 +174,9 @@ const allTheTypes = blueprint('allTheTypes', {
 ```
 
 ### Registering Validators
-If the types listed above don't cover your scenario, it's easy to register custom validators:
+If the types listed above don't cover your scenario, it's easy to register custom validators.
+
+> If your validator returns an object, you MUST return the value on that object - it will be used to populate `blueprint.validate`'s `value` property.
 
 ```JavaScript
 registerValidator('gt0', ({ key, value }) => {
@@ -194,6 +201,32 @@ const actual = blueprint('requestBody', {
 
 assert.ifError(actual.err)
 assert.strictEqual(actual.value.age, 20)
+```
+
+#### Registering Types
+If you want to support nulls and arrays for the validator you are registering, use `registerTypes` instead.
+
+```JavaScript
+registerType('char', ({ key, value }) => {
+  return typeof value === 'string' && value.length === 1
+    ? { err: null, value: value }
+    : { err: new Error(`${key} must be a {myString}`), value: null }
+})
+```
+
+Boolean validators are also accepted:
+
+```JavaScript
+registerType('char', ({ value }) => typeof value === 'string' && value.length === 1)
+```
+
+Both of these examples will register the following types on blueprint:
+
+```
+char
+char?
+char[]
+char[]?
 ```
 
 #### Registering Blueprints
@@ -227,4 +260,57 @@ assert.ifError(actual.err)
 assert.strictEqual(actual.value.person.firstName, 'John')
 assert.strictEqual(actual.value.person.lastName, 'Doe')
 // ...
+```
+
+#### Intercepting Values
+Both `registerValidator`, and `registerType` can be used to intercept/mutate the values that are returned by blueprint.validate. Both of these examples trim the strings that are
+
+```JavaScript
+registerValidator('string1', ({ key, value }) => {
+  return is.string(value)
+    ? { err: null, value: value.trim() }
+    : { err: new Error(errorMessage('string')(key)), value: null }
+}) // registers string1 on blueprint
+
+console.log(
+  blueprint('string1-test', {
+    name: 'string1'
+  })
+  .validate({
+    name: '  whitespace '
+  })
+  .value
+)
+
+// prints { name: 'whitespace' }
+
+registerType('string2', ({ key, value }) => {
+  return is.string(value)
+    ? { err: null, value: value.trim() }
+    : { err: new Error(errorMessage('string')(key)), value: null }
+}) // registers string2, string2?, string2[], and string2[]? on blueprint
+
+console.log(
+  blueprint('string2-test', {
+    requiredName: 'string2',
+    optionalName: 'string2?',
+    requiredArray: 'string2[]',
+    optionalArray: 'string2[]?'
+  })
+  .validate({
+    requiredName: '  whitespace ',
+    optionalName: '  whitespace ',
+    requiredArray: ['  whitespace '],
+    optionalArray: ['  whitespace ']
+  })
+  .value
+)
+
+// prints
+// {
+//   requiredName: 'whitespace',
+//   optionalName: 'whitespace',
+//   requiredArray: ['whitespace'],
+//   optionalArray: ['whitespace']
+// }
 ```

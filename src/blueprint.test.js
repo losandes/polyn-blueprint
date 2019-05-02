@@ -342,11 +342,27 @@ module.exports = (test) => {
       expect(actual.err).to.be.null
       expect(actual.value.something).to.equal('value')
     },
-    'it should return the result.value if the validator returns an object': (expect) => {
-      registerValidator('registerValidatorWithNoReturn', () => {
+    '`registerValidator` should be able to intercept values': (expect) => {
+      registerValidator('registerValidatorInterceptor', () => {
         return {
           err: null,
           value: 42
+        }
+      })
+      const actual = blueprint('sut', {
+        something: 'registerValidatorInterceptor'
+      }).validate({
+        something: 'value'
+      })
+
+      expect(actual.err).to.be.null
+      expect(actual.value.something).to.equal(42)
+    },
+    'if the validator returns an object and result.value isn\'t set, you\'re bummed': (expect) => {
+      registerValidator('registerValidatorWithNoReturn', () => {
+        return {
+          err: null,
+          bvalue: 42
         }
       })
       const actual = blueprint('sut', {
@@ -356,7 +372,7 @@ module.exports = (test) => {
       })
 
       expect(actual.err).to.be.null
-      expect(actual.value.something).to.equal(42)
+      expect(actual.value.something).to.equal(undefined)
     },
     'it should support adding blueprints as new validators with `registerBlueprint`': (expect) => {
       registerBlueprint('registerBlueprint:user', {
@@ -539,6 +555,31 @@ module.exports = (test) => {
         input: { args: 'args-value', other: 'other-value' },
         root: { args: 'args-value', other: 'other-value' }
       })
+    },
+    '`registerType` should be able to intercept values': (expect) => {
+      registerType('registerTypeInterceptor', ({ value }) => {
+        return { err: null, value: value && value.trim() }
+      })
+
+      const expected = {
+        requiredName: 'whitespace',
+        optionalName: 'whitespace',
+        requiredArray: ['whitespace'],
+        optionalArray: ['whitespace']
+      }
+      const actual = blueprint('registerTypeInterceptor-test', {
+        requiredName: 'registerTypeInterceptor',
+        optionalName: 'registerTypeInterceptor?',
+        requiredArray: 'registerTypeInterceptor[]',
+        optionalArray: 'registerTypeInterceptor[]?'
+      }).validate({
+        requiredName: '  whitespace ',
+        optionalName: '  whitespace ',
+        requiredArray: ['  whitespace '],
+        optionalArray: ['  whitespace ']
+      })
+
+      expect(actual.value).to.deep.equal(expected)
     }
   })
 }
