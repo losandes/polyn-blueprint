@@ -43,58 +43,98 @@ assert.strictEqual(actual.value.name, 'Aiden')
 assert.strictEqual(actual.value.age, 20)
 ```
 
+### Browser
+Blueprint works the same in the browser, and is packaged in the `dist` folder. You can find all of blueprint's features on `window.polyn.blueprint`.
+
+```Shell
+$ npm install -save @polyn/blueprint
+```
+
+```HTML
+<script src="./node_modules/@polyn/blueprint/dist/blueprint.min.js" />
+<script>
+  const {
+    blueprint,
+    registerValidator,
+    registerBlueprint
+  } = window.polyn.blueprint
+
+  const actual = blueprint('requestBody', {
+    name: 'string',
+    // ...
+  }).validate({
+    name: 'Aiden'
+    // ...
+  })
+
+  if (actual.err) {
+    throw actual.err
+  }
+
+  console.log(actual.value.name)
+</script>
+```
+
 ## Types
 `blueprint` comes with several types already supported. You can also register your own validators. First let's look at what's already there:
 
 ```JavaScript
-const { blueprint } = require('@polyn/blueprint')
+const {
+  blueprint,
+  gt, gte, lt, lte, range
+} = require('@polyn/blueprint')
 
 const allTheTypes = blueprint('allTheTypes', {
   // strings
   requiredString: 'string',
   optionalString: 'string?',
-  requiredArrayOfStrings: 'array<string>',
-  optionalArrayOfStrings: 'array<string>?',
+  requiredArrayOfStrings: 'string[]',
+  optionalArrayOfStrings: 'string[]?',
   // numbers
   requiredNumber: 'number',
   optionalNumber: 'number?',
-  requiredArrayOfNumbers: 'array<number>',
-  optionalArrayOfNumbers: 'array<number>?',
+  requiredArrayOfNumbers: 'number[]',
+  optionalArrayOfNumbers: 'number[]?',
+  gt10: gt(10),
+  gte10: gte(10),
+  lt10: lt(10),
+  lte10: lte(10),
+  between10And20: range({ gte: 10, lte: 20 }), // supports gt, gte, lt, lte
   // booleans
   requiredBoolean: 'boolean',
   optionalBoolean: 'boolean?',
-  requiredArrayOfBooleans: 'array<boolean>',
-  optionalArrayOfBooleans: 'array<boolean>?',
+  requiredArrayOfBooleans: 'boolean[]',
+  optionalArrayOfBooleans: 'boolean[]?',
   // dates
   requiredDate: 'date',
   optionalDate: 'date?',
-  requiredArrayOfDates: 'array<date>',
-  optionalArrayOfDates: 'array<date>?',
+  requiredArrayOfDates: 'date[]',
+  optionalArrayOfDates: 'date[]?',
   // regular expressions as values
   requiredRegExp: 'regexp',
   optionalRegExp: 'regexp?',
-  requiredArrayOfRegExps: 'array<regexp>',
-  optionalArrayOfRegExps: 'array<regexp>?',
+  requiredArrayOfRegExps: 'regexp[]',
+  optionalArrayOfRegExps: 'regexp[]?',
   // regular expressions as validators
   requiredEnum: /^book|magazine$/i,
   // functions
   requiredFunction: 'function',
   optionalFunction: 'function?',
-  requiredArrayOfFunctions: 'array<function>',
-  optionalArrayOfFunctions: 'array<function>?',
+  requiredArrayOfFunctions: 'function[]',
+  optionalArrayOfFunctions: 'function[]?',
   // objects
   requiredObject: 'object',
   optionalObject: 'object?',
-  requiredArrayOfObjects: 'array<object>',
-  optionalArrayOfObjects: 'array<object>?',
+  requiredArrayOfObjects: 'object[]',
+  optionalArrayOfObjects: 'object[]?',
   // weakly typed arrays
   requiredArray: 'array',
   optionalArray: 'array?',
   // decimals
   requiredDecimal: 'decimal',
   optionalDecimal: 'decimal?',
-  requiredArrayOfDecimals: 'array<decimal>',
-  optionalArrayOfDecimals: 'array<decimal>?',
+  requiredArrayOfDecimals: 'decimal[]',
+  optionalArrayOfDecimals: 'decimal[]?',
   // decimal places (up to 15 decimal places)
   requiredDecimalTo1Place: 'decimal:1',
   optionalDecimalTo1Place: 'decimal:1?',
@@ -102,6 +142,10 @@ const allTheTypes = blueprint('allTheTypes', {
   optionalDecimalTo15Places: 'decimal:15?',
   // custom validation
   /**
+   * Lets you define your own validators inline, and gives you
+   * access to other properties for complex validation.
+   * This is useful when you have properties that are required
+   * depending on the values of other properties.
    * @param {string} key - the name of the property that is being validated (custom in this case)
    * @param {any} value - the value being validated (i.e. `input[key]`)
    * @param {any} input - the object that is being validated
@@ -129,16 +173,16 @@ If the types listed above don't cover your scenario, it's easy to register custo
 
 ```JavaScript
 registerValidator('gt0', ({ key, value }) => {
-  if (value < 0) {
+  if (value > 0) {
     return {
-      err: new Error('The value must be greater than 0'),
-      value: null
+      err: null,
+      value
     }
   }
 
   return {
-    err: null,
-    value
+    err: new Error('The value must be greater than 0'),
+    value: null
   }
 })
 
@@ -158,16 +202,16 @@ Sometimes it's useful to register another blueprint as a validator. `registerBlu
 ```JavaScript
 const { blueprint, registerBlueprint } = require('@polyn/blueprint')
 
-registerBlueprint('person', blueprint('person', {
+registerBlueprint('person', {
   firstName: 'string',
   lastName: 'string'
-}))
+})
 
 const actual = blueprint('requestBody', {
   person: 'person',
   optionalPerson: 'person?',
-  people: 'array<person>',
-  optionalPeople: 'array<person>?'
+  people: 'person[]',
+  optionalPeople: 'person[]?'
 }).validate({
   person: {
     firstName: 'John',
