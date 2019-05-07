@@ -22,7 +22,7 @@
   const is = module.factories.is()
   const blueprint = Object.assign(
     { is },
-    module.factories.numberValidators(),
+    module.factories.numberValidators(is),
     module.factories.blueprint(is)
   )
 

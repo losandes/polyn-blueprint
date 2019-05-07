@@ -1,6 +1,10 @@
 module.exports = {
   name: 'registerDecimals',
-  factory: (is, { registerValidator }) => {
+  factory: (is, Blueprint) => {
+    'use strict'
+
+    const { registerValidator } = Blueprint
+
     // support up to 15 decimal places for decimal precision
     for (let i = 1; i <= 15; i += 1) {
       registerValidator(`decimal:${i}`, ({ key, value }) => {
