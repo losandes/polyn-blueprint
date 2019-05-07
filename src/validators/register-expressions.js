@@ -1,10 +1,14 @@
 module.exports = {
   name: 'registerExpressions',
-  factory: ({ registerValidator }) => {
+  factory: (Blueprint) => {
+    'use strict'
+
+    const { registerValidator } = Blueprint
+
     registerValidator('expression', (regex) => ({ key, value }) => {
       return regex.test(value) === true
-        ? { err: null, value: value }
-        : { err: new Error(`${key} does not match ${regex.toString()}`), value: null }
+        ? { value: value }
+        : { err: new Error(`${key} does not match ${regex.toString()}`) }
     })
   }
 }

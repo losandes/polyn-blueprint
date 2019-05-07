@@ -3,17 +3,10 @@ module.exports = (test) => {
 
   return test('given `blueprint (expressions)`', {
     'it should support regular expressions': (expect) => {
-      const expected = {
-        type: 'book'
-      }
-      const actual = blueprint('sut', {
-        type: /^book$/i
-      }).validate(expected)
-      const actualInvalid = blueprint('sut', {
-        type: /^book$/i
-      }).validate({
-        type: 'person'
-      })
+      const expected = { type: 'book' }
+      const bp = blueprint('sut', { type: /^book$/i })
+      const actual = bp.validate(expected)
+      const actualInvalid = bp.validate({ type: 'person' })
 
       expect(actual.err).to.be.null
       expect(actual.value).to.deep.equal(expected)

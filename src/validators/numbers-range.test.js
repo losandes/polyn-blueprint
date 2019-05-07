@@ -1,5 +1,5 @@
 module.exports = (test) => {
-  const { blueprint, range } = test.sut
+  const { blueprint, range, optional } = test.sut
 
   return test('given a `range`', {
     'with `lt`, and `gt`': {
@@ -183,6 +183,15 @@ module.exports = (test) => {
       'it should throw': (expect) => (err) => {
         expect(err).to.not.be.null
       }
+    },
+    'when the `optional` prefix is used, it should allow null and undefined': (expect) => {
+      const rangeBp = blueprint('sut', {
+        range: range({ gt: 10, lt: 20 }),
+        maybeRange: optional.range({ gt: 10, lt: 20 })
+      })
+      expect(rangeBp.validate({ range: 19 }).err).to.be.null
+      expect(rangeBp.validate({ range: 19 }).value.maybeRange).to.be.undefined
+      expect(rangeBp.validate({ range: 19, maybeRange: null }).value.maybeRange).to.be.null
     }
   })
 }

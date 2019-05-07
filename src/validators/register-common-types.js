@@ -1,6 +1,9 @@
 module.exports = {
   name: 'registerCommonTypes',
-  factory: (is, { registerType }) => {
+  factory: (is, Blueprint) => {
+    'use strict'
+
+    const { registerType } = Blueprint
     const types = [
       'function',
       'object',

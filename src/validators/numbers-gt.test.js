@@ -1,31 +1,58 @@
 module.exports = (test) => {
-  const { blueprint, gt } = test.sut
+  const { blueprint, gt, optional } = test.sut
 
   const gt20Bp = blueprint('sut', {
     gt20: gt(20)
   })
 
+  const expectValue = (expected, actual) => (expect) => {
+    expect(actual.err).to.be.null
+    expect(actual.value).to.deep.equal(expected)
+  }
+
+  const expectError = (actual) => (expect) => {
+    expect(actual.err).to.not.be.null
+    expect(actual.err.message)
+      .to.equal('Invalid sut: sut.gt20 must be greater than 20')
+  }
+
+  const expectToThrow = (actual) => (expect) => {
+    expect(actual).to.throw(Error, 'gt requires a minimum number to compare values to')
+  }
+
   return test('given `gt`', {
-    'when given a value less than the minimum, it should return an error': (expect) => {
-      expect(gt20Bp.validate({ gt20: 19 }).err).to.not.be.null
-      expect(gt20Bp.validate({ gt20: 19 }).err.message)
-        .to.equal('Invalid sut: sut.gt20 must be greater than 20')
+    'when defined (`gt(20)`)': {
+      'it should throw if the minimum is undefined':
+        expectToThrow(() => { blueprint('sut', { gt20: gt() }) }),
+      'it should throw if the minimum is null':
+        expectToThrow(() => { blueprint('sut', { gt20: gt(null) }) }),
+      'it should throw if the minimum is NaN':
+        expectToThrow(() => { blueprint('sut', { gt20: gt('string') }) })
     },
-    'when given a value equal to the minimum, it should return an error': (expect) => {
-      expect(gt20Bp.validate({ gt20: 20 }).err).to.not.be.null
-      expect(gt20Bp.validate({ gt20: 20 }).err.message)
-        .to.equal('Invalid sut: sut.gt20 must be greater than 20')
+    'when `blueprint.validate` is called': {
+      'it should return a value if the value is greater than the minimum':
+        expectValue({ gt20: 21 }, gt20Bp.validate({ gt20: 21 })),
+      'it should return an error if the value is equal to the minimum':
+        expectError(gt20Bp.validate({ gt20: 20 })),
+      'it should return an error if the value is less than the minimum':
+        expectError(gt20Bp.validate({ gt20: 19 })),
+      'it should return an error if the value is undefined':
+        expectError(gt20Bp.validate({ gt20: undefined })),
+      'it should return an error if the value is null':
+        expectError(gt20Bp.validate({ gt20: null })),
+      'it should return an error if the value is NaN':
+        expectError(gt20Bp.validate({ gt20: 'string' })),
+      'it should return an error if the value is not strictly a number':
+        expectError(gt20Bp.validate({ gt20: '21' }))
     },
-    'when given a value greater than the minimum': {
-      when: () => gt20Bp.validate({ gt20: 21 }),
-      'it should NOT return an error': (expect) => (err, actual) => {
-        expect(err).to.be.null
-        expect(actual.err).to.be.null
-      },
-      'it should return the value': (expect) => (err, actual) => {
-        expect(err).to.be.null
-        expect(actual.value.gt20).to.equal(21)
-      }
+    'when the `optional` prefix is used, it should allow null and undefined': (expect) => {
+      const gt20Bp = blueprint('sut', {
+        gt20: gt(20),
+        maybeGt20: optional.gt(20)
+      })
+      expect(gt20Bp.validate({ gt20: 21 }).err).to.be.null
+      expect(gt20Bp.validate({ gt20: 21 }).value.maybeGt20).to.be.undefined
+      expect(gt20Bp.validate({ gt20: 21, maybeGt20: null }).value.maybeGt20).to.be.null
     }
   })
 }

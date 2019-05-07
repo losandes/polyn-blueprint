@@ -1,70 +1,94 @@
 module.exports = {
   name: 'numberValidators',
-  factory: () => {
+  factory: (is) => {
     'use strict'
 
-    const gt = (min) => ({ key, value }) => {
-      if (value > min) {
-        return {
-          err: null,
-          value
-        }
+    const gt = (min) => {
+      if (is.not.number(min)) {
+        throw new Error('gt requires a minimum number to compare values to')
       }
 
-      return {
-        err: new Error(`${key} must be greater than ${min}`),
-        value: null
+      return ({ key, value }) => {
+        if (is.number(value) && value > min) {
+          return {
+            err: null,
+            value
+          }
+        }
+
+        return {
+          err: new Error(`${key} must be greater than ${min}`),
+          value: null
+        }
       }
     }
 
-    const gte = (min) => ({ key, value }) => {
-      if (value >= min) {
-        return {
-          err: null,
-          value
-        }
+    const gte = (min) => {
+      if (is.not.number(min)) {
+        throw new Error('gte requires a minimum number to compare values to')
       }
 
-      return {
-        err: new Error(`${key} must be greater than, or equal to ${min}`),
-        value: null
+      return ({ key, value }) => {
+        if (is.number(value) && value >= min) {
+          return {
+            err: null,
+            value
+          }
+        }
+
+        return {
+          err: new Error(`${key} must be greater than, or equal to ${min}`),
+          value: null
+        }
       }
     }
 
-    const lt = (max) => ({ key, value }) => {
-      if (value < max) {
-        return {
-          err: null,
-          value
-        }
+    const lt = (max) => {
+      if (is.not.number(max)) {
+        throw new Error('lt requires a maximum number to compare values to')
       }
 
-      return {
-        err: new Error(`${key} must be less than ${max}`),
-        value: null
+      return ({ key, value }) => {
+        if (is.number(value) && value < max) {
+          return {
+            err: null,
+            value
+          }
+        }
+
+        return {
+          err: new Error(`${key} must be less than ${max}`),
+          value: null
+        }
       }
     }
 
-    const lte = (max) => ({ key, value }) => {
-      if (value <= max) {
-        return {
-          err: null,
-          value
-        }
+    const lte = (max) => {
+      if (is.not.number(max)) {
+        throw new Error('lte requires a maximum number to compare values to')
       }
 
-      return {
-        err: new Error(`${key} must be less than, or equal to ${max}`),
-        value: null
+      return ({ key, value }) => {
+        if (is.number(value) && value <= max) {
+          return {
+            err: null,
+            value
+          }
+        }
+
+        return {
+          err: new Error(`${key} must be less than, or equal to ${max}`),
+          value: null
+        }
       }
     }
 
     const range = (options) => {
       if (!options) {
         throw new Error('You must specify a range')
-      } else if (isNaN(options.gt) && isNaN(options.gte)) {
+      } else if (is.not.number(options.gt) && is.not.number(options.gte)) {
         throw new Error('You must specify `gt`, or `gte` {number} when defining a range')
-      } else if (isNaN(options.lt) && isNaN(options.lte)) {
+      } else if (is.not.number(options.lt) && is.not.number(options.lte)) {
         throw new Error('You must specify `lt`, or `lte` {number} when defining a range')
       }
 
@@ -82,12 +106,32 @@ module.exports = {
       }
     }
 
+    const optional = (comparator) => (input) => {
+      const validator = comparator(input)
+
+      return (context) => {
+        const { value } = context
+        if (is.nullOrUndefined(value)) {
+          return { err: null, value }
+        } else {
+          return validator(context)
+        }
+      }
+    }
+
     return {
       gt,
       gte,
       lt,
       lte,
-      range
+      range,
+      optional: {
+        gt: optional(gt),
+        gte: optional(gte),
+        lt: optional(lt),
+        lte: optional(lte),
+        range: optional(range)
+      }
     }
   }
 }
