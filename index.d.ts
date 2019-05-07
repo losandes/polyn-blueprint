@@ -3,8 +3,6 @@
 // Definitions by: Andy Wright <https://github.com/losandes>
 // TypeScript Version: 2.1
 
-/// <reference types="node" />
-
 // blueprint ===================================================================
 
 export interface IValueOrError {
@@ -15,6 +13,7 @@ export interface IValueOrError {
 
 export interface IBlueprint {
   name: string;
+  schema: any;
   validate: (input: any) => IValueOrError
 }
 
@@ -54,6 +53,7 @@ export function registerValidator (name: string, validator: Validator): Validato
  * given validator function
  * @param name - the name of the type
  * @param validator - the validator for testing one instance of this type (must return truthy/falsey)
+ * @returns object - { ${name}: validator, ${name}?: validator, ${name}[]: validator, ${name}[]?: validator }
  */
 export function registerType (name: string, validator: Validator): any;
 
@@ -68,6 +68,7 @@ export function registerBlueprint (name: string, schema: any): IBlueprint;
  * Registers a regular expression validator by name, so it can be used in blueprints
  * @param name - the name of the validator
  * @param expression - the expression that will be  used to validate the values
+ * @returns object - { ${name}: validator, ${name}?: validator, ${name}[]: validator, ${name}[]?: validator }
  */
 export function registerExpression (name: string, expression: RegExp|string): any;
 
@@ -192,7 +193,7 @@ declare namespace is {
   function getType (input: any): boolean;
   function defined (input?: any): boolean;
   function nullOrUndefined (input?: any): boolean;
-  function function (input?: any): boolean;
+  function func (input?: any): boolean;
   function object (input?: any): boolean;
   function array (input?: any): boolean;
   function string (input?: any): boolean;
@@ -203,11 +204,11 @@ declare namespace is {
   function nullOrWhitespace (input?: any): boolean;
   function decimal (input?: any, places?: number): boolean;
 
-  declare namespace not {
+  namespace not {
     function getType (input: any): boolean;
     function defined (input?: any): boolean;
     function nullOrUndefined (input?: any): boolean;
-    function function (input?: any): boolean;
+    function func (input?: any): boolean;
     function object (input?: any): boolean;
     function array (input?: any): boolean;
     function string (input?: any): boolean;

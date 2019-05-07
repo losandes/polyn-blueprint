@@ -8,6 +8,7 @@ module.exports = {
       defined: undefined,
       nullOrUndefined: undefined,
       function: undefined,
+      func: undefined,
       object: undefined,
       array: undefined,
       string: undefined,
@@ -21,6 +22,7 @@ module.exports = {
         defined: undefined,
         nullOrUndefined: undefined,
         function: undefined,
+        func: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -96,9 +98,13 @@ module.exports = {
       return is.getType(obj) === 'function'
     }
 
+    is.func = is.function // typescript support
+
     is.not.function = function (obj) {
       return is.function(obj) === false
     }
+
+    is.not.func = is.not.function // typescript support
 
     is.object = function (obj) {
       return is.getType(obj) === 'object'

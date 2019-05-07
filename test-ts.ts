@@ -1,4 +1,5 @@
 // make sure tsc can build this
+import { expect } from 'chai'
 import {
   IValueOrError,
   IBlueprint,
@@ -12,6 +13,11 @@ import {
   gt, gte, lt, lte, range, optional,
   is
 } from './index'
+
+expect(is.string('str'), `is.string('str') should work`).to.equal(true)
+expect(is.not.string(1), `is.not.string(1) should work`).to.equal(true)
+expect(is.func(() => true), `is.func(() => true should work`).to.equal(true)
+expect(is.not.func('str'), `is.not.func('str') should work`).to.equal(true)
 
 const isCharBool: Validator = (context: IValidatorArg): boolean => {
   return typeof context.value === 'string' && context.value.length === 1
@@ -33,40 +39,30 @@ const isCharVal: Validator = (context: IValidatorArg): IValueOrError => {
   }
 }
 
-const registrations: IValueOrError[] = [
-  registerValidator('oneChar', isCharBool),
-  registerValidator('oneChar2', isCharVal),
-  registerType('char', isCharBool),
-  registerType('char2', isCharVal)
-]
+registerValidator('oneChar', isCharBool),
+registerValidator('oneChar2', isCharVal),
+registerType('char', isCharBool),
+registerType('char2', isCharVal)
+registerExpression('productType', /^book|movie$/)
 
-registrations.forEach((reg) => {
-  if (reg.err) {
-    throw reg.err
-  }
-})
-
-const myCharsBp: IBlueprint = blueprint('myChars', {
+const myCharsBp: IBlueprint = registerBlueprint('myChars', {
   a: 'oneChar',
   b: 'oneChar2',
   c: 'char',
   d: 'char2'
 })
 
-registrations.push(registerBlueprint('myChars', myCharsBp))
-registrations.push(registerExpression('productType', /^book|movie$/))
-
-registrations.forEach((reg) => {
-  if (reg.err) {
-    throw reg.err
-  }
-})
+expect(myCharsBp.name).to.equal('myChars')
 
 const myModelBp: IBlueprint = blueprint('myModel', {
   prop1: 'string',
   prop2: 'number',
   prop3: 'myChars',
   prop4: 'productType',
+  prop5: 'oneChar',
+  prop6: 'oneChar2',
+  prop7: 'char',
+  prop8: 'char2',
   gt: gt(20),
   gte: gte(20),
   lt: lt(20),
@@ -79,6 +75,7 @@ const myModelBp: IBlueprint = blueprint('myModel', {
   maybeRange: optional.range({ gt: 10, lt: 20 })
 })
 
+expect(myModelBp.name).to.equal('myModel')
 
 const result: IValueOrError = myModelBp.validate({
   prop1: 'hello world!',
@@ -89,33 +86,22 @@ const result: IValueOrError = myModelBp.validate({
     c: 'c',
     d: 'd'
   },
-  prop4: 'book'
+  prop4: 'book',
+  prop5: 'a',
+  prop6: 'b',
+  prop7: 'c',
+  prop8: 'd',
+  gt: 21,
+  gte: 21,
+  lt: 19,
+  lte: 19,
+  range: 15,
+  maybeGt: null,
+  maybeGte: undefined,
+  maybeLt: null,
+  maybeLte: undefined,
+  maybeRange: null
 })
 
-if (result.err) {
-  throw result.err
-}
-
-console.log({
-  assert: `is.string('str')`,
-  expected: true,
-  actual: is.string('str')
-})
-
-console.log({
-  assert: `is.not.string(1)`,
-  expected: true,
-  actual: is.string(1)
-})
-
-console.log({
-  assert: `is.function('str')`,
-  expected: false,
-  actual: is.function('str')
-})
-
-console.log({
-  assert: `is.not.function(1)`,
-  expected: false,
-  actual: is.function(1)
-})
+expect(result.err).to.be.null
+console.log('ALL TYPESCRIPT TESTS PASSED')

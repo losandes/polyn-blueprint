@@ -404,7 +404,7 @@ module.exports = (test) => {
         expect(() => registerValidator(1, () => true))
           .to.throw(Error, message)
       },
-      'when given an invalid expression, should throw': (expect) => {
+      'when given an invalid validator, should throw': (expect) => {
         const message = 'registerValidator requires a name {string}, and a validator {function}'
 
         expect(() => registerValidator('registerValidator:invalid', null))
@@ -549,7 +549,7 @@ module.exports = (test) => {
         expect(() => registerType(1, () => true))
           .to.throw(Error, message)
       },
-      'when given an invalid expression, should throw': (expect) => {
+      'when given an invalid validator, should throw': (expect) => {
         const message = 'registerType requires a name {string}, and a validator {function}'
 
         expect(() => registerType('registerType:invalid', null))
@@ -692,7 +692,7 @@ module.exports = (test) => {
         expect(() => registerBlueprint(blueprint('name', { str: 'string' })))
           .to.throw(Error, message)
       },
-      'when given an invalid expression, should throw': (expect) => {
+      'when given an invalid schema, should throw': (expect) => {
         const message = 'blueprint requires a name {string}, and a schema {object}'
 
         expect(() => registerBlueprint('registerBlueprint:invalid', null))
@@ -703,6 +703,19 @@ module.exports = (test) => {
 
         expect(() => registerBlueprint('registerBlueprint:invalid', 1))
           .to.throw(Error, message)
+      },
+      'when given another blueprint as the schema, should register that blueprint\'s schema': (expect) => {
+        const existing = blueprint('registerBlueprint:invalid:nest', {
+          str: 'string'
+        })
+
+        const bp = registerBlueprint(
+          'registerBlueprint:invalid',
+          existing
+        )
+
+        expect(bp.validate({ str: 'str' }).err).to.be.null
+        expect(bp.validate({ str: 'str' }).value).to.deep.equal({ str: 'str' })
       }
     },
     '`registerExpression`': {

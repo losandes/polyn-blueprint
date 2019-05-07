@@ -24,6 +24,7 @@ module.exports = {
     class Blueprint {
       constructor (input) {
         this.name = input.name
+        this.schema = input.schema
         this.validate = input.validate
 
         Object.freeze(this)
@@ -133,6 +134,7 @@ module.exports = {
 
       return new Blueprint({
         name,
+        schema,
         validate: validate(name, schema)
       })
     }
@@ -282,7 +284,14 @@ module.exports = {
      * @param {object} schema - the type definitions
      */
     const registerBlueprint = (name, schema) => {
-      const bp = blueprint(name, schema)
+      let bp
+
+      if (schema && schema.schema) {
+        // this must be an instance of a blueprint
+        bp = blueprint(name, schema.schema)
+      } else {
+        bp = blueprint(name, schema)
+      }
 
       if (bp.err) {
         throw bp.err
