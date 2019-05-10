@@ -3,6 +3,10 @@ module.exports = {
   factory: (is) => {
     'use strict'
 
+    const makeErrorMessage = (options) => {
+      return `expected \`${options.key}\` to be ${options.comparator} ${options.boundary}`
+    }
+
     const gt = (min) => {
       if (is.not.number(min)) {
         throw new Error('gt requires a minimum number to compare values to')
@@ -17,7 +21,7 @@ module.exports = {
         }
 
         return {
-          err: new Error(`${key} must be greater than ${min}`),
+          err: new Error(makeErrorMessage({ key, comparator: 'greater than', boundary: min })),
           value: null
         }
       }
@@ -37,7 +41,7 @@ module.exports = {
         }
 
         return {
-          err: new Error(`${key} must be greater than, or equal to ${min}`),
+          err: new Error(makeErrorMessage({ key, comparator: 'greater than, or equal to', boundary: min })),
           value: null
         }
       }
@@ -57,7 +61,7 @@ module.exports = {
         }
 
         return {
-          err: new Error(`${key} must be less than ${max}`),
+          err: new Error(makeErrorMessage({ key, comparator: 'less than', boundary: max })),
           value: null
         }
       }
@@ -77,7 +81,7 @@ module.exports = {
         }
 
         return {
-          err: new Error(`${key} must be less than, or equal to ${max}`),
+          err: new Error(makeErrorMessage({ key, comparator: 'less than, or equal to', boundary: max })),
           value: null
         }
       }

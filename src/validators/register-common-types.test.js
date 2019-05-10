@@ -1,8 +1,8 @@
 module.exports = (test) => {
   const { blueprint } = test.sut
-  const makeExpectedArrayErrorMessage = (bpName, propNames, type, index) => {
+  const makeExpectedArrayErrorMessage = (bpName, propNames, expectedType, actualType, index) => {
     let subMessages = propNames.map((propName) => {
-      return `All values for ${bpName}.${propName} must be {${type}}: ${bpName}.${propName}[${index}] {${type}} is invalid`
+      return `expected \`${propName}[${index}]\` {${actualType}} to be {${expectedType}}`
     })
 
     return `Invalid ${bpName}: ${subMessages.join(', ')}`
@@ -174,7 +174,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'function', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'function', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     // ARRAYS ==================================================================
@@ -197,7 +197,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'object', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'object', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `string[]`, and `string[]?`': (expect) => {
@@ -219,7 +219,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'string', 0))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'string', 'object', 0))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `boolean[]`, and `boolean[]?`': (expect) => {
@@ -241,7 +241,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'boolean', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'boolean', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `date[]`, and `date[]?`': (expect) => {
@@ -263,7 +263,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'date', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'date', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `number[]`, and `number[]?`': (expect) => {
@@ -285,7 +285,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'number', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'number', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `decimal[]`, and `decimal[]?`': (expect) => {
@@ -307,7 +307,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'decimal', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'decimal', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `regexp[]`, and `regexp[]?`': (expect) => {
@@ -329,7 +329,7 @@ module.exports = (test) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal(
-        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'regexp', 1))
+        makeExpectedArrayErrorMessage('sut', ['required', 'optional'], 'regexp', 'string', 1))
       expect(actualInvalid.value).to.be.null
     },
     'it should support `any[]`, and `any[]?`': (expect) => {
@@ -350,7 +350,7 @@ module.exports = (test) => {
       expect(actual.err).to.be.null
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
-      expect(actualInvalid.err.message).to.equal('Invalid sut: sut.required {any[]} is required, sut.optional {any[]} must be an array')
+      expect(actualInvalid.err.message).to.equal('Invalid sut: expected `required` {null} to be {any[]}, expected `optional` {string} to be {any[]}')
       expect(actualInvalid.value).to.be.null
     }
   })

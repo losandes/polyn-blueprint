@@ -10,7 +10,7 @@ module.exports = {
       registerValidator(`decimal:${i}`, ({ key, value }) => {
         return is.decimal(value, i)
           ? { err: null, value: value }
-          : { err: new Error(`${key} {decimal} is required, and must have ${i} places`), value: null }
+          : { err: new Error(`expected \`${key}\` to be a {decimal} with ${i} places`), value: null }
       })
 
       registerValidator(`decimal:${i}?`, ({ key, value }) => {
@@ -20,7 +20,7 @@ module.exports = {
           return { err: null, value: value }
         } else {
           return {
-            err: new Error(`${key} must be a decimal with ${i} places if present`),
+            err: new Error(`expected \`${key}\` to be a {decimal} with ${i} places`),
             value: null
           }
         }

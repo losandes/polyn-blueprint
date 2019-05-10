@@ -7,6 +7,10 @@ module.exports = (test) => {
     registerType
   } = test.sut
 
+  const makeErrorMessage = (options) => {
+    return `expected \`${options.key}\` {${options.actualType}} to be {${options.expectedType}}`
+  }
+
   return test('given `blueprint`', {
     'when a blueprint is constructed with a name, and a blueprint, it should return a `validate` function': (expect) => {
       const actual = blueprint('sut', {
@@ -61,7 +65,15 @@ module.exports = (test) => {
       'it should return an `err`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal('Invalid sut: sut.requiredString {string} is invalid, sut.optionalString {string} is invalid')
+        expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
+          key: 'requiredString',
+          actualType: 'null',
+          expectedType: 'string'
+        })}, ${makeErrorMessage({
+          key: 'optionalString',
+          actualType: 'number',
+          expectedType: 'string'
+        })}`)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -163,7 +175,15 @@ module.exports = (test) => {
       'it should return an `err`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal('Invalid sut: sut.grandParent.parent.child.requiredString {string} is invalid, sut.grandParent.parent.child.optionalString {string} is invalid')
+        expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
+          key: 'grandParent.parent.child.requiredString',
+          actualType: 'null',
+          expectedType: 'string'
+        })}, ${makeErrorMessage({
+          key: 'grandParent.parent.child.optionalString',
+          actualType: 'number',
+          expectedType: 'string'
+        })}`)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -201,7 +221,7 @@ module.exports = (test) => {
       }).validate(expected)
 
       expect(actual.err).to.be.null
-      expect(validatorInput.key).to.equal('sut.grandParent.parent.child.custom')
+      expect(validatorInput.key).to.equal('grandParent.parent.child.custom')
       expect(validatorInput.value).to.equal(expected.grandParent.parent.child.custom)
       expect(validatorInput.input).to.deep.equal(expected.grandParent.parent.child)
       expect(validatorInput.root).to.deep.equal(expected)
@@ -259,7 +279,7 @@ module.exports = (test) => {
       expect(actual.err).to.be.null
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
-      expect(actualInvalid.err.message).to.equal('Invalid sut: bad sut.required1232')
+      expect(actualInvalid.err.message).to.equal('Invalid sut: bad required1232')
       expect(actualInvalid.value).to.be.null
     },
     '`registerValidator`': {
@@ -299,7 +319,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: user.firstName {string} is invalid, user.lastName {string} is invalid')
+        expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: expected `firstName` {undefined} to be {string}, expected `lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
       'it should pass `key`, `value`, `input`, and `root` to registered validators': (expect) => {
@@ -317,7 +337,7 @@ module.exports = (test) => {
         })
 
         expect(actual).to.deep.equal({
-          key: 'sut.args',
+          key: 'args',
           value: 'args-value',
           input: { args: 'args-value', other: 'other-value' },
           root: { args: 'args-value', other: 'other-value' }
@@ -332,7 +352,7 @@ module.exports = (test) => {
         })
 
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal('Invalid sut: ValidationError: the validator for sut.something didn\'t return a value')
+        expect(actual.err.message).to.equal('Invalid sut: ValidationError: the validator for `something` didn\'t return a value')
       },
       'should be able to intercept values': (expect) => {
         registerValidator('registerValidatorInterceptor', () => {
@@ -360,7 +380,11 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
-        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: sut.args is invalid')
+        expect(bp.validate({ args: 0 }).err.message).to.equal(`Invalid sut: ${makeErrorMessage({
+          key: 'args',
+          actualType: 'number',
+          expectedType: 'registerValidator:boolean-validators'
+        })}`)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -390,7 +414,7 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
-        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: I don\'t like your sut.args:0')
+        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: I don\'t like your args:0')
       },
       'when given an invalid name, should throw': (expect) => {
         const message = 'registerValidator requires a name {string}, and a validator {function}'
@@ -432,7 +456,11 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
-        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: sut.args {registerType:boolean-validators} is required')
+        expect(bp.validate({ args: 0 }).err.message).to.equal(`Invalid sut: ${makeErrorMessage({
+          key: 'args',
+          actualType: 'number',
+          expectedType: 'registerType:boolean-validators'
+        })}`)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -454,7 +482,7 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
-        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: sut.args.... BOOM!')
+        expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: args.... BOOM!')
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -489,7 +517,7 @@ module.exports = (test) => {
         expect(validActual.err).to.be.null
         expect(validActual.value).to.deep.equal(expected)
         expect(invalidActual.err).to.not.be.null
-        expect(invalidActual.err.message).to.equal('Invalid sut: sut.required {registerType:all-the-things} is required, sut.optional must be a registerType:all-the-things if present, All values for sut.requiredArray must be {registerType:all-the-things}: All values for sut.requiredArray must be {registerType:all-the-things}, All values for sut.optionalArray must be {registerType:all-the-things}: All values for sut.optionalArray must be {registerType:all-the-things}')
+        expect(invalidActual.err.message).to.equal('Invalid sut: expected `required` {number} to be {registerType:all-the-things}, expected `optional` {number} to be {registerType:all-the-things}, expected `requiredArray[2]` {number} to be {registerType:all-the-things}, expected `optionalArray[1]` {number} to be {registerType:all-the-things}')
       },
       'it should pass `key`, `value`, `input`, and `root` to registered types': (expect) => {
         let actual
@@ -506,7 +534,7 @@ module.exports = (test) => {
         })
 
         expect(actual).to.deep.equal({
-          key: 'sut.args',
+          key: 'args',
           value: 'args-value',
           input: { args: 'args-value', other: 'other-value' },
           root: { args: 'args-value', other: 'other-value' }
@@ -593,7 +621,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid registerBlueprint:user: registerBlueprint:user.firstName {string} is invalid, registerBlueprint:user.lastName {string} is invalid')
+        expect(actualInvalid.err.message).to.equal('Invalid sut: expected `firstName` {undefined} to be {string}, expected `lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
       'should support null values': (expect) => {
@@ -640,7 +668,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid sut: All values for sut.users must be {registerBlueprint:array:user}: Invalid registerBlueprint:array:user: registerBlueprint:array:user.lastName {string} is invalid')
+        expect(actualInvalid.err.message).to.equal('Invalid sut: (`users[1]`) expected `lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
       'should support nullable arrays': (expect) => {
@@ -674,7 +702,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid registerBlueprint:returns: registerBlueprint:returns.lastName {string} is invalid')
+        expect(actualInvalid.err.message).to.equal('Invalid registerBlueprint:returns: expected `lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
       'when given an invalid name, should throw': (expect) => {
@@ -726,7 +754,7 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
-        expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: sut.arg does not match /^book|movie$/i')
+        expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: expected `arg` to match /^book|movie$/i')
         expect(bp.validate({ arg: 'book' }).err).to.be.null
         expect(bp.validate({ arg: 'book' }).value.arg).to.equal('book')
         expect(bp.validate({ arg: 'movie' }).err).to.be.null
@@ -739,7 +767,7 @@ module.exports = (test) => {
         })
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
-        expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: sut.arg does not match /^book$/')
+        expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: expected `arg` to match /^book$/')
         expect(bp.validate({ arg: 'book' }).err).to.be.null
         expect(bp.validate({ arg: 'book' }).value.arg).to.equal('book')
       },
@@ -772,7 +800,7 @@ module.exports = (test) => {
         expect(validActual.err).to.be.null
         expect(validActual.value).to.deep.equal(expected)
         expect(invalidActual.err).to.not.be.null
-        expect(invalidActual.err.message).to.equal('Invalid sut: sut.required does not match /^book$/i, sut.optional does not match /^book$/i, All values for sut.requiredArray must be {registerExpression:all-the-things}: sut.requiredArray[0] does not match /^book$/i, sut.requiredArray[1] does not match /^book$/i, sut.requiredArray[2] does not match /^book$/i, All values for sut.optionalArray must be {registerExpression:all-the-things}: sut.optionalArray[0] does not match /^book$/i, sut.optionalArray[1] does not match /^book$/i, sut.optionalArray[2] does not match /^book$/i')
+        expect(invalidActual.err.message).to.equal('Invalid sut: expected `required` to match /^book$/i, expected `optional` to match /^book$/i, expected `requiredArray[0]` to match /^book$/i, expected `requiredArray[1]` to match /^book$/i, expected `requiredArray[2]` to match /^book$/i, expected `optionalArray[0]` to match /^book$/i, expected `optionalArray[1]` to match /^book$/i, expected `optionalArray[2]` to match /^book$/i')
       },
       'when given an invalid name, should throw': (expect) => {
         const message = 'registerExpression requires a name {string}, and an expression {expression}'
@@ -812,7 +840,7 @@ module.exports = (test) => {
         .validate()
 
       expect(actual.err).to.not.be.null
-      expect(actual.err.message).to.equal('Invalid sut: sut.string {string} is invalid')
+      expect(actual.err.message).to.equal('Invalid sut: expected `string` {undefined} to be {string}')
     }
   })
 }

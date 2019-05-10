@@ -427,3 +427,8 @@ console.log(
 //   optionalArray: ['whitespace']
 // }
 ```
+
+## Why @polyn/blueprint? Why not JSON Schema
+There's noting wrong with JSON Schema. In many cases it makes more sense to use that, particularly in cases where the schema is meant to be shared across organizational boundaries. I started writing this library years ago when JSON Schema was in it's infancy. So why keep improving and maintaining it?
+
+It's simple. It's less verbose than JSON Schema. It's functional (we write validators as functions, instead of configurations). Because of that it's easily extensible, and it's easy to write complex/dependency-based validations (i.e. _isbn is required if productType === 'book'_).
