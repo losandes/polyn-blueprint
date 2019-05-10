@@ -2,6 +2,12 @@
 
 function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
 
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
+
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+
 // Node, or global
 ;
 
@@ -30,19 +36,115 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       'use strict';
 
       var validators = {};
+
+      var ValueOrError = function ValueOrError(input) {
+        _classCallCheck(this, ValueOrError);
+
+        this.err = input.err || null;
+        this.value = is.defined(input.value) ? input.value : null;
+
+        if (is.array(input.messages)) {
+          this.messages = input.messages;
+        } else if (input.err) {
+          this.messages = [input.err.message];
+        } else {
+          this.messages = null;
+        }
+
+        Object.freeze(this);
+      };
+
+      var ValidationContext = function ValidationContext(input) {
+        _classCallCheck(this, ValidationContext);
+
+        this.key = input.key;
+        this.value = input.value;
+        this.input = input.input;
+        this.root = input.root;
+        this.schema = input.schema;
+      };
+
+      var Blueprint = function Blueprint(input) {
+        _classCallCheck(this, Blueprint);
+
+        this.name = input.name;
+        this.schema = input.schema;
+        this.validate = input.validate;
+        Object.freeze(this);
+      };
       /**
-       * Validates the input values against the blueprint expectations
+       * Makes a message factory that produces an error message on demand
+       * @param {string} options.key - the property name
+       * @param {any} options.value - the value being validated
+       * @param {any} options.input - the object being validated
+       * @param {any?} options.schema - the type definitions
+       * @param {string?} options.type - the type this key should be
+       */
+
+
+      var makeDefaultErrorMessage = function makeDefaultErrorMessage(options) {
+        return function () {
+          var key = options.key;
+          var value = Object.keys(options).includes('value') ? options.value : options.input && options.input[key];
+          var actualType = is.getType(value);
+          var expectedType = options.type || options.schema && options.schema[key];
+          return "expected `".concat(key, "` {").concat(actualType, "} to be {").concat(expectedType, "}");
+        };
+      };
+      /**
+       * Support for ad-hoc polymorphism for `isValid` functions: they can throw,
+       * return boolean, or return { isValid: 'boolean', value: 'any', message: 'string[]' }.
+       * @curried
+       * @param {function} isValid - the validation function
+       * @param {ValidationContext} context - the validation context
+       * @param {function} defaultMessageFactory - the default error message
+       */
+
+
+      var normalIsValid = function normalIsValid(isValid) {
+        return function (context, defaultMessageFactory) {
+          try {
+            var result = isValid(context);
+
+            if (is.boolean(result)) {
+              return result ? new ValueOrError({
+                value: context.value
+              }) : new ValueOrError({
+                err: new Error(defaultMessageFactory())
+              });
+            } else if (result) {
+              return {
+                err: result.err,
+                value: result.value
+              };
+            } else {
+              return new ValueOrError({
+                err: new Error("ValidationError: the validator for `".concat(context.key, "` didn't return a value"))
+              });
+            }
+          } catch (err) {
+            return new ValueOrError({
+              err: err
+            });
+          }
+        };
+      };
+      /**
+       * Validates the input values against the schema expectations
        * @curried
        * @param {string} name - the name of the model being validated
-       * @param {object} blueprint - the type definitions
+       * @param {object} schema - the type definitions
        * @param {object} input - the values being validated
        */
 
-      var validate = function validate(name, blueprint) {
+
+      var validate = function validate(name, schema) {
         return function (input, root) {
-          var outcomes = Object.keys(blueprint).reduce(function (output, key) {
-            if (is.object(blueprint[key])) {
-              var child = validate("".concat(name, ".").concat(key), blueprint[key])(input[key], root || input);
+          var outcomes = Object.keys(schema).reduce(function (output, key) {
+            var keyName = root ? "".concat(name, ".").concat(key) : key;
+
+            if (is.object(schema[key])) {
+              var child = validate("".concat(keyName), schema[key])(input[key], root || input);
 
               if (child.err) {
                 output.validationErrors = output.validationErrors.concat(child.messages);
@@ -54,32 +156,34 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
             var validator;
 
-            if (is.function(blueprint[key])) {
-              validator = blueprint[key];
-            } else if (is.regexp(blueprint[key])) {
-              validator = validators.expression(blueprint[key]);
+            if (is.function(schema[key])) {
+              validator = normalIsValid(schema[key]);
+            } else if (is.regexp(schema[key])) {
+              validator = normalIsValid(validators.expression(schema[key]));
             } else {
-              validator = validators[blueprint[key]];
+              validator = validators[schema[key]];
             }
 
-            if (!validator) {
-              output.validationErrors.push("I don't know how to validate ".concat(blueprint[key]));
+            if (is.not.function(validator)) {
+              output.validationErrors.push("I don't know how to validate ".concat(schema[key]));
               return output;
             }
 
-            var result = validator({
-              key: "".concat(name, ".").concat(key),
+            var context = new ValidationContext({
+              key: "".concat(keyName),
               value: input && input[key],
               input: input,
-              root: root || input
+              root: root || input,
+              schema: schema
             });
+            var result = validator(context, makeDefaultErrorMessage(context));
 
             if (result && result.err) {
               output.validationErrors.push(result.err.message);
               return output;
             }
 
-            output.value[key] = input[key];
+            output.value[key] = result ? result.value : input[key];
             return output;
           }, {
             validationErrors: [],
@@ -87,43 +191,37 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           });
 
           if (outcomes.validationErrors.length) {
-            return {
+            return new ValueOrError({
               err: new Error("Invalid ".concat(name, ": ").concat(outcomes.validationErrors.join(', '))),
-              messages: outcomes.validationErrors,
-              value: null
-            };
+              messages: outcomes.validationErrors
+            });
           }
 
-          return {
-            err: null,
-            messages: null,
+          return new ValueOrError({
             value: outcomes.value
-          };
+          });
         };
       }; // /validate
 
       /**
       * Returns a validator (fluent interface) for validating the input values
-      * against the blueprint expectations
+      * against the schema expectations
       * @param {string} name - the name of the model being validated
-      * @param {object} blueprint - the type definitions
+      * @param {object} schema - the type definitions
       * @param {object} validate.input - the values being validated
       */
 
 
-      var blueprint = function blueprint(name, _blueprint) {
-        if (is.not.string(name) || is.not.object(_blueprint)) {
-          return {
-            err: new Error('blueprint requires a name {string}, and a blueprint {object}'),
-            value: null
-          };
+      var blueprint = function blueprint(name, schema) {
+        if (is.not.string(name) || is.not.object(schema)) {
+          throw new Error('blueprint requires a name {string}, and a schema {object}');
         }
 
-        return {
-          err: null,
+        return new Blueprint({
           name: name,
-          validate: validate(name, _blueprint)
-        };
+          schema: schema,
+          validate: validate(name, schema)
+        });
       };
       /**
        * Registers a validator by name, so it can be used in blueprints
@@ -134,276 +232,245 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
 
       var registerValidator = function registerValidator(name, validator) {
         if (is.not.string(name) || is.not.function(validator)) {
-          var message = 'registerValidator requires a name {string}, and a validator {function}';
-          return {
-            err: new Error(message),
-            messages: [message],
-            value: null
-          };
+          throw new Error('registerValidator requires a name {string}, and a validator {function}');
         }
 
-        validators[name] = validator;
-        return {
-          err: null,
-          messages: null,
-          value: validator
-        };
+        if (name === 'expression') {
+          validators[name] = validator;
+        } else {
+          validators[name] = normalIsValid(validator);
+        }
+
+        return validator;
       }; // /registerValidator
 
       /**
-       * Registers a blueprint that can be used as a validator
-      * @param {string} name - the name of the model being validated
-      * @param {object} blueprint - the type definitions
+       * Registers a validator, and a nullable validator by the given name, using
+       * the given isValid function
+       * @param {string} name - the name of the type
+       * @param {function} isValid - the validator for testing one instance of this type (must return truthy/falsey)
        */
 
 
-      var registerBlueprint = function registerBlueprint(name, definition) {
-        var bp = blueprint(name, definition);
+      var registerInstanceOfType = function registerInstanceOfType(name, isValid) {
+        var test = normalIsValid(isValid);
+        return [// required
+        registerValidator(name, function (context) {
+          var key = context.key;
+          return test(context, makeDefaultErrorMessage({
+            key: key,
+            value: context.value,
+            type: name
+          }));
+        }), // nullable
+        registerValidator("".concat(name, "?"), function (context) {
+          var key = context.key,
+              value = context.value;
 
-        if (bp.err) {
-          return bp;
-        }
-
-        var arrayName = "array<".concat(bp.name, ">");
-
-        var validateOne = function validateOne(_ref) {
-          var value = _ref.value;
-          var validation = bp.validate(value);
-
-          if (validation.err) {
+          if (is.nullOrUndefined(value)) {
             return {
-              err: validation.err,
+              err: null,
+              value: value
+            };
+          } else {
+            return test(context, makeDefaultErrorMessage({
+              key: key,
+              value: context.value,
+              type: name
+            }));
+          }
+        })];
+      };
+      /**
+       * Registers an array validator, and a nullable array validator by the given
+       * name, using the given isValid function
+       * @param {string} name - the name of the type
+       * @param {function} isValid - the validator for testing one instance of this type (must return truthy/falsey)
+       */
+
+
+      var registerArrayOfType = function registerArrayOfType(instanceName, arrayName, isValid) {
+        var test = normalIsValid(isValid);
+
+        var validateMany = function validateMany(context, errorMessageFactory) {
+          if (is.not.array(context.value)) {
+            return {
+              err: new Error(errorMessageFactory()),
+              value: null
+            };
+          }
+
+          var errors = [];
+          var values = [];
+          context.value.forEach(function (value, index) {
+            var key = "".concat(context.key, "[").concat(index, "]");
+            var result = test({
+              key: key,
+              value: value,
+              input: context.input,
+              root: context.root
+            }, makeDefaultErrorMessage({
+              key: key,
+              value: value,
+              type: instanceName
+            }));
+
+            if (result.err) {
+              // make sure the array key[index] is in the error message
+              var message = result.err.message.indexOf("[".concat(index, "]")) > -1 ? result.err.message : "(`".concat(key, "`) ").concat(result.err.message);
+              return errors.push(message);
+            }
+
+            return values.push(result.value);
+          });
+
+          if (errors.length) {
+            return {
+              err: new Error(errors.join(', ')),
               value: null
             };
           }
 
           return {
             err: null,
-            value: validation.value
+            value: values
           };
         };
 
-        var validateMany = function validateMany(_ref2) {
-          var value = _ref2.value;
-
-          if (is.not.array(value)) {
-            return {
-              err: new Error("".concat(arrayName, " {array} is required")),
-              value: null
-            };
-          } else if (value.filter(function (val) {
-            return validateOne({
-              value: val
-            }).err;
-          }).length) {
-            return {
-              err: new Error("All values for ".concat(arrayName, " must be of type, '").concat(bp.name, "'")),
-              value: null
-            };
-          } else {
-            return {
-              err: null,
-              value: value
-            };
-          }
-        }; // /registerBlueprint
-
-
-        registerValidator(bp.name, validateOne);
-        registerValidator("".concat(bp.name, "?"), function (_ref3) {
-          var value = _ref3.value;
+        return [// required
+        registerValidator(arrayName, function (context) {
+          var key = context.key;
+          return validateMany(context, makeDefaultErrorMessage({
+            key: key,
+            value: context.value,
+            type: arrayName
+          }));
+        }), // nullable
+        registerValidator("".concat(arrayName, "?"), function (context) {
+          var key = context.key,
+              value = context.value;
 
           if (is.nullOrUndefined(value)) {
             return {
               err: null,
               value: value
             };
+          } else {
+            return validateMany(context, makeDefaultErrorMessage({
+              key: key,
+              value: context.value,
+              type: arrayName
+            }));
+          }
+        })];
+      };
+      /**
+       * Registers a validator, a nullable validator, an array validator, and
+       * a nullable array validator based on the given name, using the
+       * given validator function
+       * @param {string} name - the name of the type
+       * @param {function} validator - the validator for testing one instance of this type (must return truthy/falsey)
+       */
+
+
+      var registerType = function registerType(name, validator) {
+        if (is.not.string(name) || is.not.function(validator)) {
+          throw new Error('registerType requires a name {string}, and a validator {function}');
+        }
+
+        registerInstanceOfType(name, validator);
+        registerArrayOfType(name, "".concat(name, "[]"), validator);
+        var output = {};
+        output[name] = validators[name];
+        output["".concat(name, "?")] = validators["".concat(name, "?")];
+        output["".concat(name, "[]")] = validators["".concat(name, "[]")];
+        output["".concat(name, "[]?")] = validators["".concat(name, "[]?")];
+        return output;
+      };
+      /**
+       * Registers a blueprint that can be used as a validator
+       * @param {string} name - the name of the model being validated
+       * @param {object} schema - the type definitions
+       */
+
+
+      var registerBlueprint = function registerBlueprint(name, schema) {
+        var bp;
+
+        if (schema && schema.schema) {
+          // this must be an instance of a blueprint
+          bp = blueprint(name, schema.schema);
+        } else {
+          bp = blueprint(name, schema);
+        }
+
+        if (bp.err) {
+          throw bp.err;
+        }
+
+        var cleanMessage = function cleanMessage(message) {
+          return message.replace("Invalid ".concat(bp.name, ": "), '');
+        };
+
+        registerType(bp.name, function (_ref) {
+          var value = _ref.value;
+          var result = bp.validate(value);
+
+          if (result.err) {
+            result.err.message = cleanMessage(result.err.message);
           }
 
-          return validateOne({
+          return result;
+        });
+        return bp;
+      };
+      /**
+       * Registers a regular expression validator by name, so it can be used in blueprints
+       * @param {string} name - the name of the validator
+       * @param {string|RegExp} expression - the expression that will be  used to validate the values
+       */
+
+
+      var registerExpression = function registerExpression(name, expression) {
+        if (is.not.string(name) || is.not.regexp(expression) && is.not.string(expression)) {
+          throw new Error('registerExpression requires a name {string}, and an expression {expression}');
+        }
+
+        var regex = is.string(expression) ? new RegExp(expression) : expression;
+        return registerType(name, function (_ref2) {
+          var key = _ref2.key,
+              value = _ref2.value;
+          return regex.test(value) === true ? new ValueOrError({
             value: value
+          }) : new ValueOrError({
+            err: new Error("expected `".concat(key, "` to match ").concat(regex.toString()))
           });
         });
-        registerValidator(arrayName, validateMany);
-        registerValidator("".concat(arrayName, "?"), function (_ref4) {
-          var value = _ref4.value;
-
-          if (is.nullOrUndefined(value)) {
-            return {
-              err: null,
-              value: value
-            };
-          }
-
-          return validateMany({
-            value: value
-          });
-        });
-        return {
-          err: null
-        };
       };
 
-      var register = function register(isKey, scrub) {
-        scrub = is.function(scrub) ? scrub : function (input) {
-          return input;
-        };
-        registerValidator(isKey, function (_ref5) {
-          var key = _ref5.key,
-              value = _ref5.value;
-          return is[isKey](value) ? {
-            err: null,
-            value: scrub(value)
-          } : {
-            err: new Error("".concat(key, " {").concat(isKey, "} is required")),
-            value: null
-          };
-        });
-        registerValidator("".concat(isKey, "?"), function (_ref6) {
-          var key = _ref6.key,
-              value = _ref6.value;
-
-          if (is.nullOrUndefined(value)) {
-            return {
-              err: null,
-              value: scrub(value)
-            };
-          } else if (is[isKey](value)) {
-            return {
-              err: null,
-              value: scrub(value)
-            };
-          } else {
-            return {
-              err: new Error("".concat(key, " must be a ").concat(isKey, " if present")),
-              value: null
-            };
-          }
-        });
+      var getValidators = function getValidators() {
+        return _objectSpread({}, validators);
       };
 
-      var registerArrayOfType = function registerArrayOfType(isKey) {
-        var name = "array<".concat(isKey, ">");
-        registerValidator(name, function (_ref7) {
-          var key = _ref7.key,
-              value = _ref7.value;
+      var getValidator = function getValidator(name) {
+        if (!validators[name]) {
+          return;
+        }
 
-          if (is.not.array(value)) {
-            return {
-              err: new Error("".concat(key, " {").concat(name, "} is required")),
-              value: null
-            };
-          } else if (value.filter(function (val) {
-            return is.not[isKey](val);
-          }).length) {
-            return {
-              err: new Error("All values for ".concat(key, " must be of type, '").concat(isKey, "'")),
-              value: null
-            };
-          } else {
-            return {
-              err: null,
-              value: value
-            };
-          }
-        });
-        registerValidator("".concat(name, "?"), function (_ref8) {
-          var key = _ref8.key,
-              value = _ref8.value;
-
-          if (is.nullOrUndefined(value)) {
-            return {
-              err: null,
-              value: value
-            };
-          } else if (is.not.array(value)) {
-            return {
-              err: new Error("".concat(key, " {").concat(name, "} is required")),
-              value: null
-            };
-          } else if (value.filter(function (val) {
-            return is.not[isKey](val);
-          }).length) {
-            return {
-              err: new Error("All values for ".concat(key, " must be of type, '").concat(isKey, "'")),
-              value: null
-            };
-          } else {
-            return {
-              err: null,
-              value: value
-            };
-          }
-        });
+        return _objectSpread({}, validators[name]);
       };
 
-      var types = ['function', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp' // 'string', // registered separately with a trimmer
-      ];
-      types.forEach(function (type) {
-        register(type);
-        registerArrayOfType(type);
-      });
-      register('string', function (input) {
-        return is.string(input) ? input.trim() : input;
-      });
-      registerArrayOfType('string'); // support up to 15 decimal places for decimal precision
-
-      var _loop = function _loop(i) {
-        registerValidator("decimal:".concat(i), function (_ref10) {
-          var key = _ref10.key,
-              value = _ref10.value;
-          return is.decimal(value, i) ? {
-            err: null,
-            value: value
-          } : {
-            err: new Error("".concat(key, " {decimal} is required, and must have ").concat(i, " places")),
-            value: null
-          };
-        });
-        registerValidator("decimal:".concat(i, "?"), function (_ref11) {
-          var key = _ref11.key,
-              value = _ref11.value;
-
-          if (is.nullOrUndefined(value)) {
-            return {
-              err: null,
-              value: value
-            };
-          } else if (is.decimal(value, i)) {
-            return {
-              err: null,
-              value: value
-            };
-          } else {
-            return {
-              err: new Error("".concat(key, " must be a decimal with ").concat(i, " places if present")),
-              value: null
-            };
-          }
-        });
-      };
-
-      for (var i = 1; i <= 15; i += 1) {
-        _loop(i);
-      }
-
-      registerValidator('expression', function (regex) {
-        return function (_ref9) {
-          var key = _ref9.key,
-              value = _ref9.value;
-          return regex.test(value) === true ? {
-            err: null,
-            value: value
-          } : {
-            err: new Error("".concat(key, " does not match ").concat(regex.toString())),
-            value: null
-          };
-        };
-      });
       return {
         blueprint: blueprint,
         registerValidator: registerValidator,
-        registerBlueprint: registerBlueprint
+        registerType: registerType,
+        registerBlueprint: registerBlueprint,
+        registerExpression: registerExpression,
+        // below are undocumented / subject to breaking changes
+        registerInstanceOfType: registerInstanceOfType,
+        registerArrayOfType: registerArrayOfType,
+        getValidators: getValidators,
+        getValidator: getValidator
       };
     }
   };
@@ -417,6 +484,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         defined: undefined,
         nullOrUndefined: undefined,
         function: undefined,
+        func: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -430,6 +498,7 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           defined: undefined,
           nullOrUndefined: undefined,
           function: undefined,
+          func: undefined,
           object: undefined,
           array: undefined,
           string: undefined,
@@ -502,9 +571,13 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         return is.getType(obj) === 'function';
       };
 
+      is.func = is.function; // typescript support
+
       is.not.function = function (obj) {
         return is.function(obj) === false;
       };
+
+      is.not.func = is.not.function; // typescript support
 
       is.object = function (obj) {
         return is.getType(obj) === 'object';
@@ -585,15 +658,23 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
   };
   module.exports = {
     name: 'numberValidators',
-    factory: function factory() {
+    factory: function factory(is) {
       'use strict';
 
-      var gt = function gt(min) {
-        return function (_ref12) {
-          var key = _ref12.key,
-              value = _ref12.value;
+      var makeErrorMessage = function makeErrorMessage(options) {
+        return "expected `".concat(options.key, "` to be ").concat(options.comparator, " ").concat(options.boundary);
+      };
 
-          if (value > min) {
+      var gt = function gt(min) {
+        if (is.not.number(min)) {
+          throw new Error('gt requires a minimum number to compare values to');
+        }
+
+        return function (_ref3) {
+          var key = _ref3.key,
+              value = _ref3.value;
+
+          if (is.number(value) && value > min) {
             return {
               err: null,
               value: value
@@ -601,18 +682,26 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           return {
-            err: new Error("".concat(key, " must be greater than ").concat(min)),
+            err: new Error(makeErrorMessage({
+              key: key,
+              comparator: 'greater than',
+              boundary: min
+            })),
             value: null
           };
         };
       };
 
       var gte = function gte(min) {
-        return function (_ref13) {
-          var key = _ref13.key,
-              value = _ref13.value;
+        if (is.not.number(min)) {
+          throw new Error('gte requires a minimum number to compare values to');
+        }
 
-          if (value >= min) {
+        return function (_ref4) {
+          var key = _ref4.key,
+              value = _ref4.value;
+
+          if (is.number(value) && value >= min) {
             return {
               err: null,
               value: value
@@ -620,18 +709,26 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           return {
-            err: new Error("".concat(key, " must be greater than, or equal to ").concat(min)),
+            err: new Error(makeErrorMessage({
+              key: key,
+              comparator: 'greater than, or equal to',
+              boundary: min
+            })),
             value: null
           };
         };
       };
 
       var lt = function lt(max) {
-        return function (_ref14) {
-          var key = _ref14.key,
-              value = _ref14.value;
+        if (is.not.number(max)) {
+          throw new Error('lt requires a maximum number to compare values to');
+        }
 
-          if (value < max) {
+        return function (_ref5) {
+          var key = _ref5.key,
+              value = _ref5.value;
+
+          if (is.number(value) && value < max) {
             return {
               err: null,
               value: value
@@ -639,18 +736,26 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           return {
-            err: new Error("".concat(key, " must be less than ").concat(max)),
+            err: new Error(makeErrorMessage({
+              key: key,
+              comparator: 'less than',
+              boundary: max
+            })),
             value: null
           };
         };
       };
 
       var lte = function lte(max) {
-        return function (_ref15) {
-          var key = _ref15.key,
-              value = _ref15.value;
+        if (is.not.number(max)) {
+          throw new Error('lte requires a maximum number to compare values to');
+        }
 
-          if (value <= max) {
+        return function (_ref6) {
+          var key = _ref6.key,
+              value = _ref6.value;
+
+          if (is.number(value) && value <= max) {
             return {
               err: null,
               value: value
@@ -658,7 +763,11 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
           }
 
           return {
-            err: new Error("".concat(key, " must be less than, or equal to ").concat(max)),
+            err: new Error(makeErrorMessage({
+              key: key,
+              comparator: 'less than, or equal to',
+              boundary: max
+            })),
             value: null
           };
         };
@@ -667,9 +776,9 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
       var range = function range(options) {
         if (!options) {
           throw new Error('You must specify a range');
-        } else if (isNaN(options.gt) && isNaN(options.gte)) {
+        } else if (is.not.number(options.gt) && is.not.number(options.gte)) {
           throw new Error('You must specify `gt`, or `gte` {number} when defining a range');
-        } else if (isNaN(options.lt) && isNaN(options.lte)) {
+        } else if (is.not.number(options.lt) && is.not.number(options.lte)) {
           throw new Error('You must specify `lt`, or `lte` {number} when defining a range');
         }
 
@@ -686,21 +795,167 @@ function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterat
         };
       };
 
+      var optional = function optional(comparator) {
+        return function (input) {
+          var validator = comparator(input);
+          return function (context) {
+            var value = context.value;
+
+            if (is.nullOrUndefined(value)) {
+              return {
+                err: null,
+                value: value
+              };
+            } else {
+              return validator(context);
+            }
+          };
+        };
+      };
+
       return {
         gt: gt,
         gte: gte,
         lt: lt,
         lte: lte,
-        range: range
+        range: range,
+        optional: {
+          gt: optional(gt),
+          gte: optional(gte),
+          lt: optional(lt),
+          lte: optional(lte),
+          range: optional(range)
+        }
       };
+    }
+  };
+  module.exports = {
+    name: 'registerCommonTypes',
+    factory: function factory(is, Blueprint) {
+      'use strict';
+
+      var registerType = Blueprint.registerType;
+      var types = ['function', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp' // 'string' registered separately, below
+      ];
+
+      var errorMessage = function errorMessage(type) {
+        return function (key, value) {
+          return "expected `".concat(key, "` {").concat(is.getType(value), "} to be {").concat(type, "}");
+        };
+      };
+
+      types.forEach(function (type) {
+        registerType(type, function (_ref7) {
+          var key = _ref7.key,
+              value = _ref7.value;
+          return is[type](value) ? {
+            err: null,
+            value: value
+          } : {
+            err: new Error(errorMessage(type)(key, value)),
+            value: null
+          };
+        });
+      });
+      registerType('string', function (_ref8) {
+        var key = _ref8.key,
+            value = _ref8.value;
+        return is.string(value) ? {
+          err: null,
+          value: value.trim()
+        } : {
+          err: new Error(errorMessage('string')(key, value)),
+          value: null
+        };
+      });
+      registerType('any', function (_ref9) {
+        var key = _ref9.key,
+            value = _ref9.value;
+        return is.not.nullOrUndefined(value) ? {
+          err: null,
+          value: value
+        } : {
+          err: new Error(errorMessage('any')(key, value)),
+          value: null
+        };
+      });
+    }
+  };
+  module.exports = {
+    name: 'registerDecimals',
+    factory: function factory(is, Blueprint) {
+      'use strict';
+
+      var registerValidator = Blueprint.registerValidator; // support up to 15 decimal places for decimal precision
+
+      var _loop = function _loop(i) {
+        registerValidator("decimal:".concat(i), function (_ref10) {
+          var key = _ref10.key,
+              value = _ref10.value;
+          return is.decimal(value, i) ? {
+            err: null,
+            value: value
+          } : {
+            err: new Error("expected `".concat(key, "` to be a {decimal} with ").concat(i, " places")),
+            value: null
+          };
+        });
+        registerValidator("decimal:".concat(i, "?"), function (_ref11) {
+          var key = _ref11.key,
+              value = _ref11.value;
+
+          if (is.nullOrUndefined(value)) {
+            return {
+              err: null,
+              value: value
+            };
+          } else if (is.decimal(value, i)) {
+            return {
+              err: null,
+              value: value
+            };
+          } else {
+            return {
+              err: new Error("expected `".concat(key, "` to be a {decimal} with ").concat(i, " places")),
+              value: null
+            };
+          }
+        });
+      };
+
+      for (var i = 1; i <= 15; i += 1) {
+        _loop(i);
+      }
+    }
+  };
+  module.exports = {
+    name: 'registerExpressions',
+    factory: function factory(Blueprint) {
+      'use strict';
+
+      var registerValidator = Blueprint.registerValidator;
+      registerValidator('expression', function (regex) {
+        return function (_ref12) {
+          var key = _ref12.key,
+              value = _ref12.value;
+          return regex.test(value) === true ? {
+            value: value
+          } : {
+            err: new Error("expected `".concat(key, "` to match ").concat(regex.toString()))
+          };
+        };
+      });
     }
   };
   var is = module.factories.is();
   var blueprint = Object.assign({
     is: is
-  }, module.factories.numberValidators(), module.factories.blueprint(is));
+  }, module.factories.numberValidators(is), module.factories.blueprint(is));
   root.polyn = root.polyn || {};
-  root.polyn.blueprint = Object.freeze(blueprint); // we don't need these anymore
+  root.polyn.blueprint = Object.freeze(blueprint);
+  module.factories.registerCommonTypes(is, root.polyn.blueprint);
+  module.factories.registerDecimals(is, root.polyn.blueprint);
+  module.factories.registerExpressions(root.polyn.blueprint); // we don't need these anymore
 
   delete module.factories;
 })(window);
