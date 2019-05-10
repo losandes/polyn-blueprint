@@ -84,6 +84,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       var makeDefaultErrorMessage = function makeDefaultErrorMessage(options) {
         return function () {
+          options = options || {};
           var key = options.key;
           var value = Object.keys(options).includes('value') ? options.value : options.input && options.input[key];
           var actualType = is.getType(value);

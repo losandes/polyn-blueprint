@@ -50,6 +50,8 @@ module.exports = {
      * @param {string?} options.type - the type this key should be
      */
     const makeDefaultErrorMessage = (options) => () => {
+      options = options || {}
+
       const key = options.key
       const value = Object.keys(options).includes('value')
         ? options.value
