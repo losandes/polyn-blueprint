@@ -17,19 +17,25 @@ export interface IBlueprint {
   validate: (input: any) => IValueOrError
 }
 
-export interface IValidatorArg {
+export interface IValidationContext {
   key: string;
   value: any;
   input: any;
   root: any;
+  schema: any;
 }
+
+/**
+ * Deprecated - use IValidationContext instead
+ */
+export interface IValidatorArg extends IValidationContext {}
 
 /**
  * Validation function that accepts the context being validated, and
  * either throws if invalid, returns boolean, or returns an IValueOrError
  * @param context - the value, and object being validated
  */
-export type Validator = (context: IValidatorArg) => IValueOrError | boolean;
+export type Validator = (context: IValidationContext) => IValueOrError | boolean;
 
 /**
  * Returns a validator (fluent interface) for validating the input values
@@ -79,7 +85,7 @@ export function registerExpression (name: string, expression: RegExp|string): an
  * @param min - the value that the input must be greater than
  * @param context - the value, and object being validated
  */
-export function gt (min: number): (context: IValidatorArg) => IValueOrError;
+export function gt (min: number): (context: IValidationContext) => IValueOrError;
 
 /**
  * Creates a validator that will verify that a value is greater than, or
@@ -88,7 +94,7 @@ export function gt (min: number): (context: IValidatorArg) => IValueOrError;
  * @param min - the value that the input must be greater than, or equal to
  * @param context - the value, and object being validated
  */
-export function gte (min: number): (context: IValidatorArg) => IValueOrError;
+export function gte (min: number): (context: IValidationContext) => IValueOrError;
 
 /**
  * Creates a validator that will verify that a value is less than the
@@ -97,7 +103,7 @@ export function gte (min: number): (context: IValidatorArg) => IValueOrError;
  * @param max - the value that the input must be less than
  * @param context - the value, and object being validated
  */
-export function lt (max: number): (context: IValidatorArg) => IValueOrError;
+export function lt (max: number): (context: IValidationContext) => IValueOrError;
 
 /**
  * Creates a validator that will verify that a value is less than, or
@@ -106,7 +112,7 @@ export function lt (max: number): (context: IValidatorArg) => IValueOrError;
  * @param max - the value that the input must be less than, or equal to
  * @param context - the value, and object being validated
  */
-export function lte (max: number): (context: IValidatorArg) => IValueOrError;
+export function lte (max: number): (context: IValidationContext) => IValueOrError;
 
 /**
  * Creates a validator that will verify that a value is between the
@@ -123,7 +129,7 @@ export function range (range: {
   gte?: number;
   lt?: number;
   lte?: number;
-}): (context: IValidatorArg) => IValueOrError;
+}): (context: IValidationContext) => IValueOrError;
 
 /**
  * Support for null, or undefined numeric comparators
@@ -137,7 +143,7 @@ declare namespace optional {
    * @param min - the value that the input must be greater than
    * @param context - the value, and object being validated
    */
-  function gt (min: number): (context: IValidatorArg) => IValueOrError;
+  function gt (min: number): (context: IValidationContext) => IValueOrError;
 
   /**
    * Creates a validator that will verify that a value is greater than, or
@@ -146,7 +152,7 @@ declare namespace optional {
    * @param min - the value that the input must be greater than, or equal to
    * @param context - the value, and object being validated
    */
-  function gte (min: number): (context: IValidatorArg) => IValueOrError;
+  function gte (min: number): (context: IValidationContext) => IValueOrError;
 
   /**
    * Creates a validator that will verify that a value is less than the
@@ -155,7 +161,7 @@ declare namespace optional {
    * @param max - the value that the input must be less than
    * @param context - the value, and object being validated
    */
-  function lt (max: number): (context: IValidatorArg) => IValueOrError;
+  function lt (max: number): (context: IValidationContext) => IValueOrError;
 
   /**
    * Creates a validator that will verify that a value is less than, or
@@ -164,7 +170,7 @@ declare namespace optional {
    * @param max - the value that the input must be less than, or equal to
    * @param context - the value, and object being validated
    */
-  function lte (max: number): (context: IValidatorArg) => IValueOrError;
+  function lte (max: number): (context: IValidationContext) => IValueOrError;
 
   /**
    * Creates a validator that will verify that a value is between the
@@ -181,7 +187,7 @@ declare namespace optional {
     gte?: number;
     lt?: number;
     lte?: number;
-  }): (context: IValidatorArg) => IValueOrError;
+  }): (context: IValidationContext) => IValueOrError;
 }
 
 // is ==========================================================================

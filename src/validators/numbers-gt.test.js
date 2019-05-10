@@ -13,7 +13,7 @@ module.exports = (test) => {
   const expectError = (actual) => (expect) => {
     expect(actual.err).to.not.be.null
     expect(actual.err.message)
-      .to.equal('Invalid sut: sut.gt20 must be greater than 20')
+      .to.equal('Invalid sut: expected `gt20` to be greater than 20')
   }
 
   const expectToThrow = (actual) => (expect) => {

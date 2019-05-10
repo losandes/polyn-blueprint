@@ -21,6 +21,16 @@ module.exports = {
       }
     }
 
+    class ValidationContext {
+      constructor (input) {
+        this.key = input.key
+        this.value = input.value
+        this.input = input.input
+        this.root = input.root
+        this.schema = input.schema
+      }
+    }
+
     class Blueprint {
       constructor (input) {
         this.name = input.name
@@ -32,18 +42,40 @@ module.exports = {
     }
 
     /**
+     * Makes a message factory that produces an error message on demand
+     * @param {string} options.key - the property name
+     * @param {any} options.value - the value being validated
+     * @param {any} options.input - the object being validated
+     * @param {any?} options.schema - the type definitions
+     * @param {string?} options.type - the type this key should be
+     */
+    const makeDefaultErrorMessage = (options) => () => {
+      const key = options.key
+      const value = Object.keys(options).includes('value')
+        ? options.value
+        : options.input && options.input[key]
+      const actualType = is.getType(value)
+      const expectedType = options.type || (options.schema && options.schema[key])
+
+      return `expected \`${key}\` {${actualType}} to be {${expectedType}}`
+    }
+
+    /**
      * Support for ad-hoc polymorphism for `isValid` functions: they can throw,
      * return boolean, or return { isValid: 'boolean', value: 'any', message: 'string[]' }.
-     * @param {function} isValid
+     * @curried
+     * @param {function} isValid - the validation function
+     * @param {ValidationContext} context - the validation context
+     * @param {function} defaultMessageFactory - the default error message
      */
-    const normalIsValid = (isValid) => (context, defaultErrorMessage) => {
+    const normalIsValid = (isValid) => (context, defaultMessageFactory) => {
       try {
         const result = isValid(context)
 
         if (is.boolean(result)) {
           return result
             ? new ValueOrError({ value: context.value })
-            : new ValueOrError({ err: new Error(defaultErrorMessage) })
+            : new ValueOrError({ err: new Error(defaultMessageFactory()) })
         } else if (result) {
           return {
             err: result.err,
@@ -51,7 +83,7 @@ module.exports = {
           }
         } else {
           return new ValueOrError({
-            err: new Error(`ValidationError: the validator for ${context.key} didn't return a value`)
+            err: new Error(`ValidationError: the validator for \`${context.key}\` didn't return a value`)
           })
         }
       } catch (err) {
@@ -60,16 +92,18 @@ module.exports = {
     }
 
     /**
-     * Validates the input values against the blueprint expectations
+     * Validates the input values against the schema expectations
      * @curried
      * @param {string} name - the name of the model being validated
-     * @param {object} blueprint - the type definitions
+     * @param {object} schema - the type definitions
      * @param {object} input - the values being validated
      */
-    const validate = (name, blueprint) => (input, root) => {
-      const outcomes = Object.keys(blueprint).reduce((output, key) => {
-        if (is.object(blueprint[key])) {
-          const child = validate(`${name}.${key}`, blueprint[key])(input[key], root || input)
+    const validate = (name, schema) => (input, root) => {
+      const outcomes = Object.keys(schema).reduce((output, key) => {
+        const keyName = root ? `${name}.${key}` : key
+
+        if (is.object(schema[key])) {
+          const child = validate(`${keyName}`, schema[key])(input[key], root || input)
 
           if (child.err) {
             output.validationErrors = output.validationErrors.concat(child.messages)
@@ -81,25 +115,28 @@ module.exports = {
 
         let validator
 
-        if (is.function(blueprint[key])) {
-          validator = normalIsValid(blueprint[key])
-        } else if (is.regexp(blueprint[key])) {
-          validator = normalIsValid(validators.expression(blueprint[key]))
+        if (is.function(schema[key])) {
+          validator = normalIsValid(schema[key])
+        } else if (is.regexp(schema[key])) {
+          validator = normalIsValid(validators.expression(schema[key]))
         } else {
-          validator = validators[blueprint[key]]
+          validator = validators[schema[key]]
         }
 
         if (is.not.function(validator)) {
-          output.validationErrors.push(`I don't know how to validate ${blueprint[key]}`)
+          output.validationErrors.push(`I don't know how to validate ${schema[key]}`)
           return output
         }
 
-        const result = validator({
-          key: `${name}.${key}`,
+        const context = new ValidationContext({
+          key: `${keyName}`,
           value: input && input[key],
           input,
-          root: root || input
-        }, `${name}.${key} is invalid`)
+          root: root || input,
+          schema
+        })
+
+        const result = validator(context, makeDefaultErrorMessage(context))
 
         if (result && result.err) {
           output.validationErrors.push(result.err.message)
@@ -171,7 +208,11 @@ module.exports = {
         // required
         registerValidator(name, (context) => {
           const { key } = context
-          return test(context, `${key} {${name}} is required`)
+          return test(context, makeDefaultErrorMessage({
+            key,
+            value: context.value,
+            type: name
+          }))
         }),
         // nullable
         registerValidator(`${name}?`, (context) => {
@@ -179,7 +220,11 @@ module.exports = {
           if (is.nullOrUndefined(value)) {
             return { err: null, value: value }
           } else {
-            return test(context, `${key} must be a ${name} if present`)
+            return test(context, makeDefaultErrorMessage({
+              key,
+              value: context.value,
+              type: name
+            }))
           }
         })
       ]
@@ -194,31 +239,40 @@ module.exports = {
     const registerArrayOfType = (instanceName, arrayName, isValid) => {
       const test = normalIsValid(isValid)
 
-      const validateMany = (context, allMessage, oneErrorMessage) => {
+      const validateMany = (context, errorMessageFactory) => {
         if (is.not.array(context.value)) {
-          return { err: new Error(allMessage), value: null }
+          return { err: new Error(errorMessageFactory()), value: null }
         }
 
         const errors = []
         const values = []
 
-        context.value.forEach((val, index) => {
+        context.value.forEach((value, index) => {
+          const key = `${context.key}[${index}]`
           const result = test({
-            key: `${context.key}[${index}]`,
-            value: val,
+            key,
+            value,
             input: context.input,
             root: context.root
-          }, oneErrorMessage)
+          }, makeDefaultErrorMessage({
+            key,
+            value,
+            type: instanceName
+          }))
 
           if (result.err) {
-            return errors.push(result.err.message)
+            // make sure the array key[index] is in the error message
+            const message = result.err.message.indexOf(`[${index}]`) > -1
+              ? result.err.message
+              : `(\`${key}\`) ${result.err.message}`
+            return errors.push(message)
           }
 
           return values.push(result.value)
         })
 
         if (errors.length) {
-          return { err: new Error(`${oneErrorMessage}: ${errors.join(', ')}`), value: null }
+          return { err: new Error(errors.join(', ')), value: null }
         }
 
         return { err: null, value: values }
@@ -231,8 +285,7 @@ module.exports = {
 
           return validateMany(
             context,
-            `${key} {${arrayName}} is required`,
-            `All values for ${key} must be {${instanceName}}`
+            makeDefaultErrorMessage({ key, value: context.value, type: arrayName })
           )
         }),
 
@@ -245,8 +298,7 @@ module.exports = {
           } else {
             return validateMany(
               context,
-              `${key} {${arrayName}} must be an array`,
-              `All values for ${key} must be {${instanceName}}`
+              makeDefaultErrorMessage({ key, value: context.value, type: arrayName })
             )
           }
         })
@@ -297,8 +349,18 @@ module.exports = {
         throw bp.err
       }
 
+      const cleanMessage = (message) => {
+        return message.replace(`Invalid ${bp.name}: `, '')
+      }
+
       registerType(bp.name, ({ value }) => {
-        return bp.validate(value)
+        const result = bp.validate(value)
+
+        if (result.err) {
+          result.err.message = cleanMessage(result.err.message)
+        }
+
+        return result
       })
 
       return bp
@@ -319,7 +381,7 @@ module.exports = {
       return registerType(name, ({ key, value }) => {
         return regex.test(value) === true
           ? new ValueOrError({ value: value })
-          : new ValueOrError({ err: new Error(`${key} does not match ${regex.toString()}`) })
+          : new ValueOrError({ err: new Error(`expected \`${key}\` to match ${regex.toString()}`) })
       })
     }
 

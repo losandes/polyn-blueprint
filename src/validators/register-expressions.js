@@ -8,7 +8,7 @@ module.exports = {
     registerValidator('expression', (regex) => ({ key, value }) => {
       return regex.test(value) === true
         ? { value: value }
-        : { err: new Error(`${key} does not match ${regex.toString()}`) }
+        : { err: new Error(`expected \`${key}\` to match ${regex.toString()}`) }
     })
   }
 }

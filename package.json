@@ -1,6 +1,6 @@
 {
   "name": "@polyn/blueprint",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "An easy to use, flexible, and powerful validation library for nodejs and browsers",
   "main": "index.js",
   "types": "index.d.ts",
@@ -10,6 +10,12 @@
     "test:ts": "tsc -p ./tsconfig.json && node test-ts.js",
     "watch": "nodemon -e js --exec 'node test.js --tap | tap-nyan'"
   },
+  "pre-commit": [
+    "build"
+  ],
+  "pre-push": [
+    "test"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/losandes/polyn-blueprint.git"
@@ -39,6 +45,8 @@
     "eslint-plugin-promise": "~4.1.1",
     "eslint-plugin-standard": "~4.0.0",
     "nodemon": "~1.19.0",
+    "pre-commit": "~1.2.2",
+    "pre-push": "~0.1.1",
     "supposed": "~0.2.0",
     "typescript": "~3.4.5"
   },

@@ -3,7 +3,7 @@ import { expect } from 'chai'
 import {
   IValueOrError,
   IBlueprint,
-  IValidatorArg,
+  IValidationContext,
   Validator,
   blueprint,
   registerValidator,
@@ -19,11 +19,11 @@ expect(is.not.string(1), `is.not.string(1) should work`).to.equal(true)
 expect(is.func(() => true), `is.func(() => true should work`).to.equal(true)
 expect(is.not.func('str'), `is.not.func('str') should work`).to.equal(true)
 
-const isCharBool: Validator = (context: IValidatorArg): boolean => {
+const isCharBool: Validator = (context: IValidationContext): boolean => {
   return typeof context.value === 'string' && context.value.length === 1
 }
 
-const isCharVal: Validator = (context: IValidatorArg): IValueOrError => {
+const isCharVal: Validator = (context: IValidationContext): IValueOrError => {
   if (typeof context.value === 'string' && context.value.length === 1) {
     return {
       err: null,

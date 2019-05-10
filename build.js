@@ -67,3 +67,5 @@ const minOutput = babel.transform(modules.join('\n'), {
 
 fs.writeFileSync('./dist/blueprint.js', output.code)
 fs.writeFileSync('./dist/blueprint.min.js', minOutput.code)
+console.log('Published browser version to `./dist`')
+process.exit(0)
