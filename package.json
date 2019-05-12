@@ -7,7 +7,6 @@
   "scripts": {
     "build": "node build.js",
     "pre-push": "node pr-check.js && npm test",
-    "push": "npm run pre-push && git push",
     "test": "node test.js && npm run test:ts",
     "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
     "watch": "nodemon -e js --exec 'node test.js --tap | tap-nyan'"
