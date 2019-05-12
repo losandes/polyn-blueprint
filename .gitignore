@@ -1,5 +1,7 @@
+.DS_Store
+
 # Test Output
-test-ts.js
+examples-typescript.js
 
 # Logs
 logs

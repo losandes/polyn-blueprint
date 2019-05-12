@@ -1,0 +1,12 @@
+.DS_Store
+.gitignore
+.eslintrc
+npm-debug.log
+build.js
+examples-typescript.js
+examples-typescript.ts
+index.browser.js
+pre-push.js
+test.js
+*.test.js
+tsconfig.json

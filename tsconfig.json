@@ -7,6 +7,6 @@
     "sourceMap": false,
     "strict": true
   },
-  "include": ["./test-ts.ts"],
+  "include": ["examples-typescript.ts"],
   "exclude": []
 }
