@@ -104,4 +104,4 @@ const result: IValueOrError = myModelBp.validate({
 })
 
 expect(result.err).to.be.null
-console.log('ALL TYPESCRIPT EXAMPLES PASSED')
+console.log('ALL TYPESCRIPT EXAMPLES PASSED\n')
