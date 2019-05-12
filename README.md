@@ -1,6 +1,20 @@
 @polyn/blueprint
 ================
-@polyn/blueprint is an easy to use, flexible, and powerful validation library for nodejs and browsers
+@polyn/blueprint is an easy to use, extensible, and powerful validation library for nodejs and browsers.
+
+While @polyn/blueprint can be used on it's own, it really shines when you use it with [@polyn/immutable](https://github.com/losandes/polyn-immutable).
+
+* [Getting Started with Node](#node)
+* [Getting Started with the Browser](#browser)
+* [Types / Validators](#types-validators)
+* [Custom Validators](#custom-validators)
+  * [Inline Custom Validators](#inline-custom-validators)
+  * [Registering Validators](#registering-validators)
+  * [Registering Types](#registering-types)
+  * [Registering Regular Expressions](#registering-regular-expressions)
+  * [Registering Blueprints](#registering-blueprints)
+  * [Intercepting Values](#intercepting-values)
+* [TypeScript Support](#typescript-support)
 
 ## Usage
 
@@ -171,11 +185,11 @@ const allTheTypes = blueprint('allTheTypes', {
 ## Custom Validators
 Blueprint supports multiple ways for defining your own validators.
 
-* Inline custom validators
-* Registered validators
-* Registered types
-* Registered expressions
-* Registered blueprints
+* [Inline Custom Validators](#inline-custom-validators)
+* [Registered validators](#registering-validators)
+* [Registered types](#registering-types)
+* [Registered expressions](#registering-regular-expressions)
+* [Registered blueprints](#registering-blueprints)
 
 ### Custom Validator Return Values
 _Inline custom validators_, _registered validators_, and _registered types_ support passing your own function to perform the validation. Your functions must return one of two types to work. The following examples will use inline custom validators for the example, but the same approach can be used when registering validators, or types.
@@ -429,7 +443,32 @@ console.log(
 // }
 ```
 
-## Why @polyn/blueprint? Why not JSON Schema
-There's noting wrong with JSON Schema. In many cases it makes more sense to use that, particularly in cases where the schema is meant to be shared across organizational boundaries. I started writing this library years ago when JSON Schema was in it's infancy. So why keep improving and maintaining it?
+## TypeScript Support
+This library exports types. A brief example is shown here. If you'd like to see more, there are several examples in [examples-typescript.ts](./examples-typescript.ts).
 
-It's simple. It's less verbose than JSON Schema. It's functional (we write validators as functions, instead of configurations). Because of that it's easily extensible, and it's easy to write complex/dependency-based validations (i.e. _isbn is required if productType === 'book'_).
+```TypeScript
+const { blueprint, gt } = require('@polyn/blueprint')
+
+const personBlueprint: IBlueprint = blueprint('Person', {
+  firstName: 'string',
+  lastName: 'string',
+  age: gt(0)
+})
+
+const result: IValueOrError = personBlueprint.validate({
+  firstName: 'John',
+  lastName: 'Doe',
+  age: 21
+})
+
+console.log(result.err)
+// prints null
+
+console.log(result.value)
+// prints { firstName: 'John', lastName: 'Doe', age: 21 }
+```
+
+## Why @polyn/blueprint? Why not JSON Schema
+There's nothing wrong with JSON Schema. In many cases it makes more sense to use that, particularly in cases where the schema is meant to be shared across organizational boundaries. I started writing this library years ago when JSON Schema was in it's infancy. So why keep improving and maintaining it?
+
+It's simple. It's less verbose than JSON Schema. It's functional (we can write validators as functions, instead of configurations). Because of that it's easily extensible, and it's easy to write complex/dependency-based validations (i.e. _isbn is required if productType === 'book'_).
