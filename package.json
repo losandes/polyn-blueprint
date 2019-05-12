@@ -11,7 +11,9 @@
     "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
     "watch": "nodemon -e js --exec 'node test.js --tap | tap-nyan'"
   },
-  "pre-push": ["pre-push"],
+  "pre-push": [
+    "pre-push"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/losandes/polyn-blueprint.git"

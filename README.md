@@ -4,6 +4,8 @@
 
 While @polyn/blueprint can be used on it's own, it really shines when you use it with [@polyn/immutable](https://github.com/losandes/polyn-immutable).
 
+If you use the `value` property that is returned from @polyn/blueprint's `validate` function, it also mitigates parameter/property pollution attacks at the model level: only properties that exist on the schema are returned, and only if they meet the validation you expressed.
+
 * [Getting Started with Node](#node)
 * [Getting Started with the Browser](#browser)
 * [Types / Validators](#types-validators)
