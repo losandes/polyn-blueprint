@@ -250,6 +250,7 @@ const product = blueprint('product', {
   // require the ISBN if the productType is 'book'
   ISBN: ({ key, value, input, root }) =>
     root.productType === 'book' && typeof value === 'string' && value.length
+})
 ```
 
 > @alsosee [Custom Validator Return Values](#custom-validator-return-values) for information on supported return values
@@ -280,7 +281,7 @@ assert.strictEqual(actual.value.age, 20)
 
 > @alsosee [Custom Validator Return Values](#custom-validator-return-values) for information on supported return values
 
-#### Registering Types
+### Registering Types
 If you want to support nulls and arrays for the validator you are registering, use `registerTypes` instead. For instance, to register the following:
 
 ```
@@ -309,7 +310,7 @@ const actual = blueprint('requestBody', {
 
 > @alsosee [Custom Validator Return Values](#custom-validator-return-values) for information on supported return values
 
-#### Registering Regular Expressions
+### Registering Regular Expressions
 Registering regular expressions works similarly to registering types, except you pass in a RegExp, or string expression as the second argument.
 
 ```JavaScript
@@ -331,7 +332,7 @@ const actual = blueprint('requestBody', {
 })
 ```
 
-#### Registering Blueprints
+### Registering Blueprints
 Sometimes it's useful to register another blueprint as a validator. `registerBlueprint` accepts the same arguments as constructing one, and stores the blueprint as a validator, so it can be used like a type. It includes support for nulls and arrays.
 
 ```JavaScript
@@ -373,7 +374,7 @@ assert.strictEqual(actual.value.person.lastName, 'Doe')
 // ...
 ```
 
-#### Intercepting Values
+### Intercepting Values
 _Inline custom validators_, _registered validators_, and _registered types_ provide the ability to intercept/modify the values that are returned by blueprint.validate.
 
 Both of these examples trim the strings that are written to the `value` property
