@@ -6,6 +6,7 @@ build.js
 examples-typescript.js
 examples-typescript.ts
 index.browser.js
-pr-check.js
+pre-push.js
 test.js
 *.test.js
+tsconfig.json
