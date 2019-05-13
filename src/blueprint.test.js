@@ -621,7 +621,11 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid sut: expected `firstName` {undefined} to be {string}, expected `lastName` {undefined} to be {string}')
+        expect(actualInvalid.err.message).to.equal([
+          'Invalid sut:',
+          'expected `user.firstName` {undefined} to be {string},',
+          'expected `user.lastName` {undefined} to be {string}'
+        ].join(' '))
         expect(actualInvalid.value).to.be.null
       },
       'should support null values': (expect) => {
@@ -668,7 +672,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
-        expect(actualInvalid.err.message).to.equal('Invalid sut: (`users[1]`) expected `lastName` {undefined} to be {string}')
+        expect(actualInvalid.err.message).to.equal('Invalid sut: expected `users[1].lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
       'should support nullable arrays': (expect) => {
@@ -744,6 +748,27 @@ module.exports = (test) => {
 
         expect(bp.validate({ str: 'str' }).err).to.be.null
         expect(bp.validate({ str: 'str' }).value).to.deep.equal({ str: 'str' })
+      },
+      'should produce comprehensible error messages': (expect) => {
+        registerBlueprint('registerBlueprint:user', {
+          firstName: 'string',
+          lastName: 'string'
+        })
+        const bp = blueprint('sut', {
+          user: 'registerBlueprint:user'
+        })
+
+        const actualInvalid = bp.validate({
+          firstName: 'missing user object'
+        })
+
+        expect(actualInvalid.err).to.not.be.null
+        expect(actualInvalid.err.message).to.equal([
+          'Invalid sut:',
+          'expected `user.firstName` {undefined} to be {string},',
+          'expected `user.lastName` {undefined} to be {string}'
+        ].join(' '))
+        expect(actualInvalid.value).to.be.null
       }
     },
     '`registerExpression`': {

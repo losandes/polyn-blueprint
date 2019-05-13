@@ -409,16 +409,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           throw bp.err;
         }
 
-        var cleanMessage = function cleanMessage(message) {
-          return message.replace("Invalid ".concat(bp.name, ": "), '');
+        var cleanMessage = function cleanMessage(key, message) {
+          return message.replace("Invalid ".concat(bp.name, ": "), '').replace(/expected `/g, "expected `".concat(key, "."));
         };
 
         registerType(bp.name, function (_ref) {
-          var value = _ref.value;
+          var key = _ref.key,
+              value = _ref.value;
           var result = bp.validate(value);
 
           if (result.err) {
-            result.err.message = cleanMessage(result.err.message);
+            result.err.message = cleanMessage(key, result.err.message);
           }
 
           return result;

@@ -351,15 +351,16 @@ module.exports = {
         throw bp.err
       }
 
-      const cleanMessage = (message) => {
+      const cleanMessage = (key, message) => {
         return message.replace(`Invalid ${bp.name}: `, '')
+          .replace(/expected `/g, `expected \`${key}.`)
       }
 
-      registerType(bp.name, ({ value }) => {
+      registerType(bp.name, ({ key, value }) => {
         const result = bp.validate(value)
 
         if (result.err) {
-          result.err.message = cleanMessage(result.err.message)
+          result.err.message = cleanMessage(key, result.err.message)
         }
 
         return result
