@@ -20,14 +20,22 @@
   // MODULES_HERE
 
   const is = module.factories.is()
-  const blueprint = Object.assign(
-    { is },
-    module.factories.numberValidators(is),
-    module.factories.blueprint(is)
-  )
+  const numberValidators = module.factories.numberValidators(is)
+  const blueprint = module.factories.blueprint(is)
+
+  // backward compatibility - can be removed in v3
+  Object.keys(numberValidators.__optional).forEach((key) => {
+    blueprint.optional[key] = numberValidators.__optional[key]
+  })
+
+  delete numberValidators.__optional
 
   root.polyn = root.polyn || {}
-  root.polyn.blueprint = Object.freeze(blueprint)
+  root.polyn.blueprint = Object.freeze(Object.assign(
+    { is },
+    numberValidators,
+    blueprint
+  ))
   module.factories.registerCommonTypes(is, root.polyn.blueprint)
   module.factories.registerDecimals(is, root.polyn.blueprint)
   module.factories.registerExpressions(root.polyn.blueprint)

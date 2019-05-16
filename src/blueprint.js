@@ -400,12 +400,50 @@ module.exports = {
       return { ...validators[name] }
     }
 
+    /**
+     * Fluent interface to support optional function based validators
+     * (i.e. like gt, lt, range, custom), and to use default values when
+     * the value presented is null, or undefined.
+     * @param {any} comparator - the name of the validator, or a function that performs validation
+     */
+    const optional = (comparator) => {
+      const options = {}
+      let validator
+
+      if (is.function(comparator)) {
+        validator = normalIsValid(comparator)
+      } else if (is.regexp(comparator)) {
+        validator = normalIsValid(validators.expression(comparator))
+      } else {
+        validator = validators[comparator]
+      }
+
+      const output = (context) => {
+        const { value } = context
+        if (is.nullOrUndefined(value)) {
+          return is.defined(options.defaultValue)
+            ? { value: options.defaultValue }
+            : { value }
+        } else {
+          return validator(context)
+        }
+      }
+
+      output.withDefault = (defaultValue) => {
+        options.defaultValue = defaultValue
+        return output
+      }
+
+      return output
+    }
+
     return {
       blueprint,
       registerValidator,
       registerType,
       registerBlueprint,
       registerExpression,
+      optional,
       // below are undocumented / subject to breaking changes
       registerInstanceOfType,
       registerArrayOfType,

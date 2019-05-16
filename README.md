@@ -98,7 +98,7 @@ $ npm install --save @polyn/blueprint
 ```JavaScript
 const {
   blueprint,
-  gt, gte, lt, lte, range, optional
+  gt, gte, lt, lte, range
 } = require('@polyn/blueprint')
 
 const allTheTypes = blueprint('allTheTypes', {
@@ -118,11 +118,6 @@ const allTheTypes = blueprint('allTheTypes', {
   lt10: lt(10),
   lte10: lte(10),
   between10And20: range({ gte: 10, lte: 20 }), // supports gt, gte, lt, lte
-  maybeGt10: optional.gt(10),
-  maybeGte10: optional.gte(10),
-  maybeLt10: optional.lt(10),
-  maybeLte10: optional.lte(10),
-  maybeBetween10And20: optional.range({ gte: 10, lte: 20 }), // supports gt, gte, lt, lte
 
   // booleans
   requiredBoolean: 'boolean',
@@ -183,6 +178,23 @@ const allTheTypes = blueprint('allTheTypes', {
   someProperty: ({ key, value, input, root }) =>
     root.productType === 'book' && typeof value === 'string'
   )
+```
+
+### Optionals
+The `optional` function allows you to make any validator, even function, and expression based validators, optional. It also supports default values, which are used in the even that the given inputs are null, or undefined. If an input is defined, and it doesn't pass validation, the default value is not used: an error will still be produced.
+
+```JavaScript
+const { blueprint, gt, optional } = require('@polyn/blueprint')
+
+const optionalValues = blueprint('optionalValues', {
+  stringOrDefault: optional('string').withDefault('foo'),
+  maybeGt20: optional(gt(20)),
+  gt20OrDefault: optional(gt(20)).withDefault(42),
+  maybeEnum: optional(/^book|magazine$/),
+  enumOrDefault: optional(/^book|magazine|product$/).withDefault('product'),
+  maybeCustom: optional(({ value }) => typeof value === 'string')
+    .withDefault('custom')
+})
 ```
 
 ## Custom Validators

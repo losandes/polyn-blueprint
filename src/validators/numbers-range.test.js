@@ -192,6 +192,15 @@ module.exports = (test) => {
       expect(rangeBp.validate({ range: 19 }).err).to.be.null
       expect(rangeBp.validate({ range: 19 }).value.maybeRange).to.be.undefined
       expect(rangeBp.validate({ range: 19, maybeRange: null }).value.maybeRange).to.be.null
+    },
+    'when the `optional.withDefault` prefix is used, it should use the default when appropriate': (expect) => {
+      const rangeBp = blueprint('sut', {
+        range: range({ gt: 10, lt: 20 }),
+        maybeRange: optional(range({ gt: 10, lt: 20 })).withDefault(12)
+      })
+      expect(rangeBp.validate({ range: 19 }).err).to.be.null
+      expect(rangeBp.validate({ range: 19 }).value.maybeRange).to.equal(12)
+      expect(rangeBp.validate({ range: 19, maybeRange: null }).value.maybeRange).to.equal(12)
     }
   })
 }
