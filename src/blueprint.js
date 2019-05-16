@@ -418,12 +418,20 @@ module.exports = {
         validator = validators[comparator]
       }
 
+      const valueOrDefaultValue = (value) => {
+        if (is.function(options.defaultValue)) {
+          return { value: options.defaultValue() }
+        } else if (is.defined(options.defaultValue)) {
+          return { value: options.defaultValue }
+        } else {
+          return { value }
+        }
+      }
+
       const output = (context) => {
         const { value } = context
         if (is.nullOrUndefined(value)) {
-          return is.defined(options.defaultValue)
-            ? { value: options.defaultValue }
-            : { value }
+          return valueOrDefaultValue(value)
         } else {
           return validator(context)
         }
