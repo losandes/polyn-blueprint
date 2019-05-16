@@ -183,10 +183,15 @@ const allTheTypes = blueprint('allTheTypes', {
 ### Optionals
 The `optional` function allows you to make any validator, even function, and expression based validators, optional. It also supports default values, which are used in the even that the given inputs are null, or undefined. If an input is defined, and it doesn't pass validation, the default value is not used: an error will still be produced.
 
+> `withDefault` also accepts functions, and will execute them if they are used as the value, so your default values can be factories (i.e. to generate ids, calculate based on local scope, etc.)
+
 ```JavaScript
+const uuid = require('uuid/v4')
 const { blueprint, gt, optional } = require('@polyn/blueprint')
+const UUID_REGEX = /^[0-9A-F]{8}-[0-9A-F]{4}-[4][0-9A-F]{3}-[89AB][0-9A-F]{3}-[0-9A-F]{12}$/i
 
 const optionalValues = blueprint('optionalValues', {
+  idOrNewId: optional(UUID_REGEX).withDefault(uuid), // will generate a new uuid as default
   stringOrDefault: optional('string').withDefault('foo'),
   maybeGt20: optional(gt(20)),
   gt20OrDefault: optional(gt(20)).withDefault(42),

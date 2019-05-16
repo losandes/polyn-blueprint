@@ -481,15 +481,27 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           validator = validators[comparator];
         }
 
+        var valueOrDefaultValue = function valueOrDefaultValue(value) {
+          if (is.function(options.defaultValue)) {
+            return {
+              value: options.defaultValue()
+            };
+          } else if (is.defined(options.defaultValue)) {
+            return {
+              value: options.defaultValue
+            };
+          } else {
+            return {
+              value: value
+            };
+          }
+        };
+
         var output = function output(context) {
           var value = context.value;
 
           if (is.nullOrUndefined(value)) {
-            return is.defined(options.defaultValue) ? {
-              value: options.defaultValue
-            } : {
-              value: value
-            };
+            return valueOrDefaultValue(value);
           } else {
             return validator(context);
           }

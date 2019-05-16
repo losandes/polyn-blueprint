@@ -866,6 +866,7 @@ module.exports = (test) => {
       when: () => {
         return blueprint('sut', {
           optionalString: optional('string').withDefault('foo'),
+          optionalId: optional('string').withDefault(() => 1),
           optionalGt: optional(gt(10)).withDefault(42),
           optionalExp: optional(/^book|magazine$/).withDefault('book'),
           optionalCustom: optional(({ value }) => {
@@ -879,6 +880,7 @@ module.exports = (test) => {
         expect(err).to.be.null
         const actual = bp.validate({
           optionalString: null,
+          optionalId: null,
           optionalGt: null,
           optionalExp: null,
           optionalCustom: null
@@ -887,6 +889,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal({
           optionalString: 'foo',
+          optionalId: 1,
           optionalGt: 42,
           optionalExp: 'book',
           optionalCustom: 'anything'
@@ -899,6 +902,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal({
           optionalString: 'foo',
+          optionalId: 1,
           optionalGt: 42,
           optionalExp: 'book',
           optionalCustom: 'anything'
@@ -908,6 +912,7 @@ module.exports = (test) => {
         expect(err).to.be.null
         const actual = bp.validate({
           optionalString: 'bar',
+          optionalId: 'one',
           optionalGt: 12,
           optionalExp: 'magazine',
           optionalCustom: 0
@@ -916,6 +921,7 @@ module.exports = (test) => {
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal({
           optionalString: 'bar',
+          optionalId: 'one',
           optionalGt: 12,
           optionalExp: 'magazine',
           optionalCustom: 'zero'
@@ -925,13 +931,14 @@ module.exports = (test) => {
         expect(err).to.be.null
         const actual = bp.validate({
           optionalString: 12,
+          optionalId: true,
           optionalGt: 8,
           optionalExp: 'movie',
           optionalCustom: 1
         })
 
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
+        expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalId` {boolean} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
       },
       'it should not validate the default values': (expect) => {
         const bp = blueprint('sut', {
