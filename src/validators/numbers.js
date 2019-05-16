@@ -116,7 +116,7 @@ module.exports = {
       return (context) => {
         const { value } = context
         if (is.nullOrUndefined(value)) {
-          return { err: null, value }
+          return { value }
         } else {
           return validator(context)
         }
@@ -129,7 +129,8 @@ module.exports = {
       lt,
       lte,
       range,
-      optional: {
+      // backward compatibility - can be removed in v3
+      __optional: {
         gt: optional(gt),
         gte: optional(gte),
         lt: optional(lt),

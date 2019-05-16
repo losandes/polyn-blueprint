@@ -53,6 +53,15 @@ module.exports = (test) => {
       expect(lt20Bp.validate({ lt20: 19 }).err).to.be.null
       expect(lt20Bp.validate({ lt20: 19 }).value.maybeLt20).to.be.undefined
       expect(lt20Bp.validate({ lt20: 19, maybeLt20: null }).value.maybeLt20).to.be.null
+    },
+    'when the `optional.withDefault` prefix is used, it should use the default when appropriate': (expect) => {
+      const lt20Bp = blueprint('sut', {
+        lt20: lt(20),
+        maybeLt20: optional(lt(20)).withDefault(12)
+      })
+      expect(lt20Bp.validate({ lt20: 19 }).err).to.be.null
+      expect(lt20Bp.validate({ lt20: 19 }).value.maybeLt20).to.equal(12)
+      expect(lt20Bp.validate({ lt20: 19, maybeLt20: null }).value.maybeLt20).to.equal(12)
     }
   })
 }

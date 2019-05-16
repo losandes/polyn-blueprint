@@ -461,6 +461,47 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return _objectSpread({}, validators[name]);
       };
+      /**
+       * Fluent interface to support optional function based validators
+       * (i.e. like gt, lt, range, custom), and to use default values when
+       * the value presented is null, or undefined.
+       * @param {any} comparator - the name of the validator, or a function that performs validation
+       */
+
+
+      var optional = function optional(comparator) {
+        var options = {};
+        var validator;
+
+        if (is.function(comparator)) {
+          validator = normalIsValid(comparator);
+        } else if (is.regexp(comparator)) {
+          validator = normalIsValid(validators.expression(comparator));
+        } else {
+          validator = validators[comparator];
+        }
+
+        var output = function output(context) {
+          var value = context.value;
+
+          if (is.nullOrUndefined(value)) {
+            return is.defined(options.defaultValue) ? {
+              value: options.defaultValue
+            } : {
+              value: value
+            };
+          } else {
+            return validator(context);
+          }
+        };
+
+        output.withDefault = function (defaultValue) {
+          options.defaultValue = defaultValue;
+          return output;
+        };
+
+        return output;
+      };
 
       return {
         blueprint: blueprint,
@@ -468,6 +509,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         registerType: registerType,
         registerBlueprint: registerBlueprint,
         registerExpression: registerExpression,
+        optional: optional,
         // below are undocumented / subject to breaking changes
         registerInstanceOfType: registerInstanceOfType,
         registerArrayOfType: registerArrayOfType,
@@ -805,7 +847,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
             if (is.nullOrUndefined(value)) {
               return {
-                err: null,
                 value: value
               };
             } else {
@@ -821,7 +862,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         lt: lt,
         lte: lte,
         range: range,
-        optional: {
+        // backward compatibility - can be removed in v3
+        __optional: {
           gt: optional(gt),
           gte: optional(gte),
           lt: optional(lt),
@@ -950,11 +992,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     }
   };
   var is = module.factories.is();
-  var blueprint = Object.assign({
-    is: is
-  }, module.factories.numberValidators(is), module.factories.blueprint(is));
+  var numberValidators = module.factories.numberValidators(is);
+  var blueprint = module.factories.blueprint(is); // backward compatibility - can be removed in v3
+
+  Object.keys(numberValidators.__optional).forEach(function (key) {
+    blueprint.optional[key] = numberValidators.__optional[key];
+  });
+  delete numberValidators.__optional;
   root.polyn = root.polyn || {};
-  root.polyn.blueprint = Object.freeze(blueprint);
+  root.polyn.blueprint = Object.freeze(Object.assign({
+    is: is
+  }, numberValidators, blueprint));
   module.factories.registerCommonTypes(is, root.polyn.blueprint);
   module.factories.registerDecimals(is, root.polyn.blueprint);
   module.factories.registerExpressions(root.polyn.blueprint); // we don't need these anymore

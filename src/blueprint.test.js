@@ -4,7 +4,9 @@ module.exports = (test) => {
     registerExpression,
     registerValidator,
     registerBlueprint,
-    registerType
+    registerType,
+    optional,
+    gt
   } = test.sut
 
   const makeErrorMessage = (options) => {
@@ -860,73 +862,95 @@ module.exports = (test) => {
         expect(types['registerExpressionReturns[]?']({ value: ['book'] }).value[0]).to.equal('book')
       }
     },
+    '`optional`': {
+      when: () => {
+        return blueprint('sut', {
+          optionalString: optional('string').withDefault('foo'),
+          optionalGt: optional(gt(10)).withDefault(42),
+          optionalExp: optional(/^book|magazine$/).withDefault('book'),
+          optionalCustom: optional(({ value }) => {
+            return {
+              value: value === 0 ? 'zero' : 'something'
+            }
+          }).withDefault('anything')
+        })
+      },
+      'it should use the default when the value is null': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({
+          optionalString: null,
+          optionalGt: null,
+          optionalExp: null,
+          optionalCustom: null
+        })
+
+        expect(actual.err).to.be.null
+        expect(actual.value).to.deep.equal({
+          optionalString: 'foo',
+          optionalGt: 42,
+          optionalExp: 'book',
+          optionalCustom: 'anything'
+        })
+      },
+      'it should use the default when the value is undefined': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({})
+
+        expect(actual.err).to.be.null
+        expect(actual.value).to.deep.equal({
+          optionalString: 'foo',
+          optionalGt: 42,
+          optionalExp: 'book',
+          optionalCustom: 'anything'
+        })
+      },
+      'it should use the values when the value is defined': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({
+          optionalString: 'bar',
+          optionalGt: 12,
+          optionalExp: 'magazine',
+          optionalCustom: 0
+        })
+
+        expect(actual.err).to.be.null
+        expect(actual.value).to.deep.equal({
+          optionalString: 'bar',
+          optionalGt: 12,
+          optionalExp: 'magazine',
+          optionalCustom: 'zero'
+        })
+      },
+      'it should use the given validators': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({
+          optionalString: 12,
+          optionalGt: 8,
+          optionalExp: 'movie',
+          optionalCustom: 1
+        })
+
+        expect(actual.err).to.not.be.null
+        expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
+      },
+      'it should not validate the default values': (expect) => {
+        const bp = blueprint('sut', {
+          optionalString: optional('string').withDefault(42)
+        })
+        const actual = bp.validate({})
+
+        expect(actual.err).to.be.null
+        expect(actual.value).to.deep.equal({
+          optionalString: 42
+        })
+      }
+    },
     'it should not throw when a null object is validated': (expect) => {
       const actual = blueprint('sut', { string: 'string' })
         .validate()
 
       expect(actual.err).to.not.be.null
       expect(actual.err.message).to.equal('Invalid sut: expected `string` {undefined} to be {string}')
-    },
-    'documentation': {
-      '// schema inheritance': () => {
-        // const { blueprint, registerBlueprint } = require('@polyn/blueprint')
-
-        const productBp = blueprint('Product', {
-          id: 'string',
-          title: 'string',
-          description: 'string',
-          price: 'decimal:2',
-          type: /^book|magazine|card$/,
-          metadata: {
-            keywords: 'string[]'
-          }
-        })
-
-        registerBlueprint('Author', {
-          firstName: 'string',
-          lastName: 'string'
-        })
-
-        const bookBp = blueprint('Book', {
-          ...productBp.schema,
-          ...{
-            metadata: {
-              ...productBp.schema.metadata,
-              ...{
-                isbn: 'string',
-                authors: 'Author[]'
-              }
-            }
-          }
-        })
-
-        console.dir(productBp.validate({
-          id: '5623c1263b952eb796d79e02',
-          title: 'Happy Birthday',
-          description: 'A birthday card',
-          price: 9.99,
-          type: 'card',
-          metadata: {
-            keywords: ['bday']
-          }
-        }), { depth: null })
-
-        console.dir(bookBp.validate({
-          id: '5623c1263b952eb796d79e03',
-          title: 'Swamplandia',
-          description: 'From the celebrated...',
-          price: 9.99,
-          type: 'book',
-          metadata: {
-            keywords: ['swamp'],
-            isbn: '0-307-26399-1',
-            authors: [{
-              firstName: 'Karen',
-              lastName: 'Russell'
-            }]
-          }
-        }), { depth: null })
-      }
     }
   })
 }
