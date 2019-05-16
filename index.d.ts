@@ -134,7 +134,6 @@ export function range (range: {
 /**
  * Support for null, or undefined numeric comparators
  */
-// export const optional = { gt, gte, lt, lte, range }
 declare namespace optional {
   /**
    * Creates a validator that will verify that a value is greater than the
@@ -189,6 +188,17 @@ declare namespace optional {
     lte?: number;
   }): (context: IValidationContext) => IValueOrError;
 }
+
+/**
+ * Support for null, or undefined registered, or functional comparators
+ */
+interface optional {
+  (comparator: string | Validator | RegExp): (context: IValidationContext) => IValueOrError;
+  withDefault (value: any): (context: IValidationContext) => IValueOrError;
+}
+
+declare function optional (comparator: string | Validator | RegExp): optional;
+
 
 // is ==========================================================================
 
