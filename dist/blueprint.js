@@ -908,21 +908,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             err: null,
             value: value
           } : {
-            err: new Error(errorMessage(type)(key, value)),
-            value: null
+            err: new Error(errorMessage(type)(key, value))
           };
         });
       });
       registerType('string', function (_ref8) {
         var key = _ref8.key,
             value = _ref8.value;
-        return is.string(value) ? {
-          err: null,
-          value: value.trim()
-        } : {
-          err: new Error(errorMessage('string')(key, value)),
-          value: null
-        };
+
+        if (is.string(value)) {
+          var trimmed = value.trim();
+
+          if (trimmed.length) {
+            return {
+              value: trimmed
+            };
+          }
+
+          return {
+            err: new Error("expected `".concat(key, "` {").concat(is.getType(value), "} to not be an empty string"))
+          };
+        } else {
+          return {
+            err: new Error(errorMessage('string')(key, value))
+          };
+        }
       });
       registerType('any', function (_ref9) {
         var key = _ref9.key,
@@ -931,8 +941,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           err: null,
           value: value
         } : {
-          err: new Error(errorMessage('any')(key, value)),
-          value: null
+          err: new Error(errorMessage('any')(key, value))
         };
       });
     }
