@@ -22,20 +22,28 @@ module.exports = {
       registerType(type, ({ key, value }) => {
         return is[type](value)
           ? { err: null, value }
-          : { err: new Error(errorMessage(type)(key, value)), value: null }
+          : { err: new Error(errorMessage(type)(key, value)) }
       })
     })
 
     registerType('string', ({ key, value }) => {
-      return is.string(value)
-        ? { err: null, value: value.trim() }
-        : { err: new Error(errorMessage('string')(key, value)), value: null }
+      if (is.string(value)) {
+        const trimmed = value.trim()
+
+        if (trimmed.length) {
+          return { value: trimmed }
+        }
+
+        return { err: new Error(`expected \`${key}\` {${is.getType(value)}} to not be an empty string`) }
+      } else {
+        return { err: new Error(errorMessage('string')(key, value)) }
+      }
     })
 
     registerType('any', ({ key, value }) => {
       return is.not.nullOrUndefined(value)
         ? { err: null, value: value }
-        : { err: new Error(errorMessage('any')(key, value)), value: null }
+        : { err: new Error(errorMessage('any')(key, value)) }
     })
   }
 }

@@ -43,10 +43,29 @@ module.exports = (test) => {
       const actual = blueprint('sut', {
         requiredString: 'string',
         optionalString: 'string?'
-      }).validate(expected)
+      }).validate({
+        requiredString: 'hello',
+        optionalString: 'world'
+      })
 
       expect(actual.err).to.be.null
       expect(actual.value).to.deep.equal(expected)
+    },
+    'it should not pass for empty strings with `string`, and `string?`': (expect) => {
+      const actual = blueprint('sut', {
+        requiredString: 'string',
+        optionalString: 'string?',
+        emptyString: 'string',
+        optionalEmptyString: 'string?'
+      }).validate({
+        requiredString: 'hello',
+        optionalString: 'world',
+        emptyString: '',
+        optionalEmptyString: ''
+      })
+
+      expect(actual.err).to.not.be.null
+      expect(actual.err.message).to.equal('Invalid sut: expected `emptyString` {string} to not be an empty string, expected `optionalEmptyString` {string} to not be an empty string')
     },
     'it should trim strings, when they exist': (expect) => {
       const expected = {
