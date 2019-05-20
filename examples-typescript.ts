@@ -134,4 +134,4 @@ import {
   })
 })()
 
-console.log('ALL TYPESCRIPT EXAMPLES PASSED\n')
+console.log('\x1b[32mALL TYPESCRIPT EXAMPLES PASSED\x1b[0m\n');

@@ -94,6 +94,21 @@ module.exports = {
     }
 
     /**
+     * If the caller passes in an instance of a class, or a function that
+     * has prototype values, we shouldn't strip those away. Try to create
+     * an object from the input's prototype, and return a plain object if
+     * that fails
+     * @param {any} input - the input that was passed to `validate`
+     */
+    const tryMakeFromProto = (input) => {
+      try {
+        return Object.create(Object.getPrototypeOf(input))
+      } catch (e) {
+        return {}
+      }
+    }
+
+    /**
      * Validates the input values against the schema expectations
      * @curried
      * @param {string} name - the name of the model being validated
@@ -147,7 +162,10 @@ module.exports = {
 
         output.value[key] = result ? result.value : input[key]
         return output
-      }, { validationErrors: [], value: {} })
+      }, {
+        validationErrors: [],
+        value: tryMakeFromProto(input)
+      }) // /reduce
 
       if (outcomes.validationErrors.length) {
         return new ValueOrError({

@@ -251,6 +251,102 @@ module.exports = (test) => {
         })
       }
     },
+    'when an implementation has **prototype** properties that aren\'t on the blueprint': {
+      when: () => {
+        class Foo {
+          constructor (input) {
+            if (!input) {
+              throw new Error('input is required')
+            }
+
+            this.requiredString = input.requiredString
+            this.optionalString = input.optionalString
+            this.foo = input.foo
+          }
+
+          getVal (key) {
+            return this[key]
+          }
+        }
+        return blueprint('sut', {
+          requiredString: 'string',
+          optionalString: 'string?',
+          foo: {
+            requiredString: 'string',
+            optionalString: 'string?'
+          }
+        }).validate(new Foo({
+          requiredString: 'hello',
+          optionalString: 'world',
+          foo: new Foo({
+            requiredString: 'foo',
+            optionalString: 'bar'
+          })
+        }))
+      },
+      'the output value should implement the prototype': (expect) => (err, { value }) => {
+        expect(err).to.be.null
+        expect(value.getVal('requiredString')).to.equal(value.requiredString)
+        expect(value.getVal('optionalString')).to.equal(value.optionalString)
+        expect(value.getVal('foo').requiredString).to.equal(value.foo.requiredString)
+        expect(value.getVal('foo').optionalString).to.equal(value.foo.optionalString)
+      },
+      'and the implementation uses registerBlueprint': {
+        when: () => {
+          class Foo {
+            constructor (input) {
+              if (!input) {
+                throw new Error('input is required')
+              }
+
+              this.requiredString = input.requiredString
+              this.optionalString = input.optionalString
+              this.foo = input.foo
+            }
+
+            getVal (key) {
+              return this[key]
+            }
+          }
+
+          const bp = registerBlueprint('protosWithRegBp', {
+            requiredString: 'string',
+            optionalString: 'string?',
+            foo: {
+              requiredString: 'string',
+              optionalString: 'string?'
+            }
+          })
+
+          return blueprint('sut', {
+            bp: {
+              requiredString: 'string',
+              optionalString: 'string?',
+              foo: {
+                requiredString: 'string',
+                optionalString: 'string?'
+              }
+            }
+          }).validate({
+            bp: new Foo({
+              requiredString: 'hello',
+              optionalString: 'world',
+              foo: new Foo({
+                requiredString: 'foo',
+                optionalString: 'bar'
+              })
+            })
+          })
+        },
+        'the output value should implement the prototype': (expect) => (err, { value }) => {
+          expect(err).to.be.null
+          expect(value.bp.getVal('requiredString')).to.equal(value.bp.requiredString)
+          expect(value.bp.getVal('optionalString')).to.equal(value.bp.optionalString)
+          expect(value.bp.getVal('foo').requiredString).to.equal(value.bp.foo.requiredString)
+          expect(value.bp.getVal('foo').optionalString).to.equal(value.bp.foo.optionalString)
+        }
+      }
+    },
     'it should support custom validators (functions)': (expect) => {
       const validator = ({ key, value }) => {
         if (value === 123) {
