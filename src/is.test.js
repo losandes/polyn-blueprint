@@ -17,7 +17,26 @@ module.exports = (test) => {
 
   return test('given `is`', {
     'when `getType` is executed with a value, it should return a string the describes the type of object value represents': (expect) => {
-      expect(is.getType(42)).to.equal('number')
+      // the keys below are the lowered form of printed type:
+      // [object Boolean], [object Number], etc.
+      const assertions = {
+        boolean: [true, false],
+        number: [-1, 0, 1],
+        string: ['hello', "hello", `hello`], // eslint-disable-line quotes
+        function: [() => {}, function () {}, class Foo {}],
+        asyncfunction: [async () => {}],
+        promise: [new Promise(() => {})],
+        array: [[1, 2], new Array()], // eslint-disable-line no-array-constructor
+        date: [new Date()],
+        regexp: [/[A-Z]/, new RegExp('[A-Z]')],
+        object: [{}, { foo: 'bar' }, Object.prototype]
+      }
+
+      Object.keys(assertions).forEach((key) => {
+        assertions[key].forEach((value) => {
+          expect(is.getType(value)).to.equal(key)
+        })
+      })
     },
     // defined
     'when `defined` is executed': {
@@ -92,13 +111,35 @@ module.exports = (test) => {
           is: [
             () => {},
             function () {},
-            class foo {}
+            class foo {},
+            async () => {},
+            new Promise(() => {})
           ],
           isNot: [
             42,
             'function',
             null,
             undefined
+          ]
+        })
+      }
+    },
+    // asyncFunction
+    'when `asyncFunction` is executed': {
+      'it should return the expected responses': () => {
+        assert('asyncFunction', {
+          is: [
+            async () => {},
+            new Promise(() => {})
+          ],
+          isNot: [
+            42,
+            'function',
+            null,
+            undefined,
+            () => {},
+            function () {},
+            class foo {}
           ]
         })
       }

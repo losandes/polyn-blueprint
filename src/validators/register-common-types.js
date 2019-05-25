@@ -6,6 +6,8 @@ module.exports = {
     const { registerType } = Blueprint
     const types = [
       'function',
+      'asyncFunction',
+      'promise',
       'object',
       'array',
       'boolean',

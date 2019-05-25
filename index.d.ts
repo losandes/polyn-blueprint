@@ -5,10 +5,10 @@
 
 // blueprint ===================================================================
 
-export interface IValueOrError {
+export interface IValueOrError<T = any> {
   err: any | null;
   messages: string[] | null;
-  value: any | null;
+  value: T | null;
 }
 
 export interface IBlueprint {
