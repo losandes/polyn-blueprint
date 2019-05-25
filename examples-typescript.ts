@@ -142,7 +142,11 @@ import {
     prop2: number;
   }
 
-  const bp = blueprint('typedValidation', {
+  interface IHaveValidationType {
+    validationType: IAmValidationType;
+  }
+
+  const bp: IBlueprint<IHaveValidationType> = blueprint('typedValidation', {
     validationType: ({ value }: IValidationContext): IValueOrError<IAmValidationType> => {
       if (value && is.string(value.prop1) && is.number(value.prop2)) {
         return { value: {
