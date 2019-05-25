@@ -1,7 +1,5 @@
 "use strict";
 
-function _typeof(obj) { if (typeof Symbol === "function" && typeof Symbol.iterator === "symbol") { _typeof = function _typeof(obj) { return typeof obj; }; } else { _typeof = function _typeof(obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }; } return _typeof(obj); }
-
 function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; var ownKeys = Object.keys(source); if (typeof Object.getOwnPropertySymbols === 'function') { ownKeys = ownKeys.concat(Object.getOwnPropertySymbols(source).filter(function (sym) { return Object.getOwnPropertyDescriptor(source, sym).enumerable; })); } ownKeys.forEach(function (key) { _defineProperty(target, key, source[key]); }); } return target; }
 
 function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
@@ -557,6 +555,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         nullOrUndefined: undefined,
         function: undefined,
         func: undefined,
+        promise: undefined,
+        asyncFunction: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -571,6 +571,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           nullOrUndefined: undefined,
           function: undefined,
           func: undefined,
+          promise: undefined,
+          asyncFunction: undefined,
           object: undefined,
           array: undefined,
           string: undefined,
@@ -581,26 +583,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           nullOrWhitespace: undefined,
           decimal: undefined
         }
-      };
-      var class2Types = {};
-      var class2ObjTypes = ['Boolean', 'Number', 'String', 'Function', 'Array', 'Date', 'RegExp', 'Object'];
-      var name;
+        /**
+         * Produces the printed type (i.e. [object Object], [object Function]),
+         * removes everything except for the type, and returns the lowered form.
+         * (i.e. boolean, number, string, function, asyncfunction, promise, array,
+         * date, regexp, object)
+         */
 
-      for (var i = 0; i < class2ObjTypes.length; i += 1) {
-        name = class2ObjTypes[i];
-        class2Types['[object ' + name + ']'] = name.toLowerCase();
-      }
+      };
 
       is.getType = function (obj) {
-        if (typeof obj === 'undefined') {
-          return 'undefined';
-        }
-
-        if (obj === null) {
-          return String(obj);
-        }
-
-        return _typeof(obj) === 'object' || typeof obj === 'function' ? class2Types[Object.prototype.toString.call(obj)] || 'object' : _typeof(obj);
+        return Object.prototype.toString.call(obj).replace(/(^\[object )|(\]$)/g, '').toLowerCase();
       };
 
       is.defined = function (obj) {
@@ -640,7 +633,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       is.function = function (obj) {
-        return is.getType(obj) === 'function';
+        var type = is.getType(obj);
+        return type === 'function' || type === 'asyncfunction' || type === 'promise';
       };
 
       is.func = is.function; // typescript support
@@ -650,6 +644,23 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       is.not.func = is.not.function; // typescript support
+
+      is.promise = function (obj) {
+        var type = is.getType(obj);
+        return type === 'asyncfunction' || type === 'promise';
+      };
+
+      is.not.asyncFunction = function (obj) {
+        return is.promise(obj) === false;
+      };
+
+      is.asyncFunction = function (obj) {
+        return is.promise(obj);
+      };
+
+      is.not.asyncFunction = function (obj) {
+        return is.asyncFunction(obj) === false;
+      };
 
       is.object = function (obj) {
         return is.getType(obj) === 'object';
@@ -907,7 +918,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       'use strict';
 
       var registerType = Blueprint.registerType;
-      var types = ['function', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp' // 'string' registered separately, below
+      var types = ['function', 'asyncFunction', 'promise', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp' // 'string' registered separately, below
       ];
 
       var errorMessage = function errorMessage(type) {

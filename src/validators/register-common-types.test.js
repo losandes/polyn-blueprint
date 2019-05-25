@@ -12,11 +12,45 @@ module.exports = (test) => {
     'it should support `function`, and `function?`': (expect) => {
       const expected = {
         requiredFunction: () => {},
+        requiredPromise: new Promise(() => {}),
+        requiredAsync: async () => {},
         optionalFunction: function () {}
       }
       const actual = blueprint('sut', {
         requiredFunction: 'function',
+        requiredPromise: 'function',
+        requiredAsync: 'function',
         optionalFunction: 'function?'
+      }).validate(expected)
+
+      expect(actual.err).to.be.null
+      expect(actual.value).to.deep.equal(expected)
+    },
+    'it should support `promise`, and `promise?`': (expect) => {
+      const expected = {
+        requiredPromise: new Promise(() => {}),
+        optionalPromise: new Promise(() => {}),
+        requiredAsync: async () => {}
+      }
+      const actual = blueprint('sut', {
+        requiredPromise: 'promise',
+        optionalPromise: 'promise?',
+        requiredAsync: 'promise'
+      }).validate(expected)
+
+      expect(actual.err).to.be.null
+      expect(actual.value).to.deep.equal(expected)
+    },
+    'it should support `asyncFunction`, and `asyncFunction?`': (expect) => {
+      const expected = {
+        requiredAsync: async () => {},
+        optionalAsync: async () => {},
+        requiredPromise: async () => {}
+      }
+      const actual = blueprint('sut', {
+        requiredAsync: 'asyncFunction',
+        optionalAsync: 'asyncFunction?',
+        requiredPromise: 'asyncFunction'
       }).validate(expected)
 
       expect(actual.err).to.be.null

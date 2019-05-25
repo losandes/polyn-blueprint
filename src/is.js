@@ -9,6 +9,8 @@ module.exports = {
       nullOrUndefined: undefined,
       function: undefined,
       func: undefined,
+      promise: undefined,
+      asyncFunction: undefined,
       object: undefined,
       array: undefined,
       string: undefined,
@@ -23,6 +25,8 @@ module.exports = {
         nullOrUndefined: undefined,
         function: undefined,
         func: undefined,
+        promise: undefined,
+        asyncFunction: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -34,27 +38,17 @@ module.exports = {
         decimal: undefined
       }
     }
-    const class2Types = {}
-    const class2ObjTypes = ['Boolean', 'Number', 'String', 'Function', 'Array', 'Date', 'RegExp', 'Object']
-    let name
 
-    for (let i = 0; i < class2ObjTypes.length; i += 1) {
-      name = class2ObjTypes[i]
-      class2Types['[object ' + name + ']'] = name.toLowerCase()
-    }
-
+    /**
+     * Produces the printed type (i.e. [object Object], [object Function]),
+     * removes everything except for the type, and returns the lowered form.
+     * (i.e. boolean, number, string, function, asyncfunction, promise, array,
+     * date, regexp, object)
+     */
     is.getType = function (obj) {
-      if (typeof obj === 'undefined') {
-        return 'undefined'
-      }
-
-      if (obj === null) {
-        return String(obj)
-      }
-
-      return typeof obj === 'object' || typeof obj === 'function'
-        ? class2Types[Object.prototype.toString.call(obj)] || 'object'
-        : typeof obj
+      return Object.prototype.toString.call(obj)
+        .replace(/(^\[object )|(\]$)/g, '')
+        .toLowerCase()
     }
 
     is.defined = function (obj) {
@@ -95,7 +89,10 @@ module.exports = {
     }
 
     is.function = function (obj) {
-      return is.getType(obj) === 'function'
+      const type = is.getType(obj)
+      return type === 'function' ||
+        type === 'asyncfunction' ||
+        type === 'promise'
     }
 
     is.func = is.function // typescript support
@@ -105,6 +102,24 @@ module.exports = {
     }
 
     is.not.func = is.not.function // typescript support
+
+    is.promise = function (obj) {
+      const type = is.getType(obj)
+      return type === 'asyncfunction' ||
+        type === 'promise'
+    }
+
+    is.not.asyncFunction = function (obj) {
+      return is.promise(obj) === false
+    }
+
+    is.asyncFunction = function (obj) {
+      return is.promise(obj)
+    }
+
+    is.not.asyncFunction = function (obj) {
+      return is.asyncFunction(obj) === false
+    }
 
     is.object = function (obj) {
       return is.getType(obj) === 'object'

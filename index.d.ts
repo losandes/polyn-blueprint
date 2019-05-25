@@ -5,24 +5,24 @@
 
 // blueprint ===================================================================
 
-export interface IValueOrError {
+export interface IValueOrError<T = any> {
   err: any | null;
   messages: string[] | null;
-  value: any | null;
+  value: T | null;
 }
 
-export interface IBlueprint {
+export interface IBlueprint<T = any> {
   name: string;
-  schema: any;
-  validate: (input: any) => IValueOrError
+  schema: object;
+  validate: (input: any) => IValueOrError<T>
 }
 
-export interface IValidationContext {
+export interface IValidationContext<T = any> {
   key: string;
-  value: any;
+  value: T;
   input: any;
   root: any;
-  schema: any;
+  schema: object;
 }
 
 /**

@@ -111,6 +111,7 @@ import {
 })()
 
 ;(() => {
+  // Exploring `optional`
   const optionalValues = blueprint('optionalValues', {
     stringOrDefault: optional('string').withDefault('foo'),
     maybeGt20: optional(gt(20)),
@@ -132,6 +133,39 @@ import {
     enumOrDefault: 'product',
     maybeCustom: 'custom'
   })
+})()
+
+;(() => {
+  // Strictly Typed IValueOrError
+  interface IAmValidationType {
+    prop1: string;
+    prop2: number;
+  }
+
+  interface IHaveValidationType {
+    validationType: IAmValidationType;
+  }
+
+  const bp: IBlueprint<IHaveValidationType> = blueprint('typedValidation', {
+    validationType: (
+      { value }: IValidationContext<IAmValidationType>
+    ): IValueOrError<IAmValidationType> => {
+      if (value && is.string(value.prop1) && is.number(value.prop2)) {
+        return { value, err: null, messages: null };
+      }
+      return { value: null, err: new Error('Boom!'), messages: null };
+    }
+  });
+
+  const expected = {
+    validationType: {
+      prop1: 'hello',
+      prop2: 42
+    }
+  };
+
+  expect(bp.validate(expected).value).to.deep.equal(expected);
+  expect(bp.validate({}).err).to.not.be.null;
 })()
 
 console.log('\x1b[32mALL TYPESCRIPT EXAMPLES PASSED\x1b[0m\n');

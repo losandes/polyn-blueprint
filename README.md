@@ -146,6 +146,16 @@ const allTheTypes = blueprint('allTheTypes', {
   requiredArrayOfFunctions: 'function[]',
   optionalArrayOfFunctions: 'function[]?',
 
+  // async functions / promises (validation is the same)
+  requiredAsyncFunction: 'asyncFunction',
+  optionalAsyncFunction: 'asyncFunction?',
+  requiredArrayOfAsyncFunctions: 'asyncFunction[]',
+  optionalArrayOfAsyncFunctions: 'asyncFunction[]?',
+  requiredAsyncPromise: 'promise',
+  optionalAsyncPromise: 'promise?',
+  requiredArrayOfAsyncPromises: 'promise[]',
+  optionalArrayOfAsyncPromises: 'promise[]?',
+
   // objects
   requiredObject: 'object',
   optionalObject: 'object?',
