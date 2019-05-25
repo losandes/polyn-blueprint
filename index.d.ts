@@ -5,23 +5,79 @@
 
 // blueprint ===================================================================
 
+/**
+ * When Blueprint returns a value, or an error, it will always
+ * guarantee IValueOrError, as opposed to boolean, or IOptionalValueOrError
+ */
 export interface IValueOrError<T = any> {
-  err: any | null;
-  messages: string[] | null;
-  value: T | null;
+  /**
+   * Blueprint.validate, and custom validators return either an
+   * error, or a value, and may be accompanied by additional messages.
+   */
+  err?: any | null;
+  /**
+   * At least the err.message is available in this array.
+   * Additional context may also be here. For instance, when
+   * `validate` returns an error, the error message potentially
+   * a concatenation of several validation errors. This messages
+   * property will have each message on it's own, so you don't
+   * have to split the err.message.
+   */
+  messages?: string[] | null;
+  /**
+   * Blueprint maps the values to `value` as it validates properties.
+   * This will essentially be the same as the object that was passed
+   * to `validate`, however any properties not on the schema will be
+   * omitted, so this can be used as part of a strategy to mitigate
+   * property pollution attacks.
+   */
+  value?: T | null;
 }
 
 export interface IBlueprint<T = any> {
+  /**
+   * The name of the model being validated
+   */
   name: string;
+  /**
+   * The type definitions
+   */
   schema: object;
+  /**
+   * Validates a given object against the schema
+   */
   validate: (input: any) => IValueOrError<T>
 }
 
 export interface IValidationContext<T = any> {
+  /**
+   * The property name
+   */
   key: string;
+  /**
+   * The value that is being validated for this property (i.e. `input[key]`)
+   */
   value: T;
+  /**
+   * The object this property is on
+   */
   input: any;
+  /**
+   * If the property being validated is on an object that is a
+   * child of another object in the validation context, this will
+   * be the top-most parent. Otherwise, it's the same as input.
+   */
   root: any;
+  /**
+   * The current state of the `value` property for the `IValueOrError`
+   * that is returned by `validate`. You can use this to validate
+   * the values of other properties that were already processed, and
+   * to mutate the output (the latter is not recommended).
+   */
+  output: any;
+  /**
+   * The schema for this validation context
+   */
   schema: object;
 }
 
@@ -210,6 +266,8 @@ declare namespace is {
   function defined (input?: any): boolean;
   function nullOrUndefined (input?: any): boolean;
   function func (input?: any): boolean;
+  function asyncFunc (input?: any): boolean;
+  function promise (input?: any): boolean;
   function object (input?: any): boolean;
   function array (input?: any): boolean;
   function string (input?: any): boolean;
@@ -225,6 +283,8 @@ declare namespace is {
     function defined (input?: any): boolean;
     function nullOrUndefined (input?: any): boolean;
     function func (input?: any): boolean;
+    function asyncFunc (input?: any): boolean;
+    function promise (input?: any): boolean;
     function object (input?: any): boolean;
     function array (input?: any): boolean;
     function string (input?: any): boolean;

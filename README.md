@@ -284,6 +284,8 @@ When defining the schema for your blueprint, you can define the property type wi
 * _@param {any}_ **value** - the value being validated (i.e. `input[key]`)
 * _@param {any}_ **input** - the object that is being validated
 * _@param {any}_ **root** - the root object that is being validated (different than input when the input is nested in another object)
+* _@param {any}_ **output** - the current state of the `value` property for the `IValueOrError` that is returned by `validate`. You can use this to validate the values of other properties that were already processed, and to mutate the output (the latter is not recommended).
+* _@param {object}_ **schema** - the schema for this validation context
 
 In this example, we require the given property based on the value of another property:
 

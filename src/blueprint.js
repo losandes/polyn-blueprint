@@ -27,6 +27,7 @@ module.exports = {
         this.value = input.value
         this.input = input.input
         this.root = input.root
+        this.output = input.output
         this.schema = input.schema
       }
     }
@@ -150,6 +151,7 @@ module.exports = {
           value: input && input[key],
           input,
           root: root || input,
+          output: output.value,
           schema
         })
 
@@ -162,7 +164,7 @@ module.exports = {
 
         output.value[key] = result ? result.value : input[key]
         return output
-      }, {
+      }, { /* output */
         validationErrors: [],
         value: tryMakeFromProto(input)
       }) // /reduce

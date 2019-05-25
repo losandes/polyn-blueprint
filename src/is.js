@@ -11,6 +11,7 @@ module.exports = {
       func: undefined,
       promise: undefined,
       asyncFunction: undefined,
+      asyncFunc: undefined,
       object: undefined,
       array: undefined,
       string: undefined,
@@ -27,6 +28,7 @@ module.exports = {
         func: undefined,
         promise: undefined,
         asyncFunction: undefined,
+        asyncFunc: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -117,9 +119,13 @@ module.exports = {
       return is.promise(obj)
     }
 
+    is.asyncFunc = is.asyncFunction // consistency for typescript
+
     is.not.asyncFunction = function (obj) {
       return is.asyncFunction(obj) === false
     }
+
+    is.not.asyncFunc = is.not.asyncFunction // consistency for typescript
 
     is.object = function (obj) {
       return is.getType(obj) === 'object'

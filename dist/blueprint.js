@@ -59,6 +59,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         this.value = input.value;
         this.input = input.input;
         this.root = input.root;
+        this.output = input.output;
         this.schema = input.schema;
       };
 
@@ -189,6 +190,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               value: input && input[key],
               input: input,
               root: root || input,
+              output: output.value,
               schema: schema
             });
             var result = validator(context, makeDefaultErrorMessage(context));
@@ -201,6 +203,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             output.value[key] = result ? result.value : input[key];
             return output;
           }, {
+            /* output */
             validationErrors: [],
             value: tryMakeFromProto(input)
           }); // /reduce
@@ -557,6 +560,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         func: undefined,
         promise: undefined,
         asyncFunction: undefined,
+        asyncFunc: undefined,
         object: undefined,
         array: undefined,
         string: undefined,
@@ -573,6 +577,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           func: undefined,
           promise: undefined,
           asyncFunction: undefined,
+          asyncFunc: undefined,
           object: undefined,
           array: undefined,
           string: undefined,
@@ -658,9 +663,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return is.promise(obj);
       };
 
+      is.asyncFunc = is.asyncFunction; // consistency for typescript
+
       is.not.asyncFunction = function (obj) {
         return is.asyncFunction(obj) === false;
       };
+
+      is.not.asyncFunc = is.not.asyncFunction; // consistency for typescript
 
       is.object = function (obj) {
         return is.getType(obj) === 'object';

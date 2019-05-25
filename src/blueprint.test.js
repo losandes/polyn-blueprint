@@ -309,7 +309,7 @@ module.exports = (test) => {
             }
           }
 
-          const bp = registerBlueprint('protosWithRegBp', {
+          registerBlueprint('protosWithRegBp', {
             requiredString: 'string',
             optionalString: 'string?',
             foo: {
@@ -420,25 +420,72 @@ module.exports = (test) => {
         expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: expected `firstName` {undefined} to be {string}, expected `lastName` {undefined} to be {string}')
         expect(actualInvalid.value).to.be.null
       },
-      'it should pass `key`, `value`, `input`, and `root` to registered validators': (expect) => {
-        let actual
-        registerValidator('registerValidatorArgs', ({ key, value, input, root }) => {
-          actual = { key, value, input, root }
-          return { err: null }
+      'it should pass `ValidationContext` to registered validators': (expect) => {
+        let actual1
+        registerValidator('ValidationContext1', (context) => {
+          // copy the context so we can see progression of the output object
+          actual1 = { ...context }
+          actual1.output = { ...context.output }
+          return { value: 42, err: null }
         })
 
-        blueprint('sut', {
-          args: 'registerValidatorArgs'
-        }).validate({
-          args: 'args-value',
-          other: 'other-value'
+        let actual2
+        registerValidator('ValidationContext2', (context) => {
+          // the output should have the value from ValidationContext1 by now
+          if (context.output.args1 === 42) {
+            actual2 = { ...context }
+            actual2.output = { ...context.output }
+            return { value: 43 }
+          } else {
+            return { err: new Error('The output isn\'t set') }
+          }
         })
 
-        expect(actual).to.deep.equal({
-          key: 'args',
-          value: 'args-value',
-          input: { args: 'args-value', other: 'other-value' },
-          root: { args: 'args-value', other: 'other-value' }
+        let actual3
+        registerValidator('ValidationContext3', (context) => {
+          // not sure it's a good idea to mutate the output,
+          // but not sure this library should have an opinion
+          // on that, either
+          context.output.foo = 'bar'
+          actual3 = context.output
+          return { value: 44, err: null }
+        })
+
+        const expectedSchema = {
+          args1: 'ValidationContext1',
+          args2: 'ValidationContext2',
+          args3: 'ValidationContext3'
+        }
+
+        blueprint('sut', expectedSchema).validate({
+          args1: 'args-value-1',
+          args2: 'args-value-2',
+          args3: 'args-value-3'
+        })
+
+        expect(actual1).to.deep.equal({
+          key: 'args1',
+          value: 'args-value-1',
+          input: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
+          root: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
+          output: {},
+          schema: expectedSchema
+        })
+
+        expect(actual2).to.deep.equal({
+          key: 'args2',
+          value: 'args-value-2',
+          input: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
+          root: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
+          output: { args1: 42 },
+          schema: expectedSchema
+        })
+
+        expect(actual3).to.deep.equal({
+          args1: 42,
+          args2: 43,
+          args3: 44,
+          foo: 'bar'
         })
       },
       'it should return an error if a validator doesn\'t return anything': (expect) => {

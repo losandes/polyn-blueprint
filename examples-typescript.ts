@@ -29,16 +29,12 @@ import {
 
   const isCharVal: Validator = (context: IValidationContext): IValueOrError => {
     if (typeof context.value === 'string' && context.value.length === 1) {
-      return {
-        err: null,
-        messages: null,
-        value: context.value
-      }
+      return { value: context.value }
     }
 
     return {
       err: new Error('BOOM!'),
-      messages: ['BOOM!'],
+      messages: ['BOOM!', 'BOOM AGAIN!'],
       value: context.value
     }
   }
@@ -151,9 +147,9 @@ import {
       { value }: IValidationContext<IAmValidationType>
     ): IValueOrError<IAmValidationType> => {
       if (value && is.string(value.prop1) && is.number(value.prop2)) {
-        return { value, err: null, messages: null };
+        return { value };
       }
-      return { value: null, err: new Error('Boom!'), messages: null };
+      return { err: new Error('Boom!') };
     }
   });
 
