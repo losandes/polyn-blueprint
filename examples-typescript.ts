@@ -147,12 +147,11 @@ import {
   }
 
   const bp: IBlueprint<IHaveValidationType> = blueprint('typedValidation', {
-    validationType: ({ value }: IValidationContext): IValueOrError<IAmValidationType> => {
+    validationType: (
+      { value }: IValidationContext<IAmValidationType>
+    ): IValueOrError<IAmValidationType> => {
       if (value && is.string(value.prop1) && is.number(value.prop2)) {
-        return { value: {
-          prop1: value.prop1,
-          prop2: value.prop2
-        }, err: null, messages: null };
+        return { value, err: null, messages: null };
       }
       return { value: null, err: new Error('Boom!'), messages: null };
     }
