@@ -11,6 +11,7 @@ import {
   registerBlueprint,
   registerExpression,
   optional,
+  required,
   gt, gte, lt, lte, range,
   is
 } from '.'
@@ -115,10 +116,19 @@ import {
     maybeEnum: optional(/^book|magazine$/),
     enumOrDefault: optional(/^book|magazine|product$/).withDefault('product'),
     maybeCustom: optional(({ value }) => typeof value === 'string')
-      .withDefault('custom')
+      .withDefault('custom'),
+    fromContext: optional('string')
+      .from(({ input }: IValidationContext) => input.context.string),
+    fromContextWithDefault: (optional('string')
+      .from(({ input }: IValidationContext) => input.context.string2) as optional)
+      .withDefault('default!')
   })
 
-  const result = optionalValues.validate({});
+  const result = optionalValues.validate({
+    context: {
+      string: 'foo'
+    }
+  });
 
   expect(result.err).to.be.null
   expect(result.value).to.deep.equal({
@@ -127,7 +137,36 @@ import {
     gt20OrDefault: 42,
     maybeEnum: undefined,
     enumOrDefault: 'product',
-    maybeCustom: 'custom'
+    maybeCustom: 'custom',
+    fromContext: 'foo',
+    fromContextWithDefault: 'default!'
+  })
+})()
+
+;(() => {
+  // Exploring `required`
+  const optionalValues = blueprint('optionalValues', {
+    requiredString: required('string')
+      .from(({ input }: IValidationContext) => input.context.string),
+    requiredGt: required(gt(10))
+      .from(({ input }: IValidationContext) => input.context.twelve),
+    requiredExp: required(/^book|magazine$/)
+      .from(({ input }: IValidationContext) => input.context.type)
+  })
+
+  const result = optionalValues.validate({
+    context: {
+      string: 'foo',
+      twelve: 12,
+      type: 'book'
+    }
+  });
+
+  expect(result.err).to.be.null
+  expect(result.value).to.deep.equal({
+    requiredString: 'foo',
+    requiredGt: 12,
+    requiredExp: 'book'
   })
 })()
 

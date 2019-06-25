@@ -6,6 +6,7 @@ module.exports = (test) => {
     registerBlueprint,
     registerType,
     optional,
+    required,
     gt
   } = test.sut
 
@@ -1093,6 +1094,142 @@ module.exports = (test) => {
         expect(actual.value).to.deep.equal({
           optionalString: 42
         })
+      },
+      'when `from` is used': {
+        when: () => {
+          return blueprint('sut', {
+            optionalString: optional('string').from(({ input }) => input.context.string),
+            optionalGt: optional(gt(10)).from(({ input }) => input.context.twelve),
+            optionalExp: optional(/^book|magazine$/).from(({ input }) => input.context.type),
+            optionalString2: optional('string')
+              .from(({ input }) => input.context.string2)
+              .withDefault('foo2'),
+            optionalGt2: optional(gt(10))
+              .from(({ input }) => input.context.twelve2)
+              .withDefault(13),
+            optionalExp2: optional(/^book|magazine$/)
+              .from(({ input }) => input.context.type2)
+              .withDefault('magazine')
+          })
+        },
+        'it should use the given values if they are valid': (expect) => (err, bp) => {
+          expect(err).to.be.null
+          const actual = bp.validate({
+            context: {
+              string: 'foo',
+              twelve: 12,
+              type: 'book'
+            }
+          })
+
+          expect(actual.err).to.be.null
+          expect(actual.value).to.deep.equal({
+            optionalString: 'foo',
+            optionalGt: 12,
+            optionalExp: 'book',
+            optionalString2: 'foo2',
+            optionalGt2: 13,
+            optionalExp2: 'magazine'
+          })
+        },
+        'it should validate the given values': (expect) => (err, bp) => {
+          expect(err).to.be.null
+          const actual = bp.validate({
+            context: {
+              string: 12,
+              twelve: 8,
+              type: 'hat'
+            }
+          })
+
+          expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
+        }
+      },
+      'when no fluent functions are used': {
+        when: () => {
+          return blueprint('sut', {
+            optionalString: optional('string'),
+            optionalGt: optional(gt(10)),
+            optionalExp: optional(/^book|magazine$/),
+            optionalCustom: optional(({ value }) => {
+              return {
+                value: value === 0 ? 'zero' : 'something'
+              }
+            })
+          })
+        },
+        'it should set the values to null if they are null': (expect) => (err, bp) => {
+          expect(err).to.be.null
+          const actual = bp.validate({
+            optionalString: null,
+            optionalGt: null,
+            optionalExp: null,
+            optionalCustom: null
+          })
+
+          expect(actual.err).to.be.null
+          expect(actual.value).to.deep.equal({
+            optionalString: null,
+            optionalGt: null,
+            optionalExp: null,
+            optionalCustom: null
+          })
+        },
+        'it should set the values to undefined if they are undefined': (expect) => (err, bp) => {
+          expect(err).to.be.null
+          const actual = bp.validate({
+            optionalString: undefined,
+            optionalGt: undefined,
+            optionalExp: undefined,
+            optionalCustom: undefined
+          })
+
+          expect(actual.err).to.be.null
+          expect(actual.value).to.deep.equal({
+            optionalString: undefined,
+            optionalGt: undefined,
+            optionalExp: undefined,
+            optionalCustom: undefined
+          })
+        }
+      }
+    },
+    '`required`': {
+      when: () => {
+        return blueprint('sut', {
+          requiredString: required('string').from(({ input }) => input.context.string),
+          requiredGt: required(gt(10)).from(({ input }) => input.context.twelve),
+          requiredExp: required(/^book|magazine$/).from(({ input }) => input.context.type)
+        })
+      },
+      'it should use the given values if they are valid': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({
+          context: {
+            string: 'foo',
+            twelve: 12,
+            type: 'book'
+          }
+        })
+
+        expect(actual.err).to.be.null
+        expect(actual.value).to.deep.equal({
+          requiredString: 'foo',
+          requiredGt: 12,
+          requiredExp: 'book'
+        })
+      },
+      'it should validate the given values': (expect) => (err, bp) => {
+        expect(err).to.be.null
+        const actual = bp.validate({
+          context: {
+            string: 12,
+            twelve: 8,
+            type: 'hat'
+          }
+        })
+
+        expect(actual.err.message).to.equal('Invalid sut: expected `requiredString` {number} to be {string}, expected `requiredGt` to be greater than 10, expected `requiredExp` to match /^book|magazine$/')
       }
     },
     'it should not throw when a null object is validated': (expect) => {

@@ -420,14 +420,7 @@ module.exports = {
       return { ...validators[name] }
     }
 
-    /**
-     * Fluent interface to support optional function based validators
-     * (i.e. like gt, lt, range, custom), and to use default values when
-     * the value presented is null, or undefined.
-     * @param {any} comparator - the name of the validator, or a function that performs validation
-     */
-    const optional = (comparator) => {
-      const options = {}
+    const comparatorToValidator = (comparator) => {
       let validator
 
       if (is.function(comparator)) {
@@ -438,17 +431,44 @@ module.exports = {
         validator = validators[comparator]
       }
 
+      return validator
+    }
+
+    /**
+     * Fluent interface to support optional function based validators
+     * (i.e. like gt, lt, range, custom), and to use default values when
+     * the value presented is null, or undefined.
+     * @param {any} comparator - the name of the validator, or a function that performs validation
+     */
+    const optional = (comparator) => {
+      let defaultVal
+      let from
+      let validator = comparatorToValidator(comparator)
+
       const valueOrDefaultValue = (value) => {
-        if (is.function(options.defaultValue)) {
-          return { value: options.defaultValue() }
-        } else if (is.defined(options.defaultValue)) {
-          return { value: options.defaultValue }
+        if (is.function(defaultVal)) {
+          return { value: defaultVal() }
+        } else if (is.defined(defaultVal)) {
+          return { value: defaultVal }
         } else {
           return { value }
         }
       }
 
-      const output = (context) => {
+      const output = (ctx) => {
+        let context
+
+        if (from) {
+          context = {
+            ...ctx,
+            ...{
+              value: from(ctx)
+            }
+          }
+        } else {
+          context = ctx
+        }
+
         const { value } = context
         if (is.nullOrUndefined(value)) {
           return valueOrDefaultValue(value)
@@ -457,8 +477,66 @@ module.exports = {
         }
       }
 
+      /**
+       * A value factory for producing a value, given the constructor context
+       * @param {function} callback - a callback function that accepts IValidationContext and produces a value
+       */
+      output.from = (callback) => {
+        if (is.function(callback)) {
+          from = callback
+        }
+
+        return output
+      }
+
+      /**
+       * Sets a default value to be used when a value is not given for this property
+       * @param {any} defaultValue - the value to use when this property is null or undefined
+       */
       output.withDefault = (defaultValue) => {
-        options.defaultValue = defaultValue
+        defaultVal = defaultValue
+        return output
+      }
+
+      return output
+    }
+
+    /**
+     * Fluent interface to support optional function based validators
+     * (i.e. like gt, lt, range, custom), and to use default values when
+     * the value presented is null, or undefined.
+     * @param {any} comparator - the name of the validator, or a function that performs validation
+     */
+    const required = (comparator) => {
+      let from
+      let validator = comparatorToValidator(comparator)
+
+      const output = (ctx) => {
+        let context
+
+        if (from) {
+          context = {
+            ...ctx,
+            ...{
+              value: from(ctx)
+            }
+          }
+        } else {
+          context = ctx
+        }
+
+        return validator(context)
+      }
+
+      /**
+       * A value factory for producing a value, given the constructor context
+       * @param {function} callback - a callback function that accepts IValidationContext and produces a value
+       */
+      output.from = (callback) => {
+        if (is.function(callback)) {
+          from = callback
+        }
+
         return output
       }
 
@@ -472,6 +550,7 @@ module.exports = {
       registerBlueprint,
       registerExpression,
       optional,
+      required,
       // below are undocumented / subject to breaking changes
       registerInstanceOfType,
       registerArrayOfType,

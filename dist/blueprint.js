@@ -478,16 +478,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
         return _objectSpread({}, validators[name]);
       };
-      /**
-       * Fluent interface to support optional function based validators
-       * (i.e. like gt, lt, range, custom), and to use default values when
-       * the value presented is null, or undefined.
-       * @param {any} comparator - the name of the validator, or a function that performs validation
-       */
 
-
-      var optional = function optional(comparator) {
-        var options = {};
+      var comparatorToValidator = function comparatorToValidator(comparator) {
         var validator;
 
         if (is.function(comparator)) {
@@ -498,14 +490,29 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           validator = validators[comparator];
         }
 
+        return validator;
+      };
+      /**
+       * Fluent interface to support optional function based validators
+       * (i.e. like gt, lt, range, custom), and to use default values when
+       * the value presented is null, or undefined.
+       * @param {any} comparator - the name of the validator, or a function that performs validation
+       */
+
+
+      var optional = function optional(comparator) {
+        var defaultVal;
+        var from;
+        var validator = comparatorToValidator(comparator);
+
         var valueOrDefaultValue = function valueOrDefaultValue(value) {
-          if (is.function(options.defaultValue)) {
+          if (is.function(defaultVal)) {
             return {
-              value: options.defaultValue()
+              value: defaultVal()
             };
-          } else if (is.defined(options.defaultValue)) {
+          } else if (is.defined(defaultVal)) {
             return {
-              value: options.defaultValue
+              value: defaultVal
             };
           } else {
             return {
@@ -514,8 +521,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         };
 
-        var output = function output(context) {
-          var value = context.value;
+        var output = function output(ctx) {
+          var context;
+
+          if (from) {
+            context = _objectSpread({}, ctx, {
+              value: from(ctx)
+            });
+          } else {
+            context = ctx;
+          }
+
+          var _context = context,
+              value = _context.value;
 
           if (is.nullOrUndefined(value)) {
             return valueOrDefaultValue(value);
@@ -523,9 +541,68 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             return validator(context);
           }
         };
+        /**
+         * A value factory for producing a value, given the constructor context
+         * @param {function} callback - a callback function that accepts IValidationContext and produces a value
+         */
+
+
+        output.from = function (callback) {
+          if (is.function(callback)) {
+            from = callback;
+          }
+
+          return output;
+        };
+        /**
+         * Sets a default value to be used when a value is not given for this property
+         * @param {any} defaultValue - the value to use when this property is null or undefined
+         */
+
 
         output.withDefault = function (defaultValue) {
-          options.defaultValue = defaultValue;
+          defaultVal = defaultValue;
+          return output;
+        };
+
+        return output;
+      };
+      /**
+       * Fluent interface to support optional function based validators
+       * (i.e. like gt, lt, range, custom), and to use default values when
+       * the value presented is null, or undefined.
+       * @param {any} comparator - the name of the validator, or a function that performs validation
+       */
+
+
+      var required = function required(comparator) {
+        var from;
+        var validator = comparatorToValidator(comparator);
+
+        var output = function output(ctx) {
+          var context;
+
+          if (from) {
+            context = _objectSpread({}, ctx, {
+              value: from(ctx)
+            });
+          } else {
+            context = ctx;
+          }
+
+          return validator(context);
+        };
+        /**
+         * A value factory for producing a value, given the constructor context
+         * @param {function} callback - a callback function that accepts IValidationContext and produces a value
+         */
+
+
+        output.from = function (callback) {
+          if (is.function(callback)) {
+            from = callback;
+          }
+
           return output;
         };
 
@@ -539,6 +616,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         registerBlueprint: registerBlueprint,
         registerExpression: registerExpression,
         optional: optional,
+        required: required,
         // below are undocumented / subject to breaking changes
         registerInstanceOfType: registerInstanceOfType,
         registerArrayOfType: registerArrayOfType,

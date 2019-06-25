@@ -250,10 +250,20 @@ declare namespace optional {
  */
 interface optional {
   (comparator: string | Validator | RegExp): (context: IValidationContext) => IValueOrError;
+  from (callback: (context: IValidationContext) => any): optional | ((context: IValidationContext) => IValueOrError);
   withDefault (value: any): (context: IValidationContext) => IValueOrError;
 }
 
+/**
+ * Support for unpacking constructor input
+ */
+interface required {
+  (comparator: string | Validator | RegExp): (context: IValidationContext) => IValueOrError;
+  from (callback: (context: IValidationContext) => any): (context: IValidationContext) => IValueOrError;
+}
+
 declare function optional (comparator: string | Validator | RegExp): optional;
+declare function required (comparator: string | Validator | RegExp): required;
 
 
 // is ==========================================================================

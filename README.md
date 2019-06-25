@@ -212,6 +212,27 @@ const optionalValues = blueprint('optionalValues', {
 })
 ```
 
+### Unpacking
+The `optional`, and `required` functions can be used to map the input values to different output properties, by using `from`. With `optional`, `from` can be chained with `withDefault`. This is particularly useful when accepting input with a different model than the intended output.
+
+```JavaScript
+const { blueprint, gt, optional } = require('@polyn/blueprint')
+
+const unpackedValues = blueprint('UnpackedValues', {
+  requiredString: required('string')
+    .from(({ input }) => input.something.string),
+  requiredGt: required(gt(10))
+    .from(({ input }) => input.something.twelve),
+  requiredExp: required(/^book|magazine$/)
+    .from(({ input }) => input.something.type),
+  stringFrom: optional('string')
+    .from(({ input }) => input.something.string),
+  stringOrDefault: optional('string')
+    .from(({ input }) => input.something.string)
+    .withDefault('foo')
+})
+```
+
 ## Custom Validators
 Blueprint supports multiple ways for defining your own validators.
 
