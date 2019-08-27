@@ -272,7 +272,7 @@ declare function required (comparator: string | Validator | RegExp): required;
  * Boolean type comparators
  */
 declare namespace is {
-  function getType (input: any): boolean;
+  function getType (input: any): string;
   function defined (input?: any): boolean;
   function nullOrUndefined (input?: any): boolean;
   function func (input?: any): boolean;
@@ -289,7 +289,6 @@ declare namespace is {
   function decimal (input?: any, places?: number): boolean;
 
   namespace not {
-    function getType (input: any): boolean;
     function defined (input?: any): boolean;
     function nullOrUndefined (input?: any): boolean;
     function func (input?: any): boolean;
