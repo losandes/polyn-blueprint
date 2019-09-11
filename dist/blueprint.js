@@ -650,6 +650,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         number: undefined,
         nullOrWhitespace: undefined,
         decimal: undefined,
+        primitive: undefined,
         not: {
           defined: undefined,
           nullOrUndefined: undefined,
@@ -666,16 +667,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           regexp: undefined,
           number: undefined,
           nullOrWhitespace: undefined,
-          decimal: undefined
+          decimal: undefined,
+          primitive: undefined
         }
-        /**
-         * Produces the printed type (i.e. [object Object], [object Function]),
-         * removes everything except for the type, and returns the lowered form.
-         * (i.e. boolean, number, string, function, asyncfunction, promise, array,
-         * date, regexp, object)
-         */
-
       };
+      var primitives = ['boolean', 'null', 'undefined', 'number', 'bigint', 'string', 'symbol'];
+      /**
+       * Produces the printed type (i.e. [object Object], [object Function]),
+       * removes everything except for the type, and returns the lowered form.
+       * (i.e. boolean, number, string, function, asyncfunction, promise, array,
+       * date, regexp, object)
+       */
 
       is.getType = function (obj) {
         return Object.prototype.toString.call(obj).replace(/(^\[object )|(\]$)/g, '').toLowerCase();
@@ -823,6 +825,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       is.not.decimal = function (val, places) {
         return is.decimal(val, places) === false;
+      };
+
+      is.primitive = function (input) {
+        return primitives.indexOf(is.getType(input)) > -1;
+      };
+
+      is.not.primitive = function (input) {
+        return is.primitive(input) === false;
       };
 
       return is;
