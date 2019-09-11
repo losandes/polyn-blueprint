@@ -14,7 +14,8 @@ module.exports = {
       'date',
       'number',
       'decimal',
-      'regexp'
+      'regexp',
+      'primitive'
       // 'string' registered separately, below
     ]
 

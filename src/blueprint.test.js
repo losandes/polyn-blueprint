@@ -738,7 +738,7 @@ module.exports = (test) => {
       'should return the validators': (expect) => {
         const types = registerType('registerTypeReturns', ({ value }) => { return { value } })
 
-        expect(types['registerTypeReturns']({ value: 42 }).value).to.equal(42)
+        expect(types['registerTypeReturns']({ value: 42 }).value).to.equal(42) // eslint-disable-line dot-notation
         expect(types['registerTypeReturns?']({ value: 42 }).value).to.equal(42)
         expect(types['registerTypeReturns[]']({ value: [42] }).value[0]).to.equal(42)
         expect(types['registerTypeReturns[]?']({ value: [42] }).value[0]).to.equal(42)
@@ -1000,7 +1000,7 @@ module.exports = (test) => {
       'should return the validators': (expect) => {
         const types = registerExpression('registerExpressionReturns', /^book$/)
 
-        expect(types['registerExpressionReturns']({ value: 'book' }).value).to.equal('book')
+        expect(types['registerExpressionReturns']({ value: 'book' }).value).to.equal('book') // eslint-disable-line dot-notation
         expect(types['registerExpressionReturns?']({ value: 'book' }).value).to.equal('book')
         expect(types['registerExpressionReturns[]']({ value: ['book'] }).value[0]).to.equal('book')
         expect(types['registerExpressionReturns[]?']({ value: ['book'] }).value[0]).to.equal('book')

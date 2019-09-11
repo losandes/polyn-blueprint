@@ -169,7 +169,7 @@ const allTheTypes = blueprint('allTheTypes', {
   optionalArrayOfAny: 'any[]?',
 
   // weakly typed arrays
-  requiredArray: 'array',  // same as any[]
+  requiredArray: 'array', // same as any[]
   optionalArray: 'array?', // same as any[]?
 
   // decimals
@@ -184,10 +184,15 @@ const allTheTypes = blueprint('allTheTypes', {
   requiredDecimalTo15Places: 'decimal:15',
   optionalDecimalTo15Places: 'decimal:15?',
 
+  requiredPrimitive: 'primitive',
+  optionalPrimitive: 'primitive?',
+  requiredArrayOfPrimitives: 'primitive[]',
+  optionalArrayOfPrimitives: 'primitive[]?',
+
   // inline custom validators
   someProperty: ({ key, value, input, root }) =>
     root.productType === 'book' && typeof value === 'string'
-  )
+})
 ```
 
 ### Optionals
