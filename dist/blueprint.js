@@ -1017,7 +1017,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       'use strict';
 
       var registerType = Blueprint.registerType;
-      var types = ['function', 'asyncFunction', 'promise', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp' // 'string' registered separately, below
+      var types = ['function', 'asyncFunction', 'promise', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp', 'primitive' // 'string' registered separately, below
       ];
 
       var errorMessage = function errorMessage(type) {

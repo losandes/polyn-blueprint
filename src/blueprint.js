@@ -443,7 +443,7 @@ module.exports = {
     const optional = (comparator) => {
       let defaultVal
       let from
-      let validator = comparatorToValidator(comparator)
+      const validator = comparatorToValidator(comparator)
 
       const valueOrDefaultValue = (value) => {
         if (is.function(defaultVal)) {
@@ -509,7 +509,7 @@ module.exports = {
      */
     const required = (comparator) => {
       let from
-      let validator = comparatorToValidator(comparator)
+      const validator = comparatorToValidator(comparator)
 
       const output = (ctx) => {
         let context
