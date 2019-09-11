@@ -21,6 +21,7 @@ module.exports = {
       number: undefined,
       nullOrWhitespace: undefined,
       decimal: undefined,
+      primitive: undefined,
       not: {
         defined: undefined,
         nullOrUndefined: undefined,
@@ -37,9 +38,20 @@ module.exports = {
         regexp: undefined,
         number: undefined,
         nullOrWhitespace: undefined,
-        decimal: undefined
+        decimal: undefined,
+        primitive: undefined
       }
     }
+
+    const primitives = [
+      'boolean',
+      'null',
+      'undefined',
+      'number',
+      'bigint',
+      'string',
+      'symbol'
+    ]
 
     /**
      * Produces the printed type (i.e. [object Object], [object Function]),
@@ -201,6 +213,14 @@ module.exports = {
 
     is.not.decimal = function (val, places) {
       return is.decimal(val, places) === false
+    }
+
+    is.primitive = function (input) {
+      return primitives.indexOf(is.getType(input)) > -1
+    }
+
+    is.not.primitive = function (input) {
+      return is.primitive(input) === false
     }
 
     return is

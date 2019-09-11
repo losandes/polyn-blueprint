@@ -3,15 +3,24 @@ const expect = require('chai').expect
 module.exports = (test) => {
   const { is } = test.sut
 
+  const makeDescription = (func, name, value) => {
+    try {
+      return `${func}.${name}(${value})`
+    } catch (e) {
+      // ignore - symbols can't be coerced to strings
+      return `${func}.${name}(probably a symbol)`
+    }
+  }
+
   const assert = (name, values) => {
     values.is.forEach((value) => {
-      expect(is[name](value), `is.${name}(${value})`).to.equal(true)
-      expect(is.not[name](value), `is.not.${name}(${value})`).to.equal(false)
+      expect(is[name](value), makeDescription('is', name, value)).to.equal(true)
+      expect(is.not[name](value), makeDescription('is.not', name, value)).to.equal(false)
     })
 
     values.isNot.forEach((value) => {
-      expect(is[name](value), `is.${name}(${value})`).to.equal(false)
-      expect(is.not[name](value), `is.not.${name}(${value})`).to.equal(true)
+      expect(is[name](value), makeDescription('is', name, value)).to.equal(false)
+      expect(is.not[name](value), makeDescription('is.not', name, value)).to.equal(true)
     })
   }
 
@@ -349,6 +358,42 @@ module.exports = (test) => {
       expect(is.not.decimal(-42.42, 3)).to.equal(true)
       expect(is.not.decimal(42.4242424242, 12)).to.equal(true)
       expect(is.not.decimal(-42.4242424242, 12)).to.equal(true)
+    },
+    // primitive
+    'when `primitive` is executed': {
+      'it should return the expected responses': () => {
+        assert('primitive', {
+          is: [
+            true,
+            false,
+            'string',
+            null,
+            undefined,
+            0,
+            1,
+            42.4,
+            Infinity,
+            1n,
+            BigInt(Number.MAX_SAFE_INTEGER + Number.MAX_SAFE_INTEGER), // eslint-disable-line no-undef
+            Symbol(true),
+            Symbol(false),
+            Symbol('string'),
+            Symbol(null),
+            Symbol(undefined),
+            Symbol(0),
+            Symbol(1),
+            Symbol(42.4),
+            Symbol(1n)
+          ],
+          isNot: [
+            {},
+            { foo: 'bar' },
+            function () {},
+            () => {},
+            new Date()
+          ]
+        })
+      }
     }
   })
 }
