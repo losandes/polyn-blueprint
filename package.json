@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node build.js",
     "pre-push": "npm test && node pre-push.js",
-    "test": "node test.js && npm run test:ts",
+    "test": "node test.js -r nyan && node test-browser.js -r nyan && npm run test:ts",
     "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
     "watch": "nodemon -e js --exec 'node test.js --tap | tap-nyan'"
   },
@@ -45,7 +45,8 @@
     "eslint-plugin-standard": "^4.0.1",
     "nodemon": "^1.19.1",
     "pre-push": "^0.1.1",
-    "supposed": "^0.3.1",
+    "puppeteer": "^1.20.0",
+    "supposed": "^1.0.2-beta.1",
     "terminal-adventure": "^1.0.2",
     "typescript": "^3.5.3"
   },
