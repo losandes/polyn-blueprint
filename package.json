@@ -1,6 +1,6 @@
 {
   "name": "@polyn/blueprint",
-  "version": "2.5.1",
+  "version": "2.5.2",
   "description": "An easy to use, flexible, and powerful validation library for nodejs and browsers",
   "main": "index.js",
   "types": "index.d.ts",
