@@ -1,5 +1,5 @@
-module.exports = (test) => {
-  const { blueprint, gte, optional } = test.sut
+module.exports = (test, dependencies) => {
+  const { blueprint, gte, optional } = dependencies.sut
 
   const gte20Bp = blueprint('sut', {
     gte20: gte(20)

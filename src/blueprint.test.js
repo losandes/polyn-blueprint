@@ -1,4 +1,4 @@
-module.exports = (test) => {
+module.exports = (test, dependencies) => {
   const {
     blueprint,
     registerExpression,
@@ -8,7 +8,7 @@ module.exports = (test) => {
     optional,
     required,
     gt
-  } = test.sut
+  } = dependencies.sut
 
   const makeErrorMessage = (options) => {
     return `expected \`${options.key}\` {${options.actualType}} to be {${options.expectedType}}`

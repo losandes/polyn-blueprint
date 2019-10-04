@@ -1,5 +1,5 @@
-module.exports = (test) => {
-  const { blueprint, range, optional } = test.sut
+module.exports = (test, dependencies) => {
+  const { blueprint, range, optional } = dependencies.sut
 
   return test('given a `range`', {
     'with `lt`, and `gt`': {

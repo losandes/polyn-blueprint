@@ -1,5 +1,5 @@
-module.exports = (test) => {
-  const { blueprint } = test.sut
+module.exports = (test, dependencies) => {
+  const { blueprint } = dependencies.sut
 
   return test('given `blueprint (decimals)`', {
     'it should support `decimal`, and `decimal?` to 15 places': (expect) => {

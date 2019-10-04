@@ -1,7 +1,6 @@
-const expect = require('chai').expect
-
-module.exports = (test) => {
-  const { is } = test.sut
+module.exports = (test, dependencies) => {
+  const { expect } = dependencies
+  const { is } = dependencies.sut
 
   const makeDescription = (func, name, value) => {
     try {

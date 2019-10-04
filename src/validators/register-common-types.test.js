@@ -1,7 +1,7 @@
-module.exports = (test) => {
-  const { blueprint } = test.sut
+module.exports = (test, dependencies) => {
+  const { blueprint } = dependencies.sut
   const makeExpectedArrayErrorMessage = (bpName, propNames, expectedType, actualType, index) => {
-    let subMessages = propNames.map((propName) => {
+    const subMessages = propNames.map((propName) => {
       return `expected \`${propName}[${index}]\` {${actualType}} to be {${expectedType}}`
     })
 

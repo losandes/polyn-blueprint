@@ -1,5 +1,5 @@
-module.exports = (test) => {
-  const { blueprint } = test.sut
+module.exports = (test, dependencies) => {
+  const { blueprint } = dependencies.sut
 
   return test('given `blueprint (expressions)`', {
     'it should support regular expressions': (expect) => {
