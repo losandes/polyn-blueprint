@@ -1,5 +1,7 @@
-@polyn/blueprint
-================
+# @polyn/blueprint
+
+[![Coverage Status](https://coveralls.io/repos/github/losandes/polyn-blueprint/badge.svg?branch=master)](https://coveralls.io/github/losandes/polyn-blueprint?branch=master)
+
 @polyn/blueprint is an easy to use, extensible, and powerful validation library for nodejs and browsers.
 
 While @polyn/blueprint can be used on it's own, it really shines when you use it with [@polyn/immutable](https://github.com/losandes/polyn-immutable).
@@ -18,6 +20,8 @@ If you use the `value` property that is returned from @polyn/blueprint's `valida
   * [Intercepting Values](#intercepting-values)
 * [TypeScript Support](#typescript-support)
 * [Cookbook](#cookbook)
+
+> @polyn/blueprint has 0 production dependencies. If you ever see vulnerability alerts in github, they only reflect on dev-dependencies.
 
 ## Usage
 
