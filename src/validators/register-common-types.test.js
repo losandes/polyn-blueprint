@@ -185,15 +185,30 @@ module.exports = (test, dependencies) => {
     'it should support `any`, and `any?`': (expect) => {
       const expected = {
         required: 'fourty-two',
-        optional: 42
+        optional: 42,
+        optionalNull: null,
+        optionalUndefined: undefined
       }
       const actual = blueprint('sut', {
         required: 'any',
-        optional: 'any?'
+        optional: 'any?',
+        optionalNull: 'any?',
+        optionalUndefined: 'any?'
       }).validate(expected)
 
       expect(actual.err).to.be.null
       expect(actual.value).to.deep.equal(expected)
+    },
+    'it should require values with `any`': (expect) => {
+      const expected = {
+        required: null
+      }
+      const actual = blueprint('sut', {
+        required: 'any'
+      }).validate(expected)
+
+      expect(actual.err).to.not.be.null
+      expect(actual.err.message).to.equal('Invalid sut: expected `required` {null} to be {any}')
     },
     'it should support `array`, and `array?`': (expect) => {
       const expected = {

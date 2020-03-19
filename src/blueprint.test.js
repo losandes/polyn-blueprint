@@ -229,6 +229,25 @@ module.exports = (test, dependencies) => {
       expect(validatorInput.input).to.deep.equal(expected.grandParent.parent.child)
       expect(validatorInput.root).to.deep.equal(expected)
     },
+    'when a blueprint has types that aren\'t registered': {
+      when: () => {
+        return blueprint('sut', {
+          requiredString: 'string',
+          notRegistered: 'BOOM!'
+        }).validate({
+          requiredString: 'hello',
+          notRegistered: 'world'
+        })
+      },
+      'it should return an `err`': (expect) => (err, actual) => {
+        expect(err).to.be.null
+        expect(actual.err).to.not.be.null
+      },
+      'it should NOT return a `value`': (expect) => (err, actual) => {
+        expect(err).to.be.null
+        expect(actual.value).to.be.null
+      }
+    },
     'when an implementation has properties that aren\'t on the blueprint': {
       when: () => {
         return blueprint('sut', {
@@ -1199,7 +1218,8 @@ module.exports = (test, dependencies) => {
         return blueprint('sut', {
           requiredString: required('string').from(({ input }) => input.context.string),
           requiredGt: required(gt(10)).from(({ input }) => input.context.twelve),
-          requiredExp: required(/^book|magazine$/).from(({ input }) => input.context.type)
+          requiredExp: required(/^book|magazine$/).from(({ input }) => input.context.type),
+          requiredNoTransformation: required('string')
         })
       },
       'it should use the given values if they are valid': (expect) => (err, bp) => {
@@ -1209,14 +1229,16 @@ module.exports = (test, dependencies) => {
             string: 'foo',
             twelve: 12,
             type: 'book'
-          }
+          },
+          requiredNoTransformation: 'book'
         })
 
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal({
           requiredString: 'foo',
           requiredGt: 12,
-          requiredExp: 'book'
+          requiredExp: 'book',
+          requiredNoTransformation: 'book'
         })
       },
       'it should validate the given values': (expect) => (err, bp) => {
@@ -1229,7 +1251,7 @@ module.exports = (test, dependencies) => {
           }
         })
 
-        expect(actual.err.message).to.equal('Invalid sut: expected `requiredString` {number} to be {string}, expected `requiredGt` to be greater than 10, expected `requiredExp` to match /^book|magazine$/')
+        expect(actual.err.message).to.equal('Invalid sut: expected `requiredString` {number} to be {string}, expected `requiredGt` to be greater than 10, expected `requiredExp` to match /^book|magazine$/, expected `requiredNoTransformation` {undefined} to be {string}')
       }
     },
     'it should not throw when a null object is validated': (expect) => {

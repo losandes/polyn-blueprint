@@ -53,6 +53,7 @@ module.exports = (test, dependencies) => {
       expect(gte20Bp.validate({ gte20: 21 }).err).to.be.null
       expect(gte20Bp.validate({ gte20: 21 }).value.maybeGte20).to.be.undefined
       expect(gte20Bp.validate({ gte20: 21, maybeGte20: null }).value.maybeGte20).to.be.null
+      expect(gte20Bp.validate({ gte20: 21, maybeGte20: 20 }).value.maybeGte20).to.equal(20)
     },
     'when the `optional.withDefault` prefix is used, it should use the default when appropriate': (expect) => {
       const gte20Bp = blueprint('sut', {
@@ -62,6 +63,7 @@ module.exports = (test, dependencies) => {
       expect(gte20Bp.validate({ gte20: 21 }).err).to.be.null
       expect(gte20Bp.validate({ gte20: 21 }).value.maybeGte20).to.equal(42)
       expect(gte20Bp.validate({ gte20: 21, maybeGte20: null }).value.maybeGte20).to.equal(42)
+      expect(gte20Bp.validate({ gte20: 21, maybeGte20: 20 }).value.maybeGte20).to.equal(20)
     }
   })
 }
