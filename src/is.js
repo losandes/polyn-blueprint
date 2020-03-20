@@ -123,7 +123,7 @@ module.exports = {
         type === 'promise'
     }
 
-    is.not.asyncFunction = function (obj) {
+    is.not.promise = function (obj) {
       return is.promise(obj) === false
     }
 

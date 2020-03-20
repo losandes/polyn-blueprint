@@ -133,6 +133,26 @@ module.exports = (test, dependencies) => {
       }
     },
     // asyncFunction
+    'when `promise` is executed': {
+      'it should return the expected responses': () => {
+        assert('promise', {
+          is: [
+            async () => {},
+            new Promise(() => {})
+          ],
+          isNot: [
+            42,
+            'function',
+            null,
+            undefined,
+            () => {},
+            function () {},
+            class foo {}
+          ]
+        })
+      }
+    },
+    // asyncFunction
     'when `asyncFunction` is executed': {
       'it should return the expected responses': () => {
         assert('asyncFunction', {

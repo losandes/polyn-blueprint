@@ -737,7 +737,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         return type === 'asyncfunction' || type === 'promise';
       };
 
-      is.not.asyncFunction = function (obj) {
+      is.not.promise = function (obj) {
         return is.promise(obj) === false;
       };
 
