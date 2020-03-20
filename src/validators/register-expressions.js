@@ -10,5 +10,5 @@ module.exports = {
         ? { value: value }
         : { err: new Error(`expected \`${key}\` to match ${regex.toString()}`) }
     })
-  }
+  },
 }

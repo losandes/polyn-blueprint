@@ -14,7 +14,7 @@
     // this property should show up when this object's property names are enumerated
     enumerable: true,
     // this property may not be deleted
-    configurable: false
+    configurable: false,
   })
 
   // MODULES_HERE
@@ -34,7 +34,7 @@
   root.polyn.blueprint = Object.freeze(Object.assign(
     { is },
     numberValidators,
-    blueprint
+    blueprint,
   ))
   module.factories.registerCommonTypes(is, root.polyn.blueprint)
   module.factories.registerDecimals(is, root.polyn.blueprint)

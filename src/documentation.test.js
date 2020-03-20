@@ -1,10 +1,11 @@
+/* eslint-disable no-console */
 module.exports = (test) => {
   return test('given `blueprint` documentation', {
     '## Types / Validators': {
       given: () => { // documentation
         const {
           blueprint,
-          gt, gte, lt, lte, range
+          gt, gte, lt, lte, range,
         } = require('@polyn/blueprint')
 
         const allTheTypes = blueprint('allTheTypes', {
@@ -97,7 +98,7 @@ module.exports = (test) => {
 
           // inline custom validators
           someProperty: ({ key, value, input, root }) =>
-            root.productType === 'book' && typeof value === 'string'
+            root.productType === 'book' && typeof value === 'string',
         })
 
         return allTheTypes
@@ -195,13 +196,13 @@ module.exports = (test) => {
 
             // inline custom validators
             productType: 'book',
-            someProperty: 'Swamplandia'
+            someProperty: 'Swamplandia',
           })
         },
         'the documentation should be valid': (expect) => (err, actual) => {
           expect(err).to.equal(null)
           expect(actual.err).to.equal(null)
-        } // /then
+        }, // /then
       }, // /when allWithValues
       'when the documentation is exercised with optional values being undefined': {
         when: (allTheTypes) => {
@@ -295,14 +296,14 @@ module.exports = (test) => {
 
             // inline custom validators
             productType: 'book',
-            someProperty: 'Swamplandia'
+            someProperty: 'Swamplandia',
           })
         },
         'the documentation should be valid': (expect) => (err, actual) => {
           expect(err).to.equal(null)
           expect(actual.err).to.equal(null)
-        } // /then
-      } // /when optionalsNotSet
+        }, // /then
+      }, // /when optionalsNotSet
     }, // /## Types / Validators
     '// ### Schema Inheritance': () => {
       const { blueprint, registerBlueprint } = require('@polyn/blueprint')
@@ -314,13 +315,13 @@ module.exports = (test) => {
         price: 'decimal:2',
         type: /^book|magazine|card$/,
         metadata: {
-          keywords: 'string[]'
-        }
+          keywords: 'string[]',
+        },
       })
 
       registerBlueprint('Author', {
         firstName: 'string',
-        lastName: 'string'
+        lastName: 'string',
       })
 
       const bookBp = blueprint('Book', {
@@ -330,10 +331,10 @@ module.exports = (test) => {
             ...productBp.schema.metadata,
             ...{
               isbn: 'string',
-              authors: 'Author[]'
-            }
-          }
-        }
+              authors: 'Author[]',
+            },
+          },
+        },
       })
 
       console.dir(productBp.validate({
@@ -343,8 +344,8 @@ module.exports = (test) => {
         price: 9.99,
         type: 'card',
         metadata: {
-          keywords: ['bday']
-        }
+          keywords: ['bday'],
+        },
       }), { depth: null })
 
       console.dir(bookBp.validate({
@@ -358,10 +359,10 @@ module.exports = (test) => {
           isbn: '0-307-26399-1',
           authors: [{
             firstName: 'Karen',
-            lastName: 'Russell'
-          }]
-        }
+            lastName: 'Russell',
+          }],
+        },
       }), { depth: null })
-    } // /### Schema Inheritance
+    }, // /### Schema Inheritance
   }) // /test
 } // /module

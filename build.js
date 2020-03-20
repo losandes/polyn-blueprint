@@ -31,10 +31,10 @@ const output = babel.transform(modules.join('\n'), {
     [
       '@babel/preset-env',
       {
-        targets: '> 0.25%, not dead'
-      }
-    ]
-  ]
+        targets: '> 0.25%, not dead',
+      },
+    ],
+  ],
 })
 
 const minOutput = babel.transform(modules.join('\n'), {
@@ -43,10 +43,10 @@ const minOutput = babel.transform(modules.join('\n'), {
     [
       '@babel/preset-env',
       {
-        targets: '> 0.25%, not dead'
-      }
-    ]
-  ]
+        targets: '> 0.25%, not dead',
+      },
+    ],
+  ],
 })
 
 // {
@@ -67,5 +67,5 @@ const minOutput = babel.transform(modules.join('\n'), {
 
 fs.writeFileSync('./dist/blueprint.js', output.code)
 fs.writeFileSync('./dist/blueprint.min.js', minOutput.code)
-console.log('Published browser version to `./dist`')
+console.log('Published browser version to `./dist`') // eslint-disable-line no-console
 process.exit(0)

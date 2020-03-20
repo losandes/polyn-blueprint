@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Node.js CI
+name: tests
 
 on:
   push:
@@ -30,6 +30,9 @@ jobs:
 
     - name: Install npm dependencies
       run: npm ci
+
+    - name: Lint the code
+      run: npm run lint
 
     - name: Build browser distribution
       run: npm run build --if-present

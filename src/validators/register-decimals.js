@@ -21,10 +21,10 @@ module.exports = {
         } else {
           return {
             err: new Error(`expected \`${key}\` to be a {decimal} with ${i} places`),
-            value: null
+            value: null,
           }
         }
       })
     }
-  }
+  },
 }

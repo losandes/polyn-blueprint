@@ -82,11 +82,11 @@ module.exports = {
         } else if (result) {
           return {
             err: result.err,
-            value: result.value
+            value: result.value,
           }
         } else {
           return new ValueOrError({
-            err: new Error(`ValidationError: the validator for \`${context.key}\` didn't return a value`)
+            err: new Error(`ValidationError: the validator for \`${context.key}\` didn't return a value`),
           })
         }
       } catch (err) {
@@ -152,7 +152,7 @@ module.exports = {
           input,
           root: root || input,
           output: output.value,
-          schema
+          schema,
         })
 
         const result = validator(context, makeDefaultErrorMessage(context))
@@ -166,13 +166,13 @@ module.exports = {
         return output
       }, { /* output */
         validationErrors: [],
-        value: tryMakeFromProto(input)
+        value: tryMakeFromProto(input),
       }) // /reduce
 
       if (outcomes.validationErrors.length) {
         return new ValueOrError({
           err: new Error(`Invalid ${name}: ${outcomes.validationErrors.join(', ')}`),
-          messages: outcomes.validationErrors
+          messages: outcomes.validationErrors,
         })
       }
 
@@ -194,7 +194,7 @@ module.exports = {
       return new Blueprint({
         name,
         schema,
-        validate: validate(name, schema)
+        validate: validate(name, schema),
       })
     }
 
@@ -233,7 +233,7 @@ module.exports = {
           return test(context, makeDefaultErrorMessage({
             key,
             value: context.value,
-            type: name
+            type: name,
           }))
         }),
         // nullable
@@ -245,10 +245,10 @@ module.exports = {
             return test(context, makeDefaultErrorMessage({
               key,
               value: context.value,
-              type: name
+              type: name,
             }))
           }
-        })
+        }),
       ]
     }
 
@@ -275,11 +275,11 @@ module.exports = {
             key,
             value,
             input: context.input,
-            root: context.root
+            root: context.root,
           }, makeDefaultErrorMessage({
             key,
             value,
-            type: instanceName
+            type: instanceName,
           }))
 
           if (result.err) {
@@ -307,7 +307,7 @@ module.exports = {
 
           return validateMany(
             context,
-            makeDefaultErrorMessage({ key, value: context.value, type: arrayName })
+            makeDefaultErrorMessage({ key, value: context.value, type: arrayName }),
           )
         }),
 
@@ -320,10 +320,10 @@ module.exports = {
           } else {
             return validateMany(
               context,
-              makeDefaultErrorMessage({ key, value: context.value, type: arrayName })
+              makeDefaultErrorMessage({ key, value: context.value, type: arrayName }),
             )
           }
-        })
+        }),
       ]
     }
 
@@ -462,8 +462,8 @@ module.exports = {
           context = {
             ...ctx,
             ...{
-              value: from(ctx)
-            }
+              value: from(ctx),
+            },
           }
         } else {
           context = ctx
@@ -518,8 +518,8 @@ module.exports = {
           context = {
             ...ctx,
             ...{
-              value: from(ctx)
-            }
+              value: from(ctx),
+            },
           }
         } else {
           context = ctx
@@ -555,7 +555,7 @@ module.exports = {
       registerInstanceOfType,
       registerArrayOfType,
       getValidators,
-      getValidator
+      getValidator,
     }
-  }
+  },
 }

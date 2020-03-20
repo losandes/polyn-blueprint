@@ -12,6 +12,6 @@ module.exports = (test, dependencies) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal('Invalid sut: expected `type` to match /^book$/i')
-    }
+    },
   })
 }

@@ -15,7 +15,7 @@ module.exports = {
       'number',
       'decimal',
       'regexp',
-      'primitive'
+      'primitive',
       // 'string' registered separately, below
     ]
 
@@ -48,5 +48,5 @@ module.exports = {
         ? { err: null, value: value }
         : { err: new Error(errorMessage('any')(key, value)) }
     })
-  }
+  },
 }

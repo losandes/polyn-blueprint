@@ -4,12 +4,12 @@ const suite = require('supposed')
     assertionLibrary: expect,
     inject: {
       expect,
-      sut: require('./index.js')
-    }
+      sut: require('./index.js'),
+    },
   })
 
 suite.runner({
   directories: ['./src'],
   matchesNamingConvention: /.(\.test\.js)$/i,
-  matchesIgnoredConvention: /node_modules/i
+  matchesIgnoredConvention: /node_modules/i,
 }).run()

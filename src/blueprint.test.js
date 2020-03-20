@@ -7,7 +7,7 @@ module.exports = (test, dependencies) => {
     registerType,
     optional,
     required,
-    gt
+    gt,
   } = dependencies.sut
 
   const makeErrorMessage = (options) => {
@@ -18,7 +18,7 @@ module.exports = (test, dependencies) => {
     'when a blueprint is constructed with a name, and a blueprint, it should return a `validate` function': (expect) => {
       const actual = blueprint('sut', {
         requiredString: 'string',
-        optionalString: 'string?'
+        optionalString: 'string?',
       })
 
       expect(typeof actual.validate).to.equal('function')
@@ -26,7 +26,7 @@ module.exports = (test, dependencies) => {
     'when a blueprint is constructed with an invalid name, it should throw': (expect) => {
       expect(() => blueprint({
         requiredString: 'string',
-        optionalString: 'string?'
+        optionalString: 'string?',
       })).to.throw(Error, 'blueprint requires a name {string}, and a schema {object}')
     },
     'when a blueprint is constructed with an invalid blueprint, it should throw': (expect) => {
@@ -37,10 +37,10 @@ module.exports = (test, dependencies) => {
       when: () => {
         return blueprint('sut', {
           requiredString: 'string',
-          optionalString: 'string?'
+          optionalString: 'string?',
         }).validate({
           requiredString: 'hello',
-          optionalString: 'world'
+          optionalString: 'world',
         })
       },
       'it should NOT return an `err`': (expect) => (err, actual) => {
@@ -51,18 +51,18 @@ module.exports = (test, dependencies) => {
         expect(err).to.be.null
         expect(actual.value).to.deep.equal({
           requiredString: 'hello',
-          optionalString: 'world'
+          optionalString: 'world',
         })
-      }
+      },
     },
     'when a blueprint is validated with an invalid implementation': {
       when: () => {
         return blueprint('sut', {
           requiredString: 'string',
-          optionalString: 'string?'
+          optionalString: 'string?',
         }).validate({
           requiredString: null,
-          optionalString: 42
+          optionalString: 42,
         })
       },
       'it should return an `err`': (expect) => (err, actual) => {
@@ -71,17 +71,17 @@ module.exports = (test, dependencies) => {
         expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
           key: 'requiredString',
           actualType: 'null',
-          expectedType: 'string'
+          expectedType: 'string',
         })}, ${makeErrorMessage({
           key: 'optionalString',
           actualType: 'number',
-          expectedType: 'string'
+          expectedType: 'string',
         })}`)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.value).to.be.null
-      }
+      },
     },
     'when a blueprint has nested blueprints, and is validated with a valid nest implementation': {
       when: () => {
@@ -96,10 +96,10 @@ module.exports = (test, dependencies) => {
               optionalString: 'string?',
               child: {
                 requiredString: 'string',
-                optionalString: 'string?'
-              }
-            }
-          }
+                optionalString: 'string?',
+              },
+            },
+          },
         }).validate({
           requiredString: 'hello',
           optionalString: 'world',
@@ -111,10 +111,10 @@ module.exports = (test, dependencies) => {
               optionalString: 'world',
               child: {
                 requiredString: 'hello',
-                optionalString: 'world'
-              }
-            }
-          }
+                optionalString: 'world',
+              },
+            },
+          },
         })
       },
       'it should NOT return an `err`': (expect) => (err, actual) => {
@@ -134,12 +134,12 @@ module.exports = (test, dependencies) => {
               optionalString: 'world',
               child: {
                 requiredString: 'hello',
-                optionalString: 'world'
-              }
-            }
-          }
+                optionalString: 'world',
+              },
+            },
+          },
         })
-      }
+      },
     },
     'when a blueprint has nested blueprints, and is validated with an invalid nest implementation': {
       when: () => {
@@ -154,10 +154,10 @@ module.exports = (test, dependencies) => {
               optionalString: 'string?',
               child: {
                 requiredString: 'string',
-                optionalString: 'string?'
-              }
-            }
-          }
+                optionalString: 'string?',
+              },
+            },
+          },
         }).validate({
           requiredString: 'hello',
           optionalString: 'world',
@@ -169,10 +169,10 @@ module.exports = (test, dependencies) => {
               optionalString: 'world',
               child: {
                 requiredString: null,
-                optionalString: 42
-              }
-            }
-          }
+                optionalString: 42,
+              },
+            },
+          },
         })
       },
       'it should return an `err`': (expect) => (err, actual) => {
@@ -181,17 +181,17 @@ module.exports = (test, dependencies) => {
         expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
           key: 'grandParent.parent.child.requiredString',
           actualType: 'null',
-          expectedType: 'string'
+          expectedType: 'string',
         })}, ${makeErrorMessage({
           key: 'grandParent.parent.child.optionalString',
           actualType: 'number',
-          expectedType: 'string'
+          expectedType: 'string',
         })}`)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.value).to.be.null
-      }
+      },
     },
     'when a blueprint has nested blueprints, validators should receive the parent input as an argument': (expect) => {
       let validatorInput
@@ -202,10 +202,10 @@ module.exports = (test, dependencies) => {
           parent: {
             requiredString: 'hello',
             child: {
-              custom: 'test'
-            }
-          }
-        }
+              custom: 'test',
+            },
+          },
+        },
       }
       const actual = blueprint('sut', {
         requiredString: 'string',
@@ -217,10 +217,10 @@ module.exports = (test, dependencies) => {
               custom: (input) => {
                 validatorInput = input
                 return true
-              }
-            }
-          }
-        }
+              },
+            },
+          },
+        },
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -233,10 +233,10 @@ module.exports = (test, dependencies) => {
       when: () => {
         return blueprint('sut', {
           requiredString: 'string',
-          notRegistered: 'BOOM!'
+          notRegistered: 'BOOM!',
         }).validate({
           requiredString: 'hello',
-          notRegistered: 'world'
+          notRegistered: 'world',
         })
       },
       'it should return an `err`': (expect) => (err, actual) => {
@@ -246,17 +246,17 @@ module.exports = (test, dependencies) => {
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.value).to.be.null
-      }
+      },
     },
     'when an implementation has properties that aren\'t on the blueprint': {
       when: () => {
         return blueprint('sut', {
           requiredString: 'string',
-          optionalString: 'string?'
+          optionalString: 'string?',
         }).validate({
           requiredString: 'hello',
           optionalString: 'world',
-          unexpected: 42
+          unexpected: 42,
         })
       },
       'it should NOT validate them': (expect) => (err, actual) => {
@@ -267,9 +267,9 @@ module.exports = (test, dependencies) => {
         expect(err).to.be.null
         expect(actual.value).to.deep.equal({
           requiredString: 'hello',
-          optionalString: 'world'
+          optionalString: 'world',
         })
-      }
+      },
     },
     'when an implementation has **prototype** properties that aren\'t on the blueprint': {
       when: () => {
@@ -293,15 +293,15 @@ module.exports = (test, dependencies) => {
           optionalString: 'string?',
           foo: {
             requiredString: 'string',
-            optionalString: 'string?'
-          }
+            optionalString: 'string?',
+          },
         }).validate(new Foo({
           requiredString: 'hello',
           optionalString: 'world',
           foo: new Foo({
             requiredString: 'foo',
-            optionalString: 'bar'
-          })
+            optionalString: 'bar',
+          }),
         }))
       },
       'the output value should implement the prototype': (expect) => (err, { value }) => {
@@ -334,8 +334,8 @@ module.exports = (test, dependencies) => {
             optionalString: 'string?',
             foo: {
               requiredString: 'string',
-              optionalString: 'string?'
-            }
+              optionalString: 'string?',
+            },
           })
 
           return blueprint('sut', {
@@ -344,18 +344,18 @@ module.exports = (test, dependencies) => {
               optionalString: 'string?',
               foo: {
                 requiredString: 'string',
-                optionalString: 'string?'
-              }
-            }
+                optionalString: 'string?',
+              },
+            },
           }).validate({
             bp: new Foo({
               requiredString: 'hello',
               optionalString: 'world',
               foo: new Foo({
                 requiredString: 'foo',
-                optionalString: 'bar'
-              })
-            })
+                optionalString: 'bar',
+              }),
+            }),
           })
         },
         'the output value should implement the prototype': (expect) => (err, { value }) => {
@@ -364,34 +364,34 @@ module.exports = (test, dependencies) => {
           expect(value.bp.getVal('optionalString')).to.equal(value.bp.optionalString)
           expect(value.bp.getVal('foo').requiredString).to.equal(value.bp.foo.requiredString)
           expect(value.bp.getVal('foo').optionalString).to.equal(value.bp.foo.optionalString)
-        }
-      }
+        },
+      },
     },
     'it should support custom validators (functions)': (expect) => {
       const validator = ({ key, value }) => {
         if (value === 123) {
           return {
             err: null,
-            value
+            value,
           }
         }
         return {
-          err: new Error(`bad ${key}`)
+          err: new Error(`bad ${key}`),
         }
       }
       const expected = {
         required123: 123,
-        required1232: 123
+        required1232: 123,
       }
       const bp = blueprint('sut', {
         required123: validator,
-        required1232: validator
+        required1232: validator,
       })
 
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required123: 123,
-        required1232: 456
+        required1232: 456,
       })
 
       expect(actual.err).to.be.null
@@ -404,34 +404,34 @@ module.exports = (test, dependencies) => {
       'it should support adding new validators': (expect) => {
         const userBp = blueprint('user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         registerValidator('user', ({ key, value }) => {
           const validation = userBp.validate(value)
 
           if (validation.err) {
             return {
-              err: validation.err
+              err: validation.err,
             }
           }
 
           return {
             err: null,
-            value
+            value,
           }
         })
         const expected = {
           user: {
             firstName: 'John',
-            lastName: 'Doe'
-          }
+            lastName: 'Doe',
+          },
         }
         const bp = blueprint('sut', {
-          user: 'user'
+          user: 'user',
         })
         const actual = bp.validate(expected)
         const actualInvalid = bp.validate({
-          firstName: 'missing user object'
+          firstName: 'missing user object',
         })
 
         expect(actual.err).to.be.null
@@ -474,13 +474,13 @@ module.exports = (test, dependencies) => {
         const expectedSchema = {
           args1: 'ValidationContext1',
           args2: 'ValidationContext2',
-          args3: 'ValidationContext3'
+          args3: 'ValidationContext3',
         }
 
         blueprint('sut', expectedSchema).validate({
           args1: 'args-value-1',
           args2: 'args-value-2',
-          args3: 'args-value-3'
+          args3: 'args-value-3',
         })
 
         expect(actual1).to.deep.equal({
@@ -489,7 +489,7 @@ module.exports = (test, dependencies) => {
           input: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
           root: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
           output: {},
-          schema: expectedSchema
+          schema: expectedSchema,
         })
 
         expect(actual2).to.deep.equal({
@@ -498,22 +498,22 @@ module.exports = (test, dependencies) => {
           input: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
           root: { args1: 'args-value-1', args2: 'args-value-2', args3: 'args-value-3' },
           output: { args1: 42 },
-          schema: expectedSchema
+          schema: expectedSchema,
         })
 
         expect(actual3).to.deep.equal({
           args1: 42,
           args2: 43,
           args3: 44,
-          foo: 'bar'
+          foo: 'bar',
         })
       },
       'it should return an error if a validator doesn\'t return anything': (expect) => {
         registerValidator('registerValidatorWithNoReturn', () => {})
         const actual = blueprint('sut', {
-          something: 'registerValidatorWithNoReturn'
+          something: 'registerValidatorWithNoReturn',
         }).validate({
-          something: 'value'
+          something: 'value',
         })
 
         expect(actual.err).to.not.be.null
@@ -523,13 +523,13 @@ module.exports = (test, dependencies) => {
         registerValidator('registerValidatorInterceptor', () => {
           return {
             err: null,
-            value: 42
+            value: 42,
           }
         })
         const actual = blueprint('sut', {
-          something: 'registerValidatorInterceptor'
+          something: 'registerValidatorInterceptor',
         }).validate({
-          something: 'value'
+          something: 'value',
         })
 
         expect(actual.err).to.be.null
@@ -541,14 +541,14 @@ module.exports = (test, dependencies) => {
         })
 
         const bp = blueprint('sut', {
-          args: 'registerValidator:boolean-validators'
+          args: 'registerValidator:boolean-validators',
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
         expect(bp.validate({ args: 0 }).err.message).to.equal(`Invalid sut: ${makeErrorMessage({
           key: 'args',
           actualType: 'number',
-          expectedType: 'registerValidator:boolean-validators'
+          expectedType: 'registerValidator:boolean-validators',
         })}`)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
@@ -557,13 +557,13 @@ module.exports = (test, dependencies) => {
         registerValidator('registerValidatorWithNoReturn', () => {
           return {
             err: null,
-            bvalue: 42
+            bvalue: 42,
           }
         })
         const actual = blueprint('sut', {
-          something: 'registerValidatorWithNoReturn'
+          something: 'registerValidatorWithNoReturn',
         }).validate({
-          something: 'value'
+          something: 'value',
         })
 
         expect(actual.err).to.be.null
@@ -575,7 +575,7 @@ module.exports = (test, dependencies) => {
         })
 
         const bp = blueprint('sut', {
-          args: 'registerValidator:throws'
+          args: 'registerValidator:throws',
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
@@ -608,7 +608,7 @@ module.exports = (test, dependencies) => {
       'should return the validator': (expect) => {
         const validator = registerValidator('registerValidatorReturns', () => { return { value: 42 } })
         expect(validator().value).to.equal(42)
-      }
+      },
     },
     '`registerType`': {
       'should support boolean validators': (expect) => {
@@ -617,14 +617,14 @@ module.exports = (test, dependencies) => {
         })
 
         const bp = blueprint('sut', {
-          args: 'registerType:boolean-validators'
+          args: 'registerType:boolean-validators',
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
         expect(bp.validate({ args: 0 }).err.message).to.equal(`Invalid sut: ${makeErrorMessage({
           key: 'args',
           actualType: 'number',
-          expectedType: 'registerType:boolean-validators'
+          expectedType: 'registerType:boolean-validators',
         })}`)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
@@ -634,16 +634,16 @@ module.exports = (test, dependencies) => {
           return value
             ? {
               err: null,
-              value
+              value,
             }
             : {
               err: new Error(`${key}.... BOOM!`),
-              value: null
+              value: null,
             }
         })
 
         const bp = blueprint('sut', {
-          args: 'registerType:{err,value}-validators'
+          args: 'registerType:{err,value}-validators',
         })
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
@@ -660,14 +660,14 @@ module.exports = (test, dependencies) => {
           required: 'registerType:all-the-things',
           optional: 'registerType:all-the-things?',
           requiredArray: 'registerType:all-the-things[]',
-          optionalArray: 'registerType:all-the-things[]?'
+          optionalArray: 'registerType:all-the-things[]?',
         })
 
         const expected = {
           required: 1,
           optional: 1,
           requiredArray: [1, 1, 1],
-          optionalArray: [1, 1, 1]
+          optionalArray: [1, 1, 1],
         }
 
         const validActual = bp.validate(expected)
@@ -676,7 +676,7 @@ module.exports = (test, dependencies) => {
           required: 0,
           optional: 0,
           requiredArray: [1, 1, 0],
-          optionalArray: [1, 0, 1]
+          optionalArray: [1, 0, 1],
         })
 
         expect(validActual.err).to.be.null
@@ -692,17 +692,17 @@ module.exports = (test, dependencies) => {
         })
 
         blueprint('sut', {
-          args: 'registerTypeArgs'
+          args: 'registerTypeArgs',
         }).validate({
           args: 'args-value',
-          other: 'other-value'
+          other: 'other-value',
         })
 
         expect(actual).to.deep.equal({
           key: 'args',
           value: 'args-value',
           input: { args: 'args-value', other: 'other-value' },
-          root: { args: 'args-value', other: 'other-value' }
+          root: { args: 'args-value', other: 'other-value' },
         })
       },
       'should be able to intercept values': (expect) => {
@@ -714,18 +714,18 @@ module.exports = (test, dependencies) => {
           requiredName: 'whitespace',
           optionalName: 'whitespace',
           requiredArray: ['whitespace'],
-          optionalArray: ['whitespace']
+          optionalArray: ['whitespace'],
         }
         const actual = blueprint('registerTypeInterceptor-test', {
           requiredName: 'registerTypeInterceptor',
           optionalName: 'registerTypeInterceptor?',
           requiredArray: 'registerTypeInterceptor[]',
-          optionalArray: 'registerTypeInterceptor[]?'
+          optionalArray: 'registerTypeInterceptor[]?',
         }).validate({
           requiredName: '  whitespace ',
           optionalName: '  whitespace ',
           requiredArray: ['  whitespace '],
-          optionalArray: ['  whitespace ']
+          optionalArray: ['  whitespace '],
         })
 
         expect(actual.value).to.deep.equal(expected)
@@ -761,26 +761,26 @@ module.exports = (test, dependencies) => {
         expect(types['registerTypeReturns?']({ value: 42 }).value).to.equal(42)
         expect(types['registerTypeReturns[]']({ value: [42] }).value[0]).to.equal(42)
         expect(types['registerTypeReturns[]?']({ value: [42] }).value[0]).to.equal(42)
-      }
+      },
     },
     '`registerBlueprint`': {
       'it should support adding blueprints as new validators with `registerBlueprint`': (expect) => {
         registerBlueprint('registerBlueprint:user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const expected = {
           user: {
             firstName: 'John',
-            lastName: 'Doe'
-          }
+            lastName: 'Doe',
+          },
         }
         const bp = blueprint('sut', {
-          user: 'registerBlueprint:user'
+          user: 'registerBlueprint:user',
         })
         const actual = bp.validate(expected)
         const actualInvalid = bp.validate({
-          firstName: 'missing user object'
+          firstName: 'missing user object',
         })
 
         expect(actual.err).to.be.null
@@ -789,19 +789,19 @@ module.exports = (test, dependencies) => {
         expect(actualInvalid.err.message).to.equal([
           'Invalid sut:',
           'expected `user.firstName` {undefined} to be {string},',
-          'expected `user.lastName` {undefined} to be {string}'
+          'expected `user.lastName` {undefined} to be {string}',
         ].join(' '))
         expect(actualInvalid.value).to.be.null
       },
       'should support null values': (expect) => {
         registerBlueprint('registerBlueprint:null:user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const actual = blueprint('sut', {
-          user: 'registerBlueprint:null:user?'
+          user: 'registerBlueprint:null:user?',
         }).validate({
-          user: null
+          user: null,
         })
 
         expect(actual.err).to.be.null
@@ -809,29 +809,29 @@ module.exports = (test, dependencies) => {
       'should support arrays': (expect) => {
         registerBlueprint('registerBlueprint:array:user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const bp = blueprint('sut', {
-          users: 'registerBlueprint:array:user[]'
+          users: 'registerBlueprint:array:user[]',
         })
 
         const expected = {
           users: [{
             firstName: 'John',
-            lastName: 'Doe'
+            lastName: 'Doe',
           }, {
             firstName: 'John',
-            lastName: 'Doe'
-          }]
+            lastName: 'Doe',
+          }],
         }
         const actual = bp.validate(expected)
         const actualInvalid = bp.validate({
           users: [{
             firstName: 'John',
-            lastName: 'Doe'
+            lastName: 'Doe',
           }, {
-            firstName: 'John'
-          }]
+            firstName: 'John',
+          }],
         })
 
         expect(actual.err).to.be.null
@@ -843,12 +843,12 @@ module.exports = (test, dependencies) => {
       'should support nullable arrays': (expect) => {
         registerBlueprint('registerBlueprint:null:array:user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const actual = blueprint('sut', {
-          users: 'registerBlueprint:null:array:user[]?'
+          users: 'registerBlueprint:null:array:user[]?',
         }).validate({
-          users: null
+          users: null,
         })
 
         expect(actual.err).to.be.null
@@ -856,16 +856,16 @@ module.exports = (test, dependencies) => {
       'should return the blueprint': (expect) => {
         const bp = registerBlueprint('registerBlueprint:returns', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const expected = {
           firstName: 'John',
-          lastName: 'Doe'
+          lastName: 'Doe',
         }
 
         const actual = bp.validate(expected)
         const actualInvalid = bp.validate({
-          firstName: 'missing lastName'
+          firstName: 'missing lastName',
         })
 
         expect(actual.err).to.be.null
@@ -903,12 +903,12 @@ module.exports = (test, dependencies) => {
       },
       'when given another blueprint as the schema, should register that blueprint\'s schema': (expect) => {
         const existing = blueprint('registerBlueprint:invalid:nest', {
-          str: 'string'
+          str: 'string',
         })
 
         const bp = registerBlueprint(
           'registerBlueprint:invalid',
-          existing
+          existing,
         )
 
         expect(bp.validate({ str: 'str' }).err).to.be.null
@@ -917,30 +917,30 @@ module.exports = (test, dependencies) => {
       'should produce comprehensible error messages': (expect) => {
         registerBlueprint('registerBlueprint:user', {
           firstName: 'string',
-          lastName: 'string'
+          lastName: 'string',
         })
         const bp = blueprint('sut', {
-          user: 'registerBlueprint:user'
+          user: 'registerBlueprint:user',
         })
 
         const actualInvalid = bp.validate({
-          firstName: 'missing user object'
+          firstName: 'missing user object',
         })
 
         expect(actualInvalid.err).to.not.be.null
         expect(actualInvalid.err.message).to.equal([
           'Invalid sut:',
           'expected `user.firstName` {undefined} to be {string},',
-          'expected `user.lastName` {undefined} to be {string}'
+          'expected `user.lastName` {undefined} to be {string}',
         ].join(' '))
         expect(actualInvalid.value).to.be.null
-      }
+      },
     },
     '`registerExpression`': {
       'should support inline expressions': (expect) => {
         registerExpression('registerExpression:inline', /^book|movie$/i)
         const bp = blueprint('sut', {
-          arg: 'registerExpression:inline'
+          arg: 'registerExpression:inline',
         })
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
@@ -953,7 +953,7 @@ module.exports = (test, dependencies) => {
       'should support expression strings': (expect) => {
         registerExpression('registerExpression:string', '^book$')
         const bp = blueprint('sut', {
-          arg: 'registerExpression:string'
+          arg: 'registerExpression:string',
         })
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
@@ -968,14 +968,14 @@ module.exports = (test, dependencies) => {
           required: 'registerExpression:all-the-things',
           optional: 'registerExpression:all-the-things?',
           requiredArray: 'registerExpression:all-the-things[]',
-          optionalArray: 'registerExpression:all-the-things[]?'
+          optionalArray: 'registerExpression:all-the-things[]?',
         })
 
         const expected = {
           required: 'book',
           optional: 'book',
           requiredArray: ['book', 'book', 'book'],
-          optionalArray: ['book', 'book', 'book']
+          optionalArray: ['book', 'book', 'book'],
         }
 
         const validActual = bp.validate(expected)
@@ -984,7 +984,7 @@ module.exports = (test, dependencies) => {
           required: 'movie',
           optional: 'movie',
           requiredArray: ['movie', 'movie', 'movie'],
-          optionalArray: ['movie', 'movie', 'movie']
+          optionalArray: ['movie', 'movie', 'movie'],
         })
 
         expect(validActual.err).to.be.null
@@ -1023,7 +1023,7 @@ module.exports = (test, dependencies) => {
         expect(types['registerExpressionReturns?']({ value: 'book' }).value).to.equal('book')
         expect(types['registerExpressionReturns[]']({ value: ['book'] }).value[0]).to.equal('book')
         expect(types['registerExpressionReturns[]?']({ value: ['book'] }).value[0]).to.equal('book')
-      }
+      },
     },
     '`optional`': {
       when: () => {
@@ -1034,9 +1034,9 @@ module.exports = (test, dependencies) => {
           optionalExp: optional(/^book|magazine$/).withDefault('book'),
           optionalCustom: optional(({ value }) => {
             return {
-              value: value === 0 ? 'zero' : 'something'
+              value: value === 0 ? 'zero' : 'something',
             }
-          }).withDefault('anything')
+          }).withDefault('anything'),
         })
       },
       'it should use the default when the value is null': (expect) => (err, bp) => {
@@ -1046,7 +1046,7 @@ module.exports = (test, dependencies) => {
           optionalId: null,
           optionalGt: null,
           optionalExp: null,
-          optionalCustom: null
+          optionalCustom: null,
         })
 
         expect(actual.err).to.be.null
@@ -1055,7 +1055,7 @@ module.exports = (test, dependencies) => {
           optionalId: 1,
           optionalGt: 42,
           optionalExp: 'book',
-          optionalCustom: 'anything'
+          optionalCustom: 'anything',
         })
       },
       'it should use the default when the value is undefined': (expect) => (err, bp) => {
@@ -1068,7 +1068,7 @@ module.exports = (test, dependencies) => {
           optionalId: 1,
           optionalGt: 42,
           optionalExp: 'book',
-          optionalCustom: 'anything'
+          optionalCustom: 'anything',
         })
       },
       'it should use the values when the value is defined': (expect) => (err, bp) => {
@@ -1078,7 +1078,7 @@ module.exports = (test, dependencies) => {
           optionalId: 'one',
           optionalGt: 12,
           optionalExp: 'magazine',
-          optionalCustom: 0
+          optionalCustom: 0,
         })
 
         expect(actual.err).to.be.null
@@ -1087,7 +1087,7 @@ module.exports = (test, dependencies) => {
           optionalId: 'one',
           optionalGt: 12,
           optionalExp: 'magazine',
-          optionalCustom: 'zero'
+          optionalCustom: 'zero',
         })
       },
       'it should use the given validators': (expect) => (err, bp) => {
@@ -1097,7 +1097,7 @@ module.exports = (test, dependencies) => {
           optionalId: true,
           optionalGt: 8,
           optionalExp: 'movie',
-          optionalCustom: 1
+          optionalCustom: 1,
         })
 
         expect(actual.err).to.not.be.null
@@ -1105,13 +1105,13 @@ module.exports = (test, dependencies) => {
       },
       'it should not validate the default values': (expect) => {
         const bp = blueprint('sut', {
-          optionalString: optional('string').withDefault(42)
+          optionalString: optional('string').withDefault(42),
         })
         const actual = bp.validate({})
 
         expect(actual.err).to.be.null
         expect(actual.value).to.deep.equal({
-          optionalString: 42
+          optionalString: 42,
         })
       },
       'when `from` is used': {
@@ -1128,7 +1128,7 @@ module.exports = (test, dependencies) => {
               .withDefault(13),
             optionalExp2: optional(/^book|magazine$/)
               .from(({ input }) => input.context.type2)
-              .withDefault('magazine')
+              .withDefault('magazine'),
           })
         },
         'it should use the given values if they are valid': (expect) => (err, bp) => {
@@ -1137,8 +1137,8 @@ module.exports = (test, dependencies) => {
             context: {
               string: 'foo',
               twelve: 12,
-              type: 'book'
-            }
+              type: 'book',
+            },
           })
 
           expect(actual.err).to.be.null
@@ -1148,7 +1148,7 @@ module.exports = (test, dependencies) => {
             optionalExp: 'book',
             optionalString2: 'foo2',
             optionalGt2: 13,
-            optionalExp2: 'magazine'
+            optionalExp2: 'magazine',
           })
         },
         'it should validate the given values': (expect) => (err, bp) => {
@@ -1157,12 +1157,12 @@ module.exports = (test, dependencies) => {
             context: {
               string: 12,
               twelve: 8,
-              type: 'hat'
-            }
+              type: 'hat',
+            },
           })
 
           expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
-        }
+        },
       },
       'when no fluent functions are used': {
         when: () => {
@@ -1172,9 +1172,9 @@ module.exports = (test, dependencies) => {
             optionalExp: optional(/^book|magazine$/),
             optionalCustom: optional(({ value }) => {
               return {
-                value: value === 0 ? 'zero' : 'something'
+                value: value === 0 ? 'zero' : 'something',
               }
-            })
+            }),
           })
         },
         'it should set the values to null if they are null': (expect) => (err, bp) => {
@@ -1183,7 +1183,7 @@ module.exports = (test, dependencies) => {
             optionalString: null,
             optionalGt: null,
             optionalExp: null,
-            optionalCustom: null
+            optionalCustom: null,
           })
 
           expect(actual.err).to.be.null
@@ -1191,7 +1191,7 @@ module.exports = (test, dependencies) => {
             optionalString: null,
             optionalGt: null,
             optionalExp: null,
-            optionalCustom: null
+            optionalCustom: null,
           })
         },
         'it should set the values to undefined if they are undefined': (expect) => (err, bp) => {
@@ -1200,7 +1200,7 @@ module.exports = (test, dependencies) => {
             optionalString: undefined,
             optionalGt: undefined,
             optionalExp: undefined,
-            optionalCustom: undefined
+            optionalCustom: undefined,
           })
 
           expect(actual.err).to.be.null
@@ -1208,10 +1208,10 @@ module.exports = (test, dependencies) => {
             optionalString: undefined,
             optionalGt: undefined,
             optionalExp: undefined,
-            optionalCustom: undefined
+            optionalCustom: undefined,
           })
-        }
-      }
+        },
+      },
     },
     '`required`': {
       when: () => {
@@ -1219,7 +1219,7 @@ module.exports = (test, dependencies) => {
           requiredString: required('string').from(({ input }) => input.context.string),
           requiredGt: required(gt(10)).from(({ input }) => input.context.twelve),
           requiredExp: required(/^book|magazine$/).from(({ input }) => input.context.type),
-          requiredNoTransformation: required('string')
+          requiredNoTransformation: required('string'),
         })
       },
       'it should use the given values if they are valid': (expect) => (err, bp) => {
@@ -1228,9 +1228,9 @@ module.exports = (test, dependencies) => {
           context: {
             string: 'foo',
             twelve: 12,
-            type: 'book'
+            type: 'book',
           },
-          requiredNoTransformation: 'book'
+          requiredNoTransformation: 'book',
         })
 
         expect(actual.err).to.be.null
@@ -1238,7 +1238,7 @@ module.exports = (test, dependencies) => {
           requiredString: 'foo',
           requiredGt: 12,
           requiredExp: 'book',
-          requiredNoTransformation: 'book'
+          requiredNoTransformation: 'book',
         })
       },
       'it should validate the given values': (expect) => (err, bp) => {
@@ -1247,12 +1247,12 @@ module.exports = (test, dependencies) => {
           context: {
             string: 12,
             twelve: 8,
-            type: 'hat'
-          }
+            type: 'hat',
+          },
         })
 
         expect(actual.err.message).to.equal('Invalid sut: expected `requiredString` {number} to be {string}, expected `requiredGt` to be greater than 10, expected `requiredExp` to match /^book|magazine$/, expected `requiredNoTransformation` {undefined} to be {string}')
-      }
+      },
     },
     'it should not throw when a null object is validated': (expect) => {
       const actual = blueprint('sut', { string: 'string' })
@@ -1260,6 +1260,6 @@ module.exports = (test, dependencies) => {
 
       expect(actual.err).to.not.be.null
       expect(actual.err.message).to.equal('Invalid sut: expected `string` {undefined} to be {string}')
-    }
+    },
   })
 }

@@ -2,7 +2,7 @@ module.exports = (test, dependencies) => {
   const { blueprint, lt, optional } = dependencies.sut
 
   const lt20Bp = blueprint('sut', {
-    lt20: lt(20)
+    lt20: lt(20),
   })
 
   const expectValue = (expected, actual) => (expect) => {
@@ -27,7 +27,7 @@ module.exports = (test, dependencies) => {
       'it should throw if the maximum is null':
         expectToThrow(() => { blueprint('sut', { lt20: lt(null) }) }),
       'it should throw if the maximum is NaN':
-        expectToThrow(() => { blueprint('sut', { lt20: lt('string') }) })
+        expectToThrow(() => { blueprint('sut', { lt20: lt('string') }) }),
     },
     'when `blueprint.validate` is called': {
       'it should return a value if the value is less than the maximum':
@@ -43,12 +43,12 @@ module.exports = (test, dependencies) => {
       'it should return an error if the value is NaN':
         expectError(lt20Bp.validate({ lt20: 'string' })),
       'it should return an error if the value is not strictly a number':
-        expectError(lt20Bp.validate({ lt20: '19' }))
+        expectError(lt20Bp.validate({ lt20: '19' })),
     },
     'when the `optional` prefix is used, it should allow null and undefined': (expect) => {
       const lt20Bp = blueprint('sut', {
         lt20: lt(20),
-        maybeLt20: optional.lt(20)
+        maybeLt20: optional.lt(20),
       })
       expect(lt20Bp.validate({ lt20: 19 }).err).to.be.null
       expect(lt20Bp.validate({ lt20: 19 }).value.maybeLt20).to.be.undefined
@@ -58,12 +58,12 @@ module.exports = (test, dependencies) => {
     'when the `optional.withDefault` prefix is used, it should use the default when appropriate': (expect) => {
       const lt20Bp = blueprint('sut', {
         lt20: lt(20),
-        maybeLt20: optional(lt(20)).withDefault(12)
+        maybeLt20: optional(lt(20)).withDefault(12),
       })
       expect(lt20Bp.validate({ lt20: 19 }).err).to.be.null
       expect(lt20Bp.validate({ lt20: 19 }).value.maybeLt20).to.equal(12)
       expect(lt20Bp.validate({ lt20: 19, maybeLt20: null }).value.maybeLt20).to.equal(12)
       expect(lt20Bp.validate({ lt20: 19, maybeLt20: 19 }).value.maybeLt20).to.equal(19)
-    }
+    },
   })
 }

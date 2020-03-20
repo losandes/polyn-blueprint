@@ -2,7 +2,7 @@ module.exports = (test, dependencies) => {
   const { blueprint, gte, optional } = dependencies.sut
 
   const gte20Bp = blueprint('sut', {
-    gte20: gte(20)
+    gte20: gte(20),
   })
 
   const expectValue = (expected, actual) => (expect) => {
@@ -27,7 +27,7 @@ module.exports = (test, dependencies) => {
       'it should throw if the minimum is null':
         expectToThrow(() => { blueprint('sut', { gte20: gte(null) }) }),
       'it should throw if the minimum is NaN':
-        expectToThrow(() => { blueprint('sut', { gte20: gte('string') }) })
+        expectToThrow(() => { blueprint('sut', { gte20: gte('string') }) }),
     },
     'when `blueprint.validate` is called': {
       'it should return a value if the value is greater than the minimum':
@@ -43,12 +43,12 @@ module.exports = (test, dependencies) => {
       'it should return an error if the value is NaN':
         expectError(gte20Bp.validate({ gte20: 'string' })),
       'it should return an error if the value is not strictly a number':
-        expectError(gte20Bp.validate({ gte20: '21' }))
+        expectError(gte20Bp.validate({ gte20: '21' })),
     },
     'when the `optional` prefix is used, it should allow null and undefined': (expect) => {
       const gte20Bp = blueprint('sut', {
         gte20: gte(20),
-        maybeGte20: optional.gte(20)
+        maybeGte20: optional.gte(20),
       })
       expect(gte20Bp.validate({ gte20: 21 }).err).to.be.null
       expect(gte20Bp.validate({ gte20: 21 }).value.maybeGte20).to.be.undefined
@@ -58,12 +58,12 @@ module.exports = (test, dependencies) => {
     'when the `optional.withDefault` prefix is used, it should use the default when appropriate': (expect) => {
       const gte20Bp = blueprint('sut', {
         gte20: gte(20),
-        maybeGte20: optional(gte(20)).withDefault(42)
+        maybeGte20: optional(gte(20)).withDefault(42),
       })
       expect(gte20Bp.validate({ gte20: 21 }).err).to.be.null
       expect(gte20Bp.validate({ gte20: 21 }).value.maybeGte20).to.equal(42)
       expect(gte20Bp.validate({ gte20: 21, maybeGte20: null }).value.maybeGte20).to.equal(42)
       expect(gte20Bp.validate({ gte20: 21, maybeGte20: 20 }).value.maybeGte20).to.equal(20)
-    }
+    },
   })
 }
