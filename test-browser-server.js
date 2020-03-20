@@ -12,7 +12,7 @@ module.exports = suite.runner({
   dependencies: ['/node_modules/chai/chai.js', '/dist/blueprint.min.js'],
   matchesNamingConvention: /.(\.test\.js)$/i,
   matchesIgnoredConvention: /node_modules|documentation.test.js/i,
-  stringifiedSuiteConfig: '{ reporter: "event", assertionLibrary: chai.expect, inject: { expect: chai.expect, sut: polyn.blueprint } }'
+  stringifiedSuiteConfig: '{ reporter: "event", assertionLibrary: chai.expect, inject: { expect: chai.expect, sut: polyn.blueprint } }',
 }).startServer()
   .then(async (context) => {
     const browser = await puppeteer.launch()
@@ -31,7 +31,7 @@ module.exports = suite.runner({
           await page.pdf({ path: path.join(__projectdir, `test-log.${Date.now()}.pdf`), format: 'A4' })
         }
       } catch (e) {
-        console.log(txt)
+        console.log(txt) // eslint-disable-line no-console
         context.lastEvent = txt
       }
     })

@@ -16,13 +16,13 @@ module.exports = {
         if (is.number(value) && value > min) {
           return {
             err: null,
-            value
+            value,
           }
         }
 
         return {
           err: new Error(makeErrorMessage({ key, comparator: 'greater than', boundary: min })),
-          value: null
+          value: null,
         }
       }
     }
@@ -36,13 +36,13 @@ module.exports = {
         if (is.number(value) && value >= min) {
           return {
             err: null,
-            value
+            value,
           }
         }
 
         return {
           err: new Error(makeErrorMessage({ key, comparator: 'greater than, or equal to', boundary: min })),
-          value: null
+          value: null,
         }
       }
     }
@@ -56,13 +56,13 @@ module.exports = {
         if (is.number(value) && value < max) {
           return {
             err: null,
-            value
+            value,
           }
         }
 
         return {
           err: new Error(makeErrorMessage({ key, comparator: 'less than', boundary: max })),
-          value: null
+          value: null,
         }
       }
     }
@@ -76,13 +76,13 @@ module.exports = {
         if (is.number(value) && value <= max) {
           return {
             err: null,
-            value
+            value,
           }
         }
 
         return {
           err: new Error(makeErrorMessage({ key, comparator: 'less than, or equal to', boundary: max })),
-          value: null
+          value: null,
         }
       }
     }
@@ -135,8 +135,8 @@ module.exports = {
         gte: optional(gte),
         lt: optional(lt),
         lte: optional(lte),
-        range: optional(range)
-      }
+        range: optional(range),
+      },
     }
-  }
+  },
 }

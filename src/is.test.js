@@ -37,7 +37,7 @@ module.exports = (test, dependencies) => {
         array: [[1, 2], new Array()], // eslint-disable-line no-array-constructor
         date: [new Date()],
         regexp: [/[A-Z]/, new RegExp('[A-Z]')],
-        object: [{}, { foo: 'bar' }, Object.prototype]
+        object: [{}, { foo: 'bar' }, Object.prototype],
       }
 
       Object.keys(assertions).forEach((key) => {
@@ -60,13 +60,13 @@ module.exports = (test, dependencies) => {
             false,
             [null],
             {},
-            ' function '
+            ' function ',
           ],
           isNot: [
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // nullOrUndefined
     'when `nullOrUndefined` is executed': {
@@ -74,7 +74,7 @@ module.exports = (test, dependencies) => {
         assert('nullOrUndefined', {
           is: [
             null,
-            undefined
+            undefined,
           ],
           isNot: [
             '',
@@ -85,10 +85,10 @@ module.exports = (test, dependencies) => {
             false,
             [null],
             {},
-            ' function '
-          ]
+            ' function ',
+          ],
         })
-      }
+      },
     },
     // nullOrWhitespace
     'when `nullOrWhitespace` is executed': {
@@ -99,7 +99,7 @@ module.exports = (test, dependencies) => {
             undefined,
             '',
             ' ',
-            '   '
+            '   ',
           ],
           isNot: [
             42,
@@ -107,10 +107,10 @@ module.exports = (test, dependencies) => {
             false,
             [null],
             {},
-            ' function '
-          ]
+            ' function ',
+          ],
         })
-      }
+      },
     },
     // function
     'when `function` is executed': {
@@ -121,16 +121,16 @@ module.exports = (test, dependencies) => {
             function () {},
             class foo {},
             async () => {},
-            new Promise(() => {})
+            new Promise(() => {}),
           ],
           isNot: [
             42,
             'function',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // asyncFunction
     'when `promise` is executed': {
@@ -138,7 +138,7 @@ module.exports = (test, dependencies) => {
         assert('promise', {
           is: [
             async () => {},
-            new Promise(() => {})
+            new Promise(() => {}),
           ],
           isNot: [
             42,
@@ -147,10 +147,10 @@ module.exports = (test, dependencies) => {
             undefined,
             () => {},
             function () {},
-            class foo {}
-          ]
+            class foo {},
+          ],
         })
-      }
+      },
     },
     // asyncFunction
     'when `asyncFunction` is executed': {
@@ -158,7 +158,7 @@ module.exports = (test, dependencies) => {
         assert('asyncFunction', {
           is: [
             async () => {},
-            new Promise(() => {})
+            new Promise(() => {}),
           ],
           isNot: [
             42,
@@ -167,10 +167,10 @@ module.exports = (test, dependencies) => {
             undefined,
             () => {},
             function () {},
-            class foo {}
-          ]
+            class foo {},
+          ],
         })
-      }
+      },
     },
     // object
     'when `object` is executed': {
@@ -178,16 +178,16 @@ module.exports = (test, dependencies) => {
         assert('object', {
           is: [
             {},
-            { foo: 'bar' }
+            { foo: 'bar' },
           ],
           isNot: [
             42,
             'object',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // array
     'when `array` is executed': {
@@ -196,16 +196,16 @@ module.exports = (test, dependencies) => {
           is: [
             [],
             ['string'],
-            [1, 2, 3]
+            [1, 2, 3],
           ],
           isNot: [
             42,
             'array',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // string
     'when `string` is executed': {
@@ -214,16 +214,16 @@ module.exports = (test, dependencies) => {
           is: [
             'string',
             ' ',
-            ''
+            '',
           ],
           isNot: [
             42,
             ['string'],
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // boolean
     'when `boolean` is executed': {
@@ -231,7 +231,7 @@ module.exports = (test, dependencies) => {
         assert('boolean', {
           is: [
             true,
-            false
+            false,
           ],
           isNot: [
             0,
@@ -239,17 +239,17 @@ module.exports = (test, dependencies) => {
             'true',
             'false',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // date
     'when `date` is executed': {
       'it should return the expected responses': () => {
         assert('date', {
           is: [
-            new Date()
+            new Date(),
           ],
           isNot: [
             Date.now(),
@@ -257,10 +257,10 @@ module.exports = (test, dependencies) => {
             1556050592207,
             '2019-04-23T20:16:48.112Z',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // regexp
     'when `regexp` is executed': {
@@ -268,16 +268,16 @@ module.exports = (test, dependencies) => {
         assert('regexp', {
           is: [
             /[A-B]/,
-            new RegExp('regex')
+            new RegExp('regex'),
           ],
           isNot: [
             1,
             'regexp',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // number
     'when `number` is executed': {
@@ -290,17 +290,17 @@ module.exports = (test, dependencies) => {
             -42,
             -42.42,
             -42.4242424242,
-            Infinity
+            Infinity,
           ],
           isNot: [
             'one',
             '1',
             [1],
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     // decimal
     'when `decimal` is executed': {
@@ -316,7 +316,7 @@ module.exports = (test, dependencies) => {
             -42.42,
             42.4242424242,
             -42.4242424242,
-            Infinity
+            Infinity,
           ],
           isNot: [
             '42',
@@ -329,10 +329,10 @@ module.exports = (test, dependencies) => {
             '0.0',
             '0.00',
             null,
-            undefined
-          ]
+            undefined,
+          ],
         })
-      }
+      },
     },
     'when `decimal` is executed with the places argument, and a valid value is presented': (expect) => {
       expect(is.decimal(0, 0)).to.equal(true)
@@ -402,17 +402,17 @@ module.exports = (test, dependencies) => {
             Symbol(0),
             Symbol(1),
             Symbol(42.4),
-            Symbol(1n)
+            Symbol(1n),
           ],
           isNot: [
             {},
             { foo: 'bar' },
             function () {},
             () => {},
-            new Date()
-          ]
+            new Date(),
+          ],
         })
-      }
-    }
+      },
+    },
   })
 }

@@ -39,8 +39,8 @@ module.exports = {
         number: undefined,
         nullOrWhitespace: undefined,
         decimal: undefined,
-        primitive: undefined
-      }
+        primitive: undefined,
+      },
     }
 
     const primitives = [
@@ -50,7 +50,7 @@ module.exports = {
       'number',
       'bigint',
       'string',
-      'symbol'
+      'symbol',
     ]
 
     /**
@@ -224,5 +224,5 @@ module.exports = {
     }
 
     return is
-  }
+  },
 }

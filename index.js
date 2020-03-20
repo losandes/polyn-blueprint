@@ -16,5 +16,5 @@ delete numberValidators.__optional
 module.exports = Object.freeze({
   ...{ is },
   ...numberValidators,
-  ...blueprint
+  ...blueprint,
 })

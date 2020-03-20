@@ -6,7 +6,9 @@
   "types": "index.d.ts",
   "scripts": {
     "build": "node build.js",
-    "pre-push": "npm test && node pre-push.js",
+    "pre-push": "npm run lint && npm test && node pre-push.js",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
     "test": "node test.js -r nyan && node test-browser.js -r nyan && npm run test:ts",
     "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
     "test:coverage": "nyc node test.js",

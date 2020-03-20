@@ -14,13 +14,13 @@ module.exports = (test, dependencies) => {
         requiredFunction: () => {},
         requiredPromise: new Promise(() => {}),
         requiredAsync: async () => {},
-        optionalFunction: function () {}
+        optionalFunction: function () {},
       }
       const actual = blueprint('sut', {
         requiredFunction: 'function',
         requiredPromise: 'function',
         requiredAsync: 'function',
-        optionalFunction: 'function?'
+        optionalFunction: 'function?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -30,12 +30,12 @@ module.exports = (test, dependencies) => {
       const expected = {
         requiredPromise: new Promise(() => {}),
         optionalPromise: new Promise(() => {}),
-        requiredAsync: async () => {}
+        requiredAsync: async () => {},
       }
       const actual = blueprint('sut', {
         requiredPromise: 'promise',
         optionalPromise: 'promise?',
-        requiredAsync: 'promise'
+        requiredAsync: 'promise',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -45,12 +45,12 @@ module.exports = (test, dependencies) => {
       const expected = {
         requiredAsync: async () => {},
         optionalAsync: async () => {},
-        requiredPromise: async () => {}
+        requiredPromise: async () => {},
       }
       const actual = blueprint('sut', {
         requiredAsync: 'asyncFunction',
         optionalAsync: 'asyncFunction?',
-        requiredPromise: 'asyncFunction'
+        requiredPromise: 'asyncFunction',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -59,11 +59,11 @@ module.exports = (test, dependencies) => {
     'it should support `object`, and `object?`': (expect) => {
       const expected = {
         requiredObject: {},
-        optionalObject: { foo: 'bar' }
+        optionalObject: { foo: 'bar' },
       }
       const actual = blueprint('sut', {
         requiredObject: 'object',
-        optionalObject: 'object?'
+        optionalObject: 'object?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -72,14 +72,14 @@ module.exports = (test, dependencies) => {
     'it should support `string`, and `string?`': (expect) => {
       const expected = {
         requiredString: 'hello',
-        optionalString: 'world'
+        optionalString: 'world',
       }
       const actual = blueprint('sut', {
         requiredString: 'string',
-        optionalString: 'string?'
+        optionalString: 'string?',
       }).validate({
         requiredString: 'hello',
-        optionalString: 'world'
+        optionalString: 'world',
       })
 
       expect(actual.err).to.be.null
@@ -90,12 +90,12 @@ module.exports = (test, dependencies) => {
         requiredString: 'string',
         optionalString: 'string?',
         emptyString: 'string',
-        optionalEmptyString: 'string?'
+        optionalEmptyString: 'string?',
       }).validate({
         requiredString: 'hello',
         optionalString: 'world',
         emptyString: '',
-        optionalEmptyString: ''
+        optionalEmptyString: '',
       })
 
       expect(actual.err).to.not.be.null
@@ -104,14 +104,14 @@ module.exports = (test, dependencies) => {
     'it should trim strings, when they exist': (expect) => {
       const expected = {
         requiredString: 'hello',
-        optionalString: 'world'
+        optionalString: 'world',
       }
       const actual = blueprint('sut', {
         requiredString: 'string',
-        optionalString: 'string?'
+        optionalString: 'string?',
       }).validate({
         requiredString: ' hello  ',
-        optionalString: '  world '
+        optionalString: '  world ',
       })
 
       expect(actual.err).to.be.null
@@ -120,11 +120,11 @@ module.exports = (test, dependencies) => {
     'it should support `boolean`, and `boolean?`': (expect) => {
       const expected = {
         requiredBoolean: true,
-        optionalBoolean: false
+        optionalBoolean: false,
       }
       const actual = blueprint('sut', {
         requiredBoolean: 'boolean',
-        optionalBoolean: 'boolean?'
+        optionalBoolean: 'boolean?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -133,11 +133,11 @@ module.exports = (test, dependencies) => {
     'it should support `date`, and `date?`': (expect) => {
       const expected = {
         requiredDate: new Date(),
-        optionalDate: new Date()
+        optionalDate: new Date(),
       }
       const actual = blueprint('sut', {
         requiredDate: 'date',
-        optionalDate: 'date?'
+        optionalDate: 'date?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -146,11 +146,11 @@ module.exports = (test, dependencies) => {
     'it should support `number`, and `number?`': (expect) => {
       const expected = {
         requiredNumber: 123,
-        optionalNumber: 123
+        optionalNumber: 123,
       }
       const actual = blueprint('sut', {
         requiredNumber: 'number',
-        optionalNumber: 'number?'
+        optionalNumber: 'number?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -159,11 +159,11 @@ module.exports = (test, dependencies) => {
     'it should support `decimal`, `decimal?`, and decimal places to 15 places': (expect) => {
       const expected = {
         requiredDecimal: 10.01,
-        optionalDecimal: 42.1
+        optionalDecimal: 42.1,
       }
       const actual = blueprint('sut', {
         requiredDecimal: 'decimal',
-        optionalDecimal: 'decimal?'
+        optionalDecimal: 'decimal?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -172,11 +172,11 @@ module.exports = (test, dependencies) => {
     'it should support `regexp`, and `regexp?`': (expect) => {
       const expected = {
         requiredRegexp: /^book$/ig,
-        optionalRegexp: new RegExp('book')
+        optionalRegexp: new RegExp('book'),
       }
       const actual = blueprint('sut', {
         requiredRegexp: 'regexp',
-        optionalRegexp: 'regexp?'
+        optionalRegexp: 'regexp?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -187,13 +187,13 @@ module.exports = (test, dependencies) => {
         required: 'fourty-two',
         optional: 42,
         optionalNull: null,
-        optionalUndefined: undefined
+        optionalUndefined: undefined,
       }
       const actual = blueprint('sut', {
         required: 'any',
         optional: 'any?',
         optionalNull: 'any?',
-        optionalUndefined: 'any?'
+        optionalUndefined: 'any?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -201,10 +201,10 @@ module.exports = (test, dependencies) => {
     },
     'it should require values with `any`': (expect) => {
       const expected = {
-        required: null
+        required: null,
       }
       const actual = blueprint('sut', {
-        required: 'any'
+        required: 'any',
       }).validate(expected)
 
       expect(actual.err).to.not.be.null
@@ -213,11 +213,11 @@ module.exports = (test, dependencies) => {
     'it should support `array`, and `array?`': (expect) => {
       const expected = {
         requiredArray: [1, 2, 3],
-        optionalArray: null
+        optionalArray: null,
       }
       const actual = blueprint('sut', {
         requiredArray: 'array',
-        optionalArray: 'array?'
+        optionalArray: 'array?',
       }).validate(expected)
 
       expect(actual.err).to.be.null
@@ -226,16 +226,16 @@ module.exports = (test, dependencies) => {
     'it should support `function[]`, and `function[]?`': (expect) => {
       const expected = {
         required: [() => {}, () => {}],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'function[]',
-        optional: 'function[]?'
+        optional: 'function[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [() => {}, 'foo'],
-        optional: [() => {}, 'foo']
+        optional: [() => {}, 'foo'],
       })
 
       expect(actual.err).to.be.null
@@ -249,16 +249,16 @@ module.exports = (test, dependencies) => {
     'it should support `object[]`, and `object[]?`': (expect) => {
       const expected = {
         required: [{}, {}],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'object[]',
-        optional: 'object[]?'
+        optional: 'object[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [{}, 'foo'],
-        optional: [{}, 'foo']
+        optional: [{}, 'foo'],
       })
 
       expect(actual.err).to.be.null
@@ -271,16 +271,16 @@ module.exports = (test, dependencies) => {
     'it should support `string[]`, and `string[]?`': (expect) => {
       const expected = {
         required: ['string', 'string'],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'string[]',
-        optional: 'string[]?'
+        optional: 'string[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [{}, 'foo'],
-        optional: [{}, 'foo']
+        optional: [{}, 'foo'],
       })
 
       expect(actual.err).to.be.null
@@ -293,16 +293,16 @@ module.exports = (test, dependencies) => {
     'it should support `boolean[]`, and `boolean[]?`': (expect) => {
       const expected = {
         required: [true, false],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'boolean[]',
-        optional: 'boolean[]?'
+        optional: 'boolean[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [true, 'false'],
-        optional: [true, 'false']
+        optional: [true, 'false'],
       })
 
       expect(actual.err).to.be.null
@@ -315,16 +315,16 @@ module.exports = (test, dependencies) => {
     'it should support `date[]`, and `date[]?`': (expect) => {
       const expected = {
         required: [new Date()],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'date[]',
-        optional: 'date[]?'
+        optional: 'date[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [new Date(), 'false'],
-        optional: [new Date(), 'false']
+        optional: [new Date(), 'false'],
       })
 
       expect(actual.err).to.be.null
@@ -337,16 +337,16 @@ module.exports = (test, dependencies) => {
     'it should support `number[]`, and `number[]?`': (expect) => {
       const expected = {
         required: [0, 1],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'number[]',
-        optional: 'number[]?'
+        optional: 'number[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [1, 'false'],
-        optional: [1, 'false']
+        optional: [1, 'false'],
       })
 
       expect(actual.err).to.be.null
@@ -359,16 +359,16 @@ module.exports = (test, dependencies) => {
     'it should support `decimal[]`, and `decimal[]?`': (expect) => {
       const expected = {
         required: [10.01, 10.02],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'decimal[]',
-        optional: 'decimal[]?'
+        optional: 'decimal[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [10.01, '10'],
-        optional: [10.01, '10']
+        optional: [10.01, '10'],
       })
 
       expect(actual.err).to.be.null
@@ -381,16 +381,16 @@ module.exports = (test, dependencies) => {
     'it should support `regexp[]`, and `regexp[]?`': (expect) => {
       const expected = {
         required: [/^book$/ig, /^person$/ig],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'regexp[]',
-        optional: 'regexp[]?'
+        optional: 'regexp[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: [/^book/i, 'book'],
-        optional: [/^book/i, 'book']
+        optional: [/^book/i, 'book'],
       })
 
       expect(actual.err).to.be.null
@@ -403,16 +403,16 @@ module.exports = (test, dependencies) => {
     'it should support `any[]`, and `any[]?`': (expect) => {
       const expected = {
         required: ['string', 42],
-        optional: null
+        optional: null,
       }
       const bp = blueprint('sut', {
         required: 'any[]',
-        optional: 'any[]?'
+        optional: 'any[]?',
       })
       const actual = bp.validate(expected)
       const actualInvalid = bp.validate({
         required: null,
-        optional: 'string'
+        optional: 'string',
       })
 
       expect(actual.err).to.be.null
@@ -420,6 +420,6 @@ module.exports = (test, dependencies) => {
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal('Invalid sut: expected `required` {null} to be {any[]}, expected `optional` {string} to be {any[]}')
       expect(actualInvalid.value).to.be.null
-    }
+    },
   })
 }

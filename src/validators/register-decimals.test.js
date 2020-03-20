@@ -26,7 +26,7 @@ module.exports = (test, dependencies) => {
           requiredDecimal2: undefined,
           requiredDecimalWithPlaces2: undefined,
           requiredDecimal3: 'string',
-          requiredDecimalWithPlaces3: 'string'
+          requiredDecimalWithPlaces3: 'string',
         }
         const bp = {
           requiredDecimal1: 'decimal',
@@ -34,7 +34,7 @@ module.exports = (test, dependencies) => {
           requiredDecimal2: 'decimal',
           requiredDecimalWithPlaces2: 'decimal:2',
           requiredDecimal3: 'decimal',
-          requiredDecimalWithPlaces3: 'decimal:2'
+          requiredDecimalWithPlaces3: 'decimal:2',
         }
         const messages = []
 
@@ -54,7 +54,7 @@ module.exports = (test, dependencies) => {
             .to.equal(true)
         })
         expect(actual.value).to.be.null
-      }
-    }
+      },
+    },
   })
 }
