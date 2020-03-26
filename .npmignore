@@ -17,3 +17,4 @@ test-one.js
 test.js
 *.test.js
 tsconfig.json
+.coveralls.yml
