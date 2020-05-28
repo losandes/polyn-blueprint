@@ -22,6 +22,7 @@ module.exports = {
       nullOrWhitespace: undefined,
       decimal: undefined,
       primitive: undefined,
+      arrayOf: undefined,
       not: {
         defined: undefined,
         nullOrUndefined: undefined,
@@ -40,6 +41,7 @@ module.exports = {
         nullOrWhitespace: undefined,
         decimal: undefined,
         primitive: undefined,
+        arrayOf: undefined,
       },
     }
 
@@ -66,11 +68,7 @@ module.exports = {
     }
 
     is.defined = function (obj) {
-      try {
-        return is.getType(obj) !== 'undefined'
-      } catch (e) {
-        return false
-      }
+      return is.getType(obj) !== 'undefined'
     }
 
     is.not.defined = function (obj) {
@@ -221,6 +219,26 @@ module.exports = {
 
     is.not.primitive = function (input) {
       return is.primitive(input) === false
+    }
+
+    is.arrayOf = function (type) {
+      if (!is[type]) {
+        throw new Error(`is does not support evaluation of {${type}}`)
+      }
+
+      return function (input) {
+        return input.find((v) => is.not[type](v)) === undefined
+      }
+    }
+
+    is.not.arrayOf = function (type) {
+      if (!is[type]) {
+        throw new Error(`is does not support evaluation of {${type}}`)
+      }
+
+      return function (input) {
+        return is.arrayOf(type)(input) === false
+      }
     }
 
     return is

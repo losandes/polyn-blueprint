@@ -288,6 +288,7 @@ declare namespace is {
   function nullOrWhitespace (input?: any): boolean;
   function decimal (input?: any, places?: number): boolean;
   function primitive (input?: any): boolean;
+  function arrayOf (type: string): (input?: any) => boolean;
 
   namespace not {
     function defined (input?: any): boolean;
@@ -305,5 +306,6 @@ declare namespace is {
     function nullOrWhitespace (input?: any): boolean;
     function decimal (input?: any, places?: number): boolean;
     function primitive (input?: any): boolean;
+    function arrayOf (type: string): (input?: any) => boolean;
   }
 }

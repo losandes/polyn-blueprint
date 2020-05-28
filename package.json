@@ -1,6 +1,6 @@
 {
   "name": "@polyn/blueprint",
-  "version": "2.5.4",
+  "version": "2.6.0",
   "description": "An easy to use, flexible, and powerful validation library for nodejs and browsers",
   "main": "index.js",
   "types": "index.d.ts",
@@ -39,7 +39,7 @@
   "devDependencies": {
     "@babel/core": "~7.8.7",
     "@babel/preset-env": "~7.8.7",
-    "@polyn/blueprint": ".",
+    "@polyn/blueprint": "file:.",
     "@types/chai": "~4.2.11",
     "chai": "~4.2.0",
     "coveralls": "~3.0.11",
