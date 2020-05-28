@@ -527,7 +527,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           var context;
 
           if (from) {
-            context = _objectSpread({}, ctx, {}, {
+            context = _objectSpread(_objectSpread({}, ctx), {
               value: from(ctx)
             });
           } else {
@@ -585,7 +585,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           var context;
 
           if (from) {
-            context = _objectSpread({}, ctx, {}, {
+            context = _objectSpread(_objectSpread({}, ctx), {
               value: from(ctx)
             });
           } else {
@@ -651,6 +651,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         nullOrWhitespace: undefined,
         decimal: undefined,
         primitive: undefined,
+        arrayOf: undefined,
         not: {
           defined: undefined,
           nullOrUndefined: undefined,
@@ -668,7 +669,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           number: undefined,
           nullOrWhitespace: undefined,
           decimal: undefined,
-          primitive: undefined
+          primitive: undefined,
+          arrayOf: undefined
         }
       };
       var primitives = ['boolean', 'null', 'undefined', 'number', 'bigint', 'string', 'symbol'];
@@ -684,11 +686,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       is.defined = function (obj) {
-        try {
-          return is.getType(obj) !== 'undefined';
-        } catch (e) {
-          return false;
-        }
+        return is.getType(obj) !== 'undefined';
       };
 
       is.not.defined = function (obj) {
@@ -833,6 +831,28 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       is.not.primitive = function (input) {
         return is.primitive(input) === false;
+      };
+
+      is.arrayOf = function (type) {
+        if (!is[type]) {
+          throw new Error("is does not support evaluation of {".concat(type, "}"));
+        }
+
+        return function (input) {
+          return input.find(function (v) {
+            return is.not[type](v);
+          }) === undefined;
+        };
+      };
+
+      is.not.arrayOf = function (type) {
+        if (!is[type]) {
+          throw new Error("is does not support evaluation of {".concat(type, "}"));
+        }
+
+        return function (input) {
+          return is.arrayOf(type)(input) === false;
+        };
       };
 
       return is;
