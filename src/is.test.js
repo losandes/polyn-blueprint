@@ -419,19 +419,19 @@ module.exports = (test, dependencies) => {
       'it should return the expected responses': () => {
         expect(
           is.arrayOf('string')(['one', 'two', 'three']),
-          'is.arrayOf(\'string\')([\'one\', \'two\', \'three\'])'
+          'is.arrayOf(\'string\')([\'one\', \'two\', \'three\'])',
         ).to.equal(true)
         expect(
           is.arrayOf('string')(['one', 'two', 3]),
-          'is.arrayOf(\'string\')([\'one\', \'two\', 3])'
+          'is.arrayOf(\'string\')([\'one\', \'two\', 3])',
         ).to.equal(false)
         expect(
           is.not.arrayOf('string')(['one', 'two', 'three']),
-          'is.not.arrayOf(\'string\')([\'one\', \'two\', \'three\'])'
+          'is.not.arrayOf(\'string\')([\'one\', \'two\', \'three\'])',
         ).to.equal(false)
         expect(
           is.not.arrayOf('string')(['one', 'two', 3]),
-          'is.not.arrayOf(\'string\')([\'one\', \'two\', 3])'
+          'is.not.arrayOf(\'string\')([\'one\', \'two\', 3])',
         ).to.equal(true)
       },
       'and the type is not supported (is)': {
@@ -439,14 +439,14 @@ module.exports = (test, dependencies) => {
         'it should throw': () => (err) => {
           expect(err).to.not.equal(null)
           expect(err.message).to.contain('{foo}')
-        }
+        },
       },
       'and the type is not supported (is.not)': {
         when: () => is.not.arrayOf('foo')([1, 2, 3]),
         'it should throw': () => (err) => {
           expect(err).to.not.equal(null)
           expect(err.message).to.contain('{foo}')
-        }
+        },
       },
     },
   })
