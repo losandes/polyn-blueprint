@@ -633,13 +633,13 @@ module.exports = (test, dependencies) => {
         registerType('registerType:{err,value}-validators', ({ key, value }) => {
           return value
             ? {
-              err: null,
-              value,
-            }
+                err: null,
+                value,
+              }
             : {
-              err: new Error(`${key}.... BOOM!`),
-              value: null,
-            }
+                err: new Error(`${key}.... BOOM!`),
+                value: null,
+              }
         })
 
         const bp = blueprint('sut', {

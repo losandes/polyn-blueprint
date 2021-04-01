@@ -36,7 +36,7 @@ module.exports = (test, dependencies) => {
         promise: [new Promise(() => {})],
         array: [[1, 2], new Array()], // eslint-disable-line no-array-constructor
         date: [new Date()],
-        regexp: [/[A-Z]/, new RegExp('[A-Z]')],
+        regexp: [/[A-Z]/, new RegExp('[A-Z]')], // eslint-disable-line prefer-regex-literals
         object: [{}, { foo: 'bar' }, Object.prototype],
       }
 
@@ -268,7 +268,7 @@ module.exports = (test, dependencies) => {
         assert('regexp', {
           is: [
             /[A-B]/,
-            new RegExp('regex'),
+            new RegExp('regex'), // eslint-disable-line prefer-regex-literals
           ],
           isNot: [
             1,
