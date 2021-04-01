@@ -367,10 +367,6 @@ module.exports = {
         bp = blueprint(name, schema)
       }
 
-      if (bp.err) {
-        throw bp.err
-      }
-
       const cleanMessage = (key, message) => {
         return message.replace(`Invalid ${bp.name}: `, '')
           .replace(/expected `/g, `expected \`${key}.`)
