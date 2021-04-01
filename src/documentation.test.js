@@ -186,8 +186,8 @@ module.exports = (test) => {
             // decimal places (up to 15 decimal places)
             requiredDecimalTo1Place: 42.1,
             optionalDecimalTo1Place: 42.2,
-            requiredDecimalTo15Places: 42.123456789012345,
-            optionalDecimalTo15Places: 42.123456789012345,
+            requiredDecimalTo15Places: 42.123456789012345, // eslint-disable-line no-loss-of-precision
+            optionalDecimalTo15Places: 42.123456789012345, // eslint-disable-line no-loss-of-precision
 
             requiredPrimitive: 'primitive',
             optionalPrimitive: 42,
@@ -286,7 +286,7 @@ module.exports = (test) => {
             // decimal places (up to 15 decimal places)
             requiredDecimalTo1Place: 42.1,
             optionalDecimalTo1Place: undefined,
-            requiredDecimalTo15Places: 42.123456789012345,
+            requiredDecimalTo15Places: 42.123456789012345, // eslint-disable-line no-loss-of-precision
             optionalDecimalTo15Places: undefined,
 
             requiredPrimitive: 'primitive',

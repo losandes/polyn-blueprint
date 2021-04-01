@@ -8,7 +8,7 @@ module.exports = (test, dependencies) => {
         const bp = {}
 
         for (let i = 1; i <= 15; i += 1) {
-          expected[`decimal${i}`] = parseFloat(42.111111111111111.toFixed(i))
+          expected[`decimal${i}`] = parseFloat(42.111111111111111.toFixed(i)) // eslint-disable-line no-loss-of-precision
           expected[`optionalDecimal${i}`] = null
           bp[`decimal${i}`] = `decimal:${i}`
           bp[`optionalDecimal${i}`] = `decimal:${i}?`
@@ -39,8 +39,8 @@ module.exports = (test, dependencies) => {
         const messages = []
 
         for (let i = 1; i < 15; i += 1) {
-          invalids[`decimal${i}`] = parseFloat(42.111111111111111.toFixed(i + 1))
-          invalids[`optionalDecimal${i}`] = parseFloat(42.111111111111111.toFixed(i + 1))
+          invalids[`decimal${i}`] = parseFloat(42.111111111111111.toFixed(i + 1)) // eslint-disable-line no-loss-of-precision
+          invalids[`optionalDecimal${i}`] = parseFloat(42.111111111111111.toFixed(i + 1)) // eslint-disable-line no-loss-of-precision
           bp[`decimal${i}`] = `decimal:${i}`
           bp[`optionalDecimal${i}`] = `decimal:${i}?`
           messages.push(`expected \`decimal${i}\` to be a {decimal} with ${i} places`)

@@ -8,6 +8,8 @@ module.exports = (test, dependencies) => {
     optional,
     required,
     gt,
+    getValidator,
+    getValidators,
   } = dependencies.sut
 
   const makeErrorMessage = (options) => {
@@ -633,13 +635,13 @@ module.exports = (test, dependencies) => {
         registerType('registerType:{err,value}-validators', ({ key, value }) => {
           return value
             ? {
-              err: null,
-              value,
-            }
+                err: null,
+                value,
+              }
             : {
-              err: new Error(`${key}.... BOOM!`),
-              value: null,
-            }
+                err: new Error(`${key}.... BOOM!`),
+                value: null,
+              }
         })
 
         const bp = blueprint('sut', {
@@ -1260,6 +1262,35 @@ module.exports = (test, dependencies) => {
 
       expect(actual.err).to.not.be.null
       expect(actual.err.message).to.equal('Invalid sut: expected `string` {undefined} to be {string}')
+    },
+    'getValidators (undocumented)': {
+      when: getValidators,
+      'it should return an object of validators': (expect) => (err, actual) => {
+        expect(err).to.be.null
+        const types = ['string', 'string?', 'string[]', 'string[]?']
+        types.forEach((key) => {
+          expect(typeof actual[key]).to.equal('function')
+        })
+      },
+    },
+    'getValidator (undocumented)': {
+      when: () => {
+        const types = ['string', 'string?', 'string[]', 'string[]?']
+        return types.map(getValidator)
+      },
+      'it should return a object': (expect) => (err, actual) => {
+        expect(err).to.be.null
+        actual.forEach((validator) => {
+          expect(typeof validator).to.equal('object')
+        })
+      },
+    },
+    'getValidator (not found; undocumented)': {
+      when: () => getValidator('adghtytw4341341'),
+      'it should return a object': (expect) => (err, actual) => {
+        expect(err).to.be.null
+        expect(actual).to.equal(undefined)
+      },
     },
   })
 }

@@ -172,7 +172,7 @@ module.exports = (test, dependencies) => {
     'it should support `regexp`, and `regexp?`': (expect) => {
       const expected = {
         requiredRegexp: /^book$/ig,
-        optionalRegexp: new RegExp('book'),
+        optionalRegexp: new RegExp('book'), // eslint-disable-line prefer-regex-literals
       }
       const actual = blueprint('sut', {
         requiredRegexp: 'regexp',
