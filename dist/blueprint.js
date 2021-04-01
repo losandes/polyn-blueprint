@@ -424,10 +424,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           bp = blueprint(name, schema);
         }
 
-        if (bp.err) {
-          throw bp.err;
-        }
-
         var cleanMessage = function cleanMessage(key, message) {
           return message.replace("Invalid ".concat(bp.name, ": "), '').replace(/expected `/g, "expected `".concat(key, "."));
         };
