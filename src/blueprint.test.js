@@ -70,15 +70,23 @@ module.exports = (test, dependencies) => {
       'it should return an `err`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
-          key: 'requiredString',
+        const requiredKey = 'requiredString'
+        const requiredMessage = makeErrorMessage({
+          key: requiredKey,
           actualType: 'null',
           expectedType: 'string',
-        })}, ${makeErrorMessage({
-          key: 'optionalString',
+        })
+        const optionalKey = 'optionalString'
+        const optionalMessage = makeErrorMessage({
+          key: optionalKey,
           actualType: 'number',
           expectedType: 'string',
-        })}`)
+        })
+        expect(actual.err.message).to.equal(`Invalid sut: ${requiredMessage}, ${optionalMessage}`)
+        expect(actual.err.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.errors[1].message).to.equal(optionalMessage)
+        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.invalids[optionalKey]).to.equal(optionalMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -180,15 +188,23 @@ module.exports = (test, dependencies) => {
       'it should return an `err`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.err).to.not.be.null
-        expect(actual.err.message).to.equal(`Invalid sut: ${makeErrorMessage({
-          key: 'grandParent.parent.child.requiredString',
+        const requiredKey = 'grandParent.parent.child.requiredString'
+        const requiredMessage = makeErrorMessage({
+          key: requiredKey,
           actualType: 'null',
           expectedType: 'string',
-        })}, ${makeErrorMessage({
-          key: 'grandParent.parent.child.optionalString',
+        })
+        const optionalKey = 'grandParent.parent.child.optionalString'
+        const optionalMessage = makeErrorMessage({
+          key: optionalKey,
           actualType: 'number',
           expectedType: 'string',
-        })}`)
+        })
+        expect(actual.err.message).to.equal(`Invalid sut: ${requiredMessage}, ${optionalMessage}`)
+        expect(actual.err.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.errors[1].message).to.equal(optionalMessage)
+        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.invalids[optionalKey]).to.equal(optionalMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -244,6 +260,10 @@ module.exports = (test, dependencies) => {
       'it should return an `err`': (expect) => (err, actual) => {
         expect(err).to.be.null
         expect(actual.err).to.not.be.null
+        const requiredKey = 'notRegistered'
+        const requiredMessage = 'I don\'t know how to validate BOOM!'
+        expect(actual.err.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -368,6 +388,43 @@ module.exports = (test, dependencies) => {
           expect(value.bp.getVal('foo').optionalString).to.equal(value.bp.foo.optionalString)
         },
       },
+    },
+    'when an implementation has error properties that are extended such as status': (expect) => {
+      const bp = blueprint('sut', {
+        firstName: 'string',
+        lastName: ({ value }) => {
+          const expectedLength = 'World'.length
+          if (typeof value === 'string' && value.length === expectedLength) {
+            return true
+          }
+          const err = new Error(`Must be shorter than ${expectedLength}`)
+          err.status = 400
+          return { err }
+        },
+        fullName: ({ key, value, input, root }) => {
+          const expected = `${input.firstName} ${input.lastName}`
+          if (value === expected) {
+            return { value: true }
+          }
+          const error = new Error(`Full Name should be ${expected}`)
+          error.status = 401
+          throw error
+        },
+      })
+      const actual = bp.validate({
+        firstName: 'Hello',
+        lastName: 'Worlds', // too long by 1 's' char
+        fullName: 'World Hello', // wrong order
+      })
+
+      const lastName = 'Must be shorter than 5'
+      const fullName = 'Full Name should be Hello Worlds'
+      expect(actual.err.errors[0].status).to.equal(400)
+      expect(actual.err.errors[1].status).to.equal(401)
+      expect(actual.err.errors[0].message).to.equal(lastName)
+      expect(actual.err.errors[1].message).to.equal(fullName)
+      expect(actual.err.invalids.lastName).to.equal(lastName)
+      expect(actual.err.invalids.fullName).to.equal(fullName)
     },
     'it should support custom validators (functions)': (expect) => {
       const validator = ({ key, value }) => {

@@ -124,7 +124,7 @@ module.exports = {
           const child = validate(`${keyName}`, schema[key])(input[key], root || input)
 
           if (child.err) {
-            output.validationErrors = output.validationErrors.concat(child.messages)
+            output.validationErrors = output.validationErrors.concat(child.err.keyErrGroup)
           }
 
           output.value[key] = child.value
@@ -142,7 +142,7 @@ module.exports = {
         }
 
         if (is.not.function(validator)) {
-          output.validationErrors.push(`I don't know how to validate ${schema[key]}`)
+          output.validationErrors.push({ key, err: new Error(`I don't know how to validate ${schema[key]}`) })
           return output
         }
 
@@ -158,7 +158,7 @@ module.exports = {
         const result = validator(context, makeDefaultErrorMessage(context))
 
         if (result && result.err) {
-          output.validationErrors.push(result.err.message)
+          output.validationErrors.push({ key: context.key, err: result.err })
           return output
         }
 
@@ -170,9 +170,16 @@ module.exports = {
       }) // /reduce
 
       if (outcomes.validationErrors.length) {
+        const messages = outcomes.validationErrors.map(errGroup => errGroup.err.message)
+        const error = new Error(`Invalid ${name}: ${messages.join(', ')}`)
+        error.keyErrGroup = outcomes.validationErrors
+        const invalids = outcomes.validationErrors.reduce((prev, errGroup) => ({ ...prev, [errGroup.key]: errGroup.err.message }), {})
+        error.invalids = invalids
+        const errors = outcomes.validationErrors.map(validationErr => validationErr.err)
+        error.errors = errors
         return new ValueOrError({
-          err: new Error(`Invalid ${name}: ${outcomes.validationErrors.join(', ')}`),
-          messages: outcomes.validationErrors,
+          err: error,
+          messages,
         })
       }
 

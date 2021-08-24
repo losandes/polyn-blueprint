@@ -165,7 +165,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               var child = validate("".concat(keyName), schema[key])(input[key], root || input);
 
               if (child.err) {
-                output.validationErrors = output.validationErrors.concat(child.messages);
+                output.validationErrors = output.validationErrors.concat(child.err.keyErrGroup);
               }
 
               output.value[key] = child.value;
@@ -183,7 +183,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             if (is.not.function(validator)) {
-              output.validationErrors.push("I don't know how to validate ".concat(schema[key]));
+              output.validationErrors.push({
+                key: key,
+                err: new Error("I don't know how to validate ".concat(schema[key]))
+              });
               return output;
             }
 
@@ -198,7 +201,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             var result = validator(context, makeDefaultErrorMessage(context));
 
             if (result && result.err) {
-              output.validationErrors.push(result.err.message);
+              output.validationErrors.push({
+                key: context.key,
+                err: result.err
+              });
               return output;
             }
 
@@ -211,9 +217,22 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }); // /reduce
 
           if (outcomes.validationErrors.length) {
+            var messages = outcomes.validationErrors.map(function (errGroup) {
+              return errGroup.err.message;
+            });
+            var error = new Error("Invalid ".concat(name, ": ").concat(messages.join(', ')));
+            error.keyErrGroup = outcomes.validationErrors;
+            var invalids = outcomes.validationErrors.reduce(function (prev, errGroup) {
+              return _objectSpread(_objectSpread({}, prev), {}, _defineProperty({}, errGroup.key, errGroup.err.message));
+            }, {});
+            error.invalids = invalids;
+            var errors = outcomes.validationErrors.map(function (validationErr) {
+              return validationErr.err;
+            });
+            error.errors = errors;
             return new ValueOrError({
-              err: new Error("Invalid ".concat(name, ": ").concat(outcomes.validationErrors.join(', '))),
-              messages: outcomes.validationErrors
+              err: error,
+              messages: messages
             });
           }
 
