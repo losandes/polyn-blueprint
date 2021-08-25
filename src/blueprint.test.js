@@ -83,10 +83,11 @@ module.exports = (test, dependencies) => {
           expectedType: 'string',
         })
         expect(actual.err.message).to.equal(`Invalid sut: ${requiredMessage}, ${optionalMessage}`)
-        expect(actual.err.errors[0].message).to.equal(requiredMessage)
-        expect(actual.err.errors[1].message).to.equal(optionalMessage)
-        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
-        expect(actual.err.invalids[optionalKey]).to.equal(optionalMessage)
+        expect(actual.err.blueprint).to.not.equal(undefined)
+        expect(actual.err.blueprint.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.blueprint.errors[1].message).to.equal(optionalMessage)
+        expect(actual.err.blueprint.invalids[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.blueprint.invalids[optionalKey]).to.equal(optionalMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -201,10 +202,13 @@ module.exports = (test, dependencies) => {
           expectedType: 'string',
         })
         expect(actual.err.message).to.equal(`Invalid sut: ${requiredMessage}, ${optionalMessage}`)
-        expect(actual.err.errors[0].message).to.equal(requiredMessage)
-        expect(actual.err.errors[1].message).to.equal(optionalMessage)
-        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
-        expect(actual.err.invalids[optionalKey]).to.equal(optionalMessage)
+        expect(actual.err.blueprint).to.not.equal(undefined)
+        expect(actual.err.blueprint.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.blueprint.errors[1].message).to.equal(optionalMessage)
+        expect(actual.err.blueprint.errors[0].blueprint.invalid[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.blueprint.errors[1].blueprint.invalid[optionalKey]).to.equal(optionalMessage)
+        expect(actual.err.blueprint.invalids[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.blueprint.invalids[optionalKey]).to.equal(optionalMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -262,8 +266,9 @@ module.exports = (test, dependencies) => {
         expect(actual.err).to.not.be.null
         const requiredKey = 'notRegistered'
         const requiredMessage = 'I don\'t know how to validate BOOM!'
-        expect(actual.err.errors[0].message).to.equal(requiredMessage)
-        expect(actual.err.invalids[requiredKey]).to.equal(requiredMessage)
+        expect(actual.err.blueprint).to.not.equal(undefined)
+        expect(actual.err.blueprint.errors[0].message).to.equal(requiredMessage)
+        expect(actual.err.blueprint.invalids[requiredKey]).to.equal(requiredMessage)
       },
       'it should NOT return a `value`': (expect) => (err, actual) => {
         expect(err).to.be.null
@@ -419,12 +424,14 @@ module.exports = (test, dependencies) => {
 
       const lastName = 'Must be shorter than 5'
       const fullName = 'Full Name should be Hello Worlds'
-      expect(actual.err.errors[0].status).to.equal(400)
-      expect(actual.err.errors[1].status).to.equal(401)
-      expect(actual.err.errors[0].message).to.equal(lastName)
-      expect(actual.err.errors[1].message).to.equal(fullName)
-      expect(actual.err.invalids.lastName).to.equal(lastName)
-      expect(actual.err.invalids.fullName).to.equal(fullName)
+      expect(actual.err.blueprint.errors[0].status).to.equal(400)
+      expect(actual.err.blueprint.errors[1].status).to.equal(401)
+      expect(actual.err.blueprint.errors[0].message).to.equal(lastName)
+      expect(actual.err.blueprint.errors[1].message).to.equal(fullName)
+      expect(actual.err.blueprint.errors[0].blueprint.invalid.lastName).to.equal(lastName)
+      expect(actual.err.blueprint.errors[1].blueprint.invalid.fullName).to.equal(fullName)
+      expect(actual.err.blueprint.invalids.lastName).to.equal(lastName)
+      expect(actual.err.blueprint.invalids.fullName).to.equal(fullName)
     },
     'it should support custom validators (functions)': (expect) => {
       const validator = ({ key, value }) => {
@@ -457,6 +464,7 @@ module.exports = (test, dependencies) => {
       expect(actual.value).to.deep.equal(expected)
       expect(actualInvalid.err).to.not.be.null
       expect(actualInvalid.err.message).to.equal('Invalid sut: bad required1232')
+      expect(actualInvalid.err.blueprint).to.not.equal(undefined)
       expect(actualInvalid.value).to.be.null
     },
     '`registerValidator`': {
@@ -497,6 +505,7 @@ module.exports = (test, dependencies) => {
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
         expect(actualInvalid.err.message).to.equal('Invalid sut: Invalid user: expected `firstName` {undefined} to be {string}, expected `lastName` {undefined} to be {string}')
+        expect(actualInvalid.err.blueprint).to.not.equal(undefined)
         expect(actualInvalid.value).to.be.null
       },
       'it should pass `ValidationContext` to registered validators': (expect) => {
@@ -577,6 +586,7 @@ module.exports = (test, dependencies) => {
 
         expect(actual.err).to.not.be.null
         expect(actual.err.message).to.equal('Invalid sut: ValidationError: the validator for `something` didn\'t return a value')
+        expect(actual.err.blueprint).to.not.equal(undefined)
       },
       'should be able to intercept values': (expect) => {
         registerValidator('registerValidatorInterceptor', () => {
@@ -609,6 +619,7 @@ module.exports = (test, dependencies) => {
           actualType: 'number',
           expectedType: 'registerValidator:boolean-validators',
         })}`)
+        expect(bp.validate({ args: 0 }).err.blueprint).to.not.equal(undefined)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -639,6 +650,7 @@ module.exports = (test, dependencies) => {
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
         expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: I don\'t like your args:0')
+        expect(bp.validate({ args: 0 }).err.blueprint).to.not.equal(undefined)
       },
       'when given an invalid name, should throw': (expect) => {
         const message = 'registerValidator requires a name {string}, and a validator {function}'
@@ -685,6 +697,7 @@ module.exports = (test, dependencies) => {
           actualType: 'number',
           expectedType: 'registerType:boolean-validators',
         })}`)
+        expect(bp.validate({ args: 0 }).err.blueprint).to.not.equal(undefined)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -707,6 +720,7 @@ module.exports = (test, dependencies) => {
 
         expect(bp.validate({ args: 0 }).err).to.not.be.null
         expect(bp.validate({ args: 0 }).err.message).to.equal('Invalid sut: args.... BOOM!')
+        expect(bp.validate({ args: 0 }).err.blueprint).to.not.equal(undefined)
         expect(bp.validate({ args: 1 }).err).to.be.null
         expect(bp.validate({ args: 1 }).value.args).to.equal(1)
       },
@@ -742,6 +756,7 @@ module.exports = (test, dependencies) => {
         expect(validActual.value).to.deep.equal(expected)
         expect(invalidActual.err).to.not.be.null
         expect(invalidActual.err.message).to.equal('Invalid sut: expected `required` {number} to be {registerType:all-the-things}, expected `optional` {number} to be {registerType:all-the-things}, expected `requiredArray[2]` {number} to be {registerType:all-the-things}, expected `optionalArray[1]` {number} to be {registerType:all-the-things}')
+        expect(invalidActual.err.blueprint).to.not.equal(undefined)
       },
       'it should pass `key`, `value`, `input`, and `root` to registered types': (expect) => {
         let actual
@@ -850,6 +865,7 @@ module.exports = (test, dependencies) => {
           'expected `user.firstName` {undefined} to be {string},',
           'expected `user.lastName` {undefined} to be {string}',
         ].join(' '))
+        expect(actualInvalid.err.blueprint).to.not.equal(undefined)
         expect(actualInvalid.value).to.be.null
       },
       'should support null values': (expect) => {
@@ -897,6 +913,7 @@ module.exports = (test, dependencies) => {
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
         expect(actualInvalid.err.message).to.equal('Invalid sut: expected `users[1].lastName` {undefined} to be {string}')
+        expect(actualInvalid.err.blueprint).to.not.equal(undefined)
         expect(actualInvalid.value).to.be.null
       },
       'should support nullable arrays': (expect) => {
@@ -931,6 +948,7 @@ module.exports = (test, dependencies) => {
         expect(actual.value).to.deep.equal(expected)
         expect(actualInvalid.err).to.not.be.null
         expect(actualInvalid.err.message).to.equal('Invalid registerBlueprint:returns: expected `lastName` {undefined} to be {string}')
+        expect(actualInvalid.err.blueprint).to.not.equal(undefined)
         expect(actualInvalid.value).to.be.null
       },
       'when given an invalid name, should throw': (expect) => {
@@ -992,6 +1010,7 @@ module.exports = (test, dependencies) => {
           'expected `user.firstName` {undefined} to be {string},',
           'expected `user.lastName` {undefined} to be {string}',
         ].join(' '))
+        expect(actualInvalid.err.blueprint).to.not.equal(undefined)
         expect(actualInvalid.value).to.be.null
       },
     },
@@ -1004,6 +1023,7 @@ module.exports = (test, dependencies) => {
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
         expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: expected `arg` to match /^book|movie$/i')
+        expect(bp.validate({ arg: 1 }).err.blueprint).to.not.equal(undefined)
         expect(bp.validate({ arg: 'book' }).err).to.be.null
         expect(bp.validate({ arg: 'book' }).value.arg).to.equal('book')
         expect(bp.validate({ arg: 'movie' }).err).to.be.null
@@ -1017,6 +1037,7 @@ module.exports = (test, dependencies) => {
 
         expect(bp.validate({ arg: 1 }).err).to.not.be.null
         expect(bp.validate({ arg: 1 }).err.message).to.equal('Invalid sut: expected `arg` to match /^book$/')
+        expect(bp.validate({ arg: 1 }).err.blueprint).to.not.equal(undefined)
         expect(bp.validate({ arg: 'book' }).err).to.be.null
         expect(bp.validate({ arg: 'book' }).value.arg).to.equal('book')
       },
@@ -1050,6 +1071,7 @@ module.exports = (test, dependencies) => {
         expect(validActual.value).to.deep.equal(expected)
         expect(invalidActual.err).to.not.be.null
         expect(invalidActual.err.message).to.equal('Invalid sut: expected `required` to match /^book$/i, expected `optional` to match /^book$/i, expected `requiredArray[0]` to match /^book$/i, expected `requiredArray[1]` to match /^book$/i, expected `requiredArray[2]` to match /^book$/i, expected `optionalArray[0]` to match /^book$/i, expected `optionalArray[1]` to match /^book$/i, expected `optionalArray[2]` to match /^book$/i')
+        expect(invalidActual.err.blueprint).to.not.equal(undefined)
       },
       'when given an invalid name, should throw': (expect) => {
         const message = 'registerExpression requires a name {string}, and an expression {expression}'
@@ -1161,6 +1183,7 @@ module.exports = (test, dependencies) => {
 
         expect(actual.err).to.not.be.null
         expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalId` {boolean} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
+        expect(actual.err.blueprint).to.not.equal(undefined)
       },
       'it should not validate the default values': (expect) => {
         const bp = blueprint('sut', {
@@ -1221,6 +1244,7 @@ module.exports = (test, dependencies) => {
           })
 
           expect(actual.err.message).to.equal('Invalid sut: expected `optionalString` {number} to be {string}, expected `optionalGt` to be greater than 10, expected `optionalExp` to match /^book|magazine$/')
+          expect(actual.err.blueprint).to.not.equal(undefined)
         },
       },
       'when no fluent functions are used': {
@@ -1311,6 +1335,7 @@ module.exports = (test, dependencies) => {
         })
 
         expect(actual.err.message).to.equal('Invalid sut: expected `requiredString` {number} to be {string}, expected `requiredGt` to be greater than 10, expected `requiredExp` to match /^book|magazine$/, expected `requiredNoTransformation` {undefined} to be {string}')
+        expect(actual.err.blueprint).to.not.equal(undefined)
       },
     },
     'it should not throw when a null object is validated': (expect) => {
@@ -1319,6 +1344,7 @@ module.exports = (test, dependencies) => {
 
       expect(actual.err).to.not.be.null
       expect(actual.err.message).to.equal('Invalid sut: expected `string` {undefined} to be {string}')
+      expect(actual.err.blueprint).to.not.equal(undefined)
     },
     'getValidators (undocumented)': {
       when: getValidators,

@@ -147,6 +147,18 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return {};
         }
       };
+
+      var decorateError = function decorateError(_ref) {
+        var key = _ref.key,
+            err = _ref.err;
+        err.blueprint = {};
+        err.blueprint.invalid = {};
+        err.blueprint.invalid[key] = err.message;
+        return {
+          key: key,
+          err: err
+        };
+      };
       /**
        * Validates the input values against the schema expectations
        * @curried
@@ -165,7 +177,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               var child = validate("".concat(keyName), schema[key])(input[key], root || input);
 
               if (child.err) {
-                output.validationErrors = output.validationErrors.concat(child.err.keyErrGroup);
+                output.validationErrors = output.validationErrors.concat(child.err.keyErrList);
               }
 
               output.value[key] = child.value;
@@ -183,10 +195,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             }
 
             if (is.not.function(validator)) {
-              output.validationErrors.push({
+              output.validationErrors.push(decorateError({
                 key: key,
                 err: new Error("I don't know how to validate ".concat(schema[key]))
-              });
+              }));
               return output;
             }
 
@@ -201,10 +213,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             var result = validator(context, makeDefaultErrorMessage(context));
 
             if (result && result.err) {
-              output.validationErrors.push({
+              output.validationErrors.push(decorateError({
                 key: context.key,
                 err: result.err
-              });
+              }));
               return output;
             }
 
@@ -221,15 +233,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               return errGroup.err.message;
             });
             var error = new Error("Invalid ".concat(name, ": ").concat(messages.join(', ')));
-            error.keyErrGroup = outcomes.validationErrors;
-            var invalids = outcomes.validationErrors.reduce(function (prev, errGroup) {
+            error.keyErrList = outcomes.validationErrors;
+            error.blueprint = {};
+            error.blueprint.invalids = outcomes.validationErrors.reduce(function (prev, errGroup) {
               return _objectSpread(_objectSpread({}, prev), {}, _defineProperty({}, errGroup.key, errGroup.err.message));
             }, {});
-            error.invalids = invalids;
-            var errors = outcomes.validationErrors.map(function (validationErr) {
+            error.blueprint.errors = outcomes.validationErrors.map(function (validationErr) {
               return validationErr.err;
             });
-            error.errors = errors;
             return new ValueOrError({
               err: error,
               messages: messages
@@ -447,9 +458,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return message.replace("Invalid ".concat(bp.name, ": "), '').replace(/expected `/g, "expected `".concat(key, "."));
         };
 
-        registerType(bp.name, function (_ref) {
-          var key = _ref.key,
-              value = _ref.value;
+        registerType(bp.name, function (_ref2) {
+          var key = _ref2.key,
+              value = _ref2.value;
           var result = bp.validate(value);
 
           if (result.err) {
@@ -473,9 +484,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
 
         var regex = is.string(expression) ? new RegExp(expression) : expression;
-        return registerType(name, function (_ref2) {
-          var key = _ref2.key,
-              value = _ref2.value;
+        return registerType(name, function (_ref3) {
+          var key = _ref3.key,
+              value = _ref3.value;
           return regex.test(value) === true ? new ValueOrError({
             value: value
           }) : new ValueOrError({
@@ -887,9 +898,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           throw new Error('gt requires a minimum number to compare values to');
         }
 
-        return function (_ref3) {
-          var key = _ref3.key,
-              value = _ref3.value;
+        return function (_ref4) {
+          var key = _ref4.key,
+              value = _ref4.value;
 
           if (is.number(value) && value > min) {
             return {
@@ -914,9 +925,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           throw new Error('gte requires a minimum number to compare values to');
         }
 
-        return function (_ref4) {
-          var key = _ref4.key,
-              value = _ref4.value;
+        return function (_ref5) {
+          var key = _ref5.key,
+              value = _ref5.value;
 
           if (is.number(value) && value >= min) {
             return {
@@ -941,9 +952,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           throw new Error('lt requires a maximum number to compare values to');
         }
 
-        return function (_ref5) {
-          var key = _ref5.key,
-              value = _ref5.value;
+        return function (_ref6) {
+          var key = _ref6.key,
+              value = _ref6.value;
 
           if (is.number(value) && value < max) {
             return {
@@ -968,9 +979,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           throw new Error('lte requires a maximum number to compare values to');
         }
 
-        return function (_ref6) {
-          var key = _ref6.key,
-              value = _ref6.value;
+        return function (_ref7) {
+          var key = _ref7.key,
+              value = _ref7.value;
 
           if (is.number(value) && value <= max) {
             return {
@@ -1062,9 +1073,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       };
 
       types.forEach(function (type) {
-        registerType(type, function (_ref7) {
-          var key = _ref7.key,
-              value = _ref7.value;
+        registerType(type, function (_ref8) {
+          var key = _ref8.key,
+              value = _ref8.value;
           return is[type](value) ? {
             err: null,
             value: value
@@ -1073,9 +1084,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         });
       });
-      registerType('string', function (_ref8) {
-        var key = _ref8.key,
-            value = _ref8.value;
+      registerType('string', function (_ref9) {
+        var key = _ref9.key,
+            value = _ref9.value;
 
         if (is.string(value)) {
           var trimmed = value.trim();
@@ -1095,9 +1106,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         }
       });
-      registerType('any', function (_ref9) {
-        var key = _ref9.key,
-            value = _ref9.value;
+      registerType('any', function (_ref10) {
+        var key = _ref10.key,
+            value = _ref10.value;
         return is.not.nullOrUndefined(value) ? {
           err: null,
           value: value
@@ -1115,9 +1126,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var registerValidator = Blueprint.registerValidator; // support up to 15 decimal places for decimal precision
 
       var _loop = function _loop(i) {
-        registerValidator("decimal:".concat(i), function (_ref10) {
-          var key = _ref10.key,
-              value = _ref10.value;
+        registerValidator("decimal:".concat(i), function (_ref11) {
+          var key = _ref11.key,
+              value = _ref11.value;
           return is.decimal(value, i) ? {
             err: null,
             value: value
@@ -1126,9 +1137,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: null
           };
         });
-        registerValidator("decimal:".concat(i, "?"), function (_ref11) {
-          var key = _ref11.key,
-              value = _ref11.value;
+        registerValidator("decimal:".concat(i, "?"), function (_ref12) {
+          var key = _ref12.key,
+              value = _ref12.value;
 
           if (is.nullOrUndefined(value)) {
             return {
@@ -1161,9 +1172,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
 
       var registerValidator = Blueprint.registerValidator;
       registerValidator('expression', function (regex) {
-        return function (_ref12) {
-          var key = _ref12.key,
-              value = _ref12.value;
+        return function (_ref13) {
+          var key = _ref13.key,
+              value = _ref13.value;
           return regex.test(value) === true ? {
             value: value
           } : {

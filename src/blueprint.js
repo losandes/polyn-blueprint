@@ -109,6 +109,13 @@ module.exports = {
       }
     }
 
+    const decorateError = ({ key, err }) => {
+      err.blueprint = {}
+      err.blueprint.invalid = {}
+      err.blueprint.invalid[key] = err.message
+      return { key, err }
+    }
+
     /**
      * Validates the input values against the schema expectations
      * @curried
@@ -124,7 +131,7 @@ module.exports = {
           const child = validate(`${keyName}`, schema[key])(input[key], root || input)
 
           if (child.err) {
-            output.validationErrors = output.validationErrors.concat(child.err.keyErrGroup)
+            output.validationErrors = output.validationErrors.concat(child.err.keyErrList)
           }
 
           output.value[key] = child.value
@@ -142,7 +149,7 @@ module.exports = {
         }
 
         if (is.not.function(validator)) {
-          output.validationErrors.push({ key, err: new Error(`I don't know how to validate ${schema[key]}`) })
+          output.validationErrors.push(decorateError({ key, err: new Error(`I don't know how to validate ${schema[key]}`) }))
           return output
         }
 
@@ -158,7 +165,7 @@ module.exports = {
         const result = validator(context, makeDefaultErrorMessage(context))
 
         if (result && result.err) {
-          output.validationErrors.push({ key: context.key, err: result.err })
+          output.validationErrors.push(decorateError({ key: context.key, err: result.err }))
           return output
         }
 
@@ -172,11 +179,10 @@ module.exports = {
       if (outcomes.validationErrors.length) {
         const messages = outcomes.validationErrors.map(errGroup => errGroup.err.message)
         const error = new Error(`Invalid ${name}: ${messages.join(', ')}`)
-        error.keyErrGroup = outcomes.validationErrors
-        const invalids = outcomes.validationErrors.reduce((prev, errGroup) => ({ ...prev, [errGroup.key]: errGroup.err.message }), {})
-        error.invalids = invalids
-        const errors = outcomes.validationErrors.map(validationErr => validationErr.err)
-        error.errors = errors
+        error.keyErrList = outcomes.validationErrors
+        error.blueprint = {}
+        error.blueprint.invalids = outcomes.validationErrors.reduce((prev, errGroup) => ({ ...prev, [errGroup.key]: errGroup.err.message }), {})
+        error.blueprint.errors = outcomes.validationErrors.map(validationErr => validationErr.err)
         return new ValueOrError({
           err: error,
           messages,
