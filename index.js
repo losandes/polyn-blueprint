@@ -1,20 +1,24 @@
-const is = require('./src/is').factory()
-const blueprint = require('./src/blueprint').factory(is)
-const numberValidators = require('./src/validators/numbers').factory(is)
+const is = require('./src/is')()
 
-require('./src/validators/register-common-types.js').factory(is, blueprint)
-require('./src/validators/register-decimals.js').factory(is, blueprint)
-require('./src/validators/register-expressions.js').factory(blueprint)
+const { InvalidValueError } = require('./src/validators/InvalidValueError.js')()
+const { optional } = require('./src/validators/optional.js')({ is })
+const { gt } = require('./src/validators/gt.js')({ is, InvalidValueError })
+// const blueprint = require('./src/blueprint').factory(is)
+// const numberValidators = require('./src/validators/numbers').factory(is)
 
-// backward compatibility - can be removed in v3
-Object.keys(numberValidators.__optional).forEach((key) => {
-  blueprint.optional[key] = numberValidators.__optional[key]
-})
+// require('./src/validators/register-common-types.js').factory(is, blueprint)
+// require('./src/validators/register-decimals.js').factory(is, blueprint)
+// require('./src/validators/register-expressions.js').factory(blueprint)
 
-delete numberValidators.__optional
+// // backward compatibility - can be removed in v3
+// Object.keys(numberValidators.__optional).forEach((key) => {
+//   blueprint.optional[key] = numberValidators.__optional[key]
+// })
+
+// delete numberValidators.__optional
 
 module.exports = Object.freeze({
-  ...{ is },
-  ...numberValidators,
-  ...blueprint,
+  ...{ is, gt },
+  // ...numberValidators,
+  // ...blueprint,
 })
