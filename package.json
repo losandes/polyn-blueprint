@@ -42,7 +42,7 @@
   },
   "pre-push": [
     "lint",
-    "test",
+    "test:ci",
     "pre-push"
   ],
   "repository": {
