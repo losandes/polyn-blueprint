@@ -3,7 +3,7 @@ import supposed from 'supposed'
 import blueprintpkg from '@polyn/blueprint'
 
 const suite = supposed.Suite({
-  name: 'test:mjs:default (mjs)',
+  name: '@polyn/blueprint (mjs:default)',
   assertionLibrary: expect,
   inject: {
     expect,
