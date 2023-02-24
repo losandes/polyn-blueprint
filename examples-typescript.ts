@@ -14,7 +14,7 @@ import {
   required,
   gt, gte, lt, lte, range,
   is
-} from '.'
+} from '@polyn/blueprint'
 
 ;(() => {
   expect(is.string('str'), `is.string('str') should work`).to.equal(true)
