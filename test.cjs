@@ -3,7 +3,7 @@ const blueprint = require('@polyn/blueprint')
 
 const suite = require('supposed')
   .Suite({
-    name: 'test:node (cjs)',
+    name: '@polyn/blueprint (cjs)',
     assertionLibrary: expect,
     inject: {
       expect,

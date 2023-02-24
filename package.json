@@ -15,10 +15,6 @@
     },
     "default": "./index.cjs"
   },
-  "pre-push": [
-    "lint",
-    "test:ci"
-  ],
   "scripts": {
     "// dev": "json comment =============================================",
     "build": "node build.js",
@@ -44,6 +40,11 @@
     "test:coverage:ci": "mkdir -p ./coverage && touch ./coverage/lcov.info; nyc report --reporter=text-lcov > ./coverage/lcov.info",
     "test:coveralls": "pnpm run test:coverage; nyc report --reporter=text-lcov | coveralls"
   },
+  "pre-push": [
+    "lint",
+    "test",
+    "pre-push"
+  ],
   "repository": {
     "type": "git",
     "url": "git+https://github.com/losandes/polyn-blueprint.git"

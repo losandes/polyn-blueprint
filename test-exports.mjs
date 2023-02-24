@@ -19,7 +19,7 @@ import {
 } from '@polyn/blueprint'
 
 const suite = supposed.Suite({
-  name: 'test:mjs:exports (mjs)',
+  name: '@polyn/blueprint (mjs:exports)',
   assertionLibrary: expect,
   inject: {
     expect,
