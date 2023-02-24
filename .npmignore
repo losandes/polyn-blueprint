@@ -7,9 +7,11 @@
 coverage
 npm-debug.log
 build.js
+CONTRIBUTING.md
 examples-typescript.js
 examples-typescript.ts
 index-browser.js
+jsconfig.json
 pre-push.js
 test-browser-server.js
 test-browser.js
