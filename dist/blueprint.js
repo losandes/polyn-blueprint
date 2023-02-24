@@ -1,16 +1,16 @@
 "use strict";
 
-function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); if (enumerableOnly) symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; }); keys.push.apply(keys, symbols); } return keys; }
-
-function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i] != null ? arguments[i] : {}; if (i % 2) { ownKeys(Object(source), true).forEach(function (key) { _defineProperty(target, key, source[key]); }); } else if (Object.getOwnPropertyDescriptors) { Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)); } else { ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } } return target; }
-
-function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
-
+function _typeof(obj) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (obj) { return typeof obj; } : function (obj) { return obj && "function" == typeof Symbol && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; }, _typeof(obj); }
+function ownKeys(object, enumerableOnly) { var keys = Object.keys(object); if (Object.getOwnPropertySymbols) { var symbols = Object.getOwnPropertySymbols(object); enumerableOnly && (symbols = symbols.filter(function (sym) { return Object.getOwnPropertyDescriptor(object, sym).enumerable; })), keys.push.apply(keys, symbols); } return keys; }
+function _objectSpread(target) { for (var i = 1; i < arguments.length; i++) { var source = null != arguments[i] ? arguments[i] : {}; i % 2 ? ownKeys(Object(source), !0).forEach(function (key) { _defineProperty(target, key, source[key]); }) : Object.getOwnPropertyDescriptors ? Object.defineProperties(target, Object.getOwnPropertyDescriptors(source)) : ownKeys(Object(source)).forEach(function (key) { Object.defineProperty(target, key, Object.getOwnPropertyDescriptor(source, key)); }); } return target; }
+function _defineProperty(obj, key, value) { key = _toPropertyKey(key); if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(arg) { var key = _toPrimitive(arg, "string"); return _typeof(key) === "symbol" ? key : String(key); }
+function _toPrimitive(input, hint) { if (_typeof(input) !== "object" || input === null) return input; var prim = input[Symbol.toPrimitive]; if (prim !== undefined) { var res = prim.call(input, hint || "default"); if (_typeof(res) !== "object") return res; throw new TypeError("@@toPrimitive must return a primitive value."); } return (hint === "string" ? String : Number)(input); }
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
-
 // Node, or global
 ;
-
 (function (root) {
   // eslint-disable-line no-extra-semi
   'use strict';
@@ -36,13 +36,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       'use strict';
 
       var validators = {};
-
-      var ValueOrError = function ValueOrError(input) {
+      var ValueOrError = /*#__PURE__*/_createClass(function ValueOrError(input) {
         _classCallCheck(this, ValueOrError);
-
         this.err = input.err || null;
         this.value = is.defined(input.value) ? input.value : null;
-
         if (is.array(input.messages)) {
           this.messages = input.messages;
         } else if (input.err) {
@@ -50,29 +47,24 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         } else {
           this.messages = null;
         }
-
         Object.freeze(this);
-      };
-
-      var ValidationContext = function ValidationContext(input) {
+      });
+      var ValidationContext = /*#__PURE__*/_createClass(function ValidationContext(input) {
         _classCallCheck(this, ValidationContext);
-
         this.key = input.key;
         this.value = input.value;
         this.input = input.input;
         this.root = input.root;
         this.output = input.output;
         this.schema = input.schema;
-      };
-
-      var Blueprint = function Blueprint(input) {
+      });
+      var Blueprint = /*#__PURE__*/_createClass(function Blueprint(input) {
         _classCallCheck(this, Blueprint);
-
         this.name = input.name;
         this.schema = input.schema;
         this.validate = input.validate;
         Object.freeze(this);
-      };
+      });
       /**
        * Makes a message factory that produces an error message on demand
        * @param {string} options.key - the property name
@@ -81,8 +73,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * @param {any?} options.schema - the type definitions
        * @param {string?} options.type - the type this key should be
        */
-
-
       var makeDefaultErrorMessage = function makeDefaultErrorMessage(options) {
         return function () {
           options = options || {};
@@ -93,6 +83,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return "expected `".concat(key, "` {").concat(actualType, "} to be {").concat(expectedType, "}");
         };
       };
+
       /**
        * Support for ad-hoc polymorphism for `isValid` functions: they can throw,
        * return boolean, or return { isValid: 'boolean', value: 'any', message: 'string[]' }.
@@ -101,13 +92,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * @param {ValidationContext} context - the validation context
        * @param {function} defaultMessageFactory - the default error message
        */
-
-
       var normalIsValid = function normalIsValid(isValid) {
         return function (context, defaultMessageFactory) {
           try {
             var result = isValid(context);
-
             if (is.boolean(result)) {
               return result ? new ValueOrError({
                 value: context.value
@@ -131,6 +119,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         };
       };
+
       /**
        * If the caller passes in an instance of a class, or a function that
        * has prototype values, we shouldn't strip those away. Try to create
@@ -138,8 +127,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * that fails
        * @param {any} input - the input that was passed to `validate`
        */
-
-
       var tryMakeFromProto = function tryMakeFromProto(input) {
         try {
           return Object.create(Object.getPrototypeOf(input));
@@ -147,6 +134,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return {};
         }
       };
+
       /**
        * Validates the input values against the schema expectations
        * @curried
@@ -154,26 +142,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * @param {object} schema - the type definitions
        * @param {object} input - the values being validated
        */
-
-
       var validate = function validate(name, schema) {
         return function (input, root) {
           var outcomes = Object.keys(schema).reduce(function (output, key) {
             var keyName = root ? "".concat(name, ".").concat(key) : key;
-
             if (is.object(schema[key])) {
               var child = validate("".concat(keyName), schema[key])(input[key], root || input);
-
               if (child.err) {
                 output.validationErrors = output.validationErrors.concat(child.messages);
               }
-
               output.value[key] = child.value;
               return output;
             }
-
             var validator;
-
             if (is.function(schema[key])) {
               validator = normalIsValid(schema[key]);
             } else if (is.regexp(schema[key])) {
@@ -181,12 +162,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             } else {
               validator = validators[schema[key]];
             }
-
             if (is.not.function(validator)) {
               output.validationErrors.push("I don't know how to validate ".concat(schema[key]));
               return output;
             }
-
             var context = new ValidationContext({
               key: "".concat(keyName),
               value: input && input[key],
@@ -196,12 +175,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               schema: schema
             });
             var result = validator(context, makeDefaultErrorMessage(context));
-
             if (result && result.err) {
               output.validationErrors.push(result.err.message);
               return output;
             }
-
             output.value[key] = result ? result.value : input[key];
             return output;
           }, {
@@ -216,7 +193,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               messages: outcomes.validationErrors
             });
           }
-
           return new ValueOrError({
             value: outcomes.value
           });
@@ -230,37 +206,31 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       * @param {object} schema - the type definitions
       * @param {object} validate.input - the values being validated
       */
-
-
       var blueprint = function blueprint(name, schema) {
         if (is.not.string(name) || is.not.object(schema)) {
           throw new Error('blueprint requires a name {string}, and a schema {object}');
         }
-
         return new Blueprint({
           name: name,
           schema: schema,
           validate: validate(name, schema)
         });
       };
+
       /**
        * Registers a validator by name, so it can be used in blueprints
        * @param {string} name - the name of the validator
        * @param {function} validator - the validator
        */
-
-
       var registerValidator = function registerValidator(name, validator) {
         if (is.not.string(name) || is.not.function(validator)) {
           throw new Error('registerValidator requires a name {string}, and a validator {function}');
         }
-
         if (name === 'expression') {
           validators[name] = validator;
         } else {
           validators[name] = normalIsValid(validator);
         }
-
         return validator;
       }; // /registerValidator
 
@@ -270,11 +240,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * @param {string} name - the name of the type
        * @param {function} isValid - the validator for testing one instance of this type (must return truthy/falsey)
        */
-
-
       var registerInstanceOfType = function registerInstanceOfType(name, isValid) {
         var test = normalIsValid(isValid);
-        return [// required
+        return [
+        // required
         registerValidator(name, function (context) {
           var key = context.key;
           return test(context, makeDefaultErrorMessage({
@@ -282,11 +251,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: context.value,
             type: name
           }));
-        }), // nullable
+        }),
+        // nullable
         registerValidator("".concat(name, "?"), function (context) {
           var key = context.key,
-              value = context.value;
-
+            value = context.value;
           if (is.nullOrUndefined(value)) {
             return {
               err: null,
@@ -301,17 +270,15 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         })];
       };
+
       /**
        * Registers an array validator, and a nullable array validator by the given
        * name, using the given isValid function
        * @param {string} name - the name of the type
        * @param {function} isValid - the validator for testing one instance of this type (must return truthy/falsey)
        */
-
-
       var registerArrayOfType = function registerArrayOfType(instanceName, arrayName, isValid) {
         var test = normalIsValid(isValid);
-
         var validateMany = function validateMany(context, errorMessageFactory) {
           if (is.not.array(context.value)) {
             return {
@@ -319,7 +286,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               value: null
             };
           }
-
           var errors = [];
           var values = [];
           context.value.forEach(function (value, index) {
@@ -334,30 +300,26 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
               value: value,
               type: instanceName
             }));
-
             if (result.err) {
               // make sure the array key[index] is in the error message
               var message = result.err.message.indexOf("[".concat(index, "]")) > -1 ? result.err.message : "(`".concat(key, "`) ").concat(result.err.message);
               return errors.push(message);
             }
-
             return values.push(result.value);
           });
-
           if (errors.length) {
             return {
               err: new Error(errors.join(', ')),
               value: null
             };
           }
-
           return {
             err: null,
             value: values
           };
         };
-
-        return [// required
+        return [
+        // required
         registerValidator(arrayName, function (context) {
           var key = context.key;
           return validateMany(context, makeDefaultErrorMessage({
@@ -365,11 +327,11 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             value: context.value,
             type: arrayName
           }));
-        }), // nullable
+        }),
+        // nullable
         registerValidator("".concat(arrayName, "?"), function (context) {
           var key = context.key,
-              value = context.value;
-
+            value = context.value;
           if (is.nullOrUndefined(value)) {
             return {
               err: null,
@@ -384,6 +346,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         })];
       };
+
       /**
        * Registers a validator, a nullable validator, an array validator, and
        * a nullable array validator based on the given name, using the
@@ -391,13 +354,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
        * @param {string} name - the name of the type
        * @param {function} validator - the validator for testing one instance of this type (must return truthy/falsey)
        */
-
-
       var registerType = function registerType(name, validator) {
         if (is.not.string(name) || is.not.function(validator)) {
           throw new Error('registerType requires a name {string}, and a validator {function}');
         }
-
         registerInstanceOfType(name, validator);
         registerArrayOfType(name, "".concat(name, "[]"), validator);
         var output = {};
@@ -407,56 +367,48 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         output["".concat(name, "[]?")] = validators["".concat(name, "[]?")];
         return output;
       };
+
       /**
        * Registers a blueprint that can be used as a validator
        * @param {string} name - the name of the model being validated
        * @param {object} schema - the type definitions
        */
-
-
       var registerBlueprint = function registerBlueprint(name, schema) {
         var bp;
-
         if (schema && schema.schema) {
           // this must be an instance of a blueprint
           bp = blueprint(name, schema.schema);
         } else {
           bp = blueprint(name, schema);
         }
-
         var cleanMessage = function cleanMessage(key, message) {
           return message.replace("Invalid ".concat(bp.name, ": "), '').replace(/expected `/g, "expected `".concat(key, "."));
         };
-
         registerType(bp.name, function (_ref) {
           var key = _ref.key,
-              value = _ref.value;
+            value = _ref.value;
           var result = bp.validate(value);
-
           if (result.err) {
             result.err.message = cleanMessage(key, result.err.message);
           }
-
           return result;
         });
         return bp;
       };
+
       /**
        * Registers a regular expression validator by name, so it can be used in blueprints
        * @param {string} name - the name of the validator
        * @param {string|RegExp} expression - the expression that will be  used to validate the values
        */
-
-
       var registerExpression = function registerExpression(name, expression) {
         if (is.not.string(name) || is.not.regexp(expression) && is.not.string(expression)) {
           throw new Error('registerExpression requires a name {string}, and an expression {expression}');
         }
-
         var regex = is.string(expression) ? new RegExp(expression) : expression;
         return registerType(name, function (_ref2) {
           var key = _ref2.key,
-              value = _ref2.value;
+            value = _ref2.value;
           return regex.test(value) === true ? new ValueOrError({
             value: value
           }) : new ValueOrError({
@@ -464,22 +416,17 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           });
         });
       };
-
       var getValidators = function getValidators() {
         return _objectSpread({}, validators);
       };
-
       var getValidator = function getValidator(name) {
         if (!validators[name]) {
           return;
         }
-
         return _objectSpread({}, validators[name]);
       };
-
       var comparatorToValidator = function comparatorToValidator(comparator) {
         var validator;
-
         if (is.function(comparator)) {
           validator = normalIsValid(comparator);
         } else if (is.regexp(comparator)) {
@@ -487,22 +434,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         } else {
           validator = validators[comparator];
         }
-
         return validator;
       };
+
       /**
        * Fluent interface to support optional function based validators
        * (i.e. like gt, lt, range, custom), and to use default values when
        * the value presented is null, or undefined.
        * @param {any} comparator - the name of the validator, or a function that performs validation
        */
-
-
       var optional = function optional(comparator) {
         var defaultVal;
         var from;
         var validator = comparatorToValidator(comparator);
-
         var valueOrDefaultValue = function valueOrDefaultValue(value) {
           if (is.function(defaultVal)) {
             return {
@@ -518,10 +462,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
             };
           }
         };
-
         var output = function output(ctx) {
           var context;
-
           if (from) {
             context = _objectSpread(_objectSpread({}, ctx), {
               value: from(ctx)
@@ -529,57 +471,48 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           } else {
             context = ctx;
           }
-
           var _context = context,
-              value = _context.value;
-
+            value = _context.value;
           if (is.nullOrUndefined(value)) {
             return valueOrDefaultValue(value);
           } else {
             return validator(context);
           }
         };
+
         /**
          * A value factory for producing a value, given the constructor context
          * @param {function} callback - a callback function that accepts IValidationContext and produces a value
          */
-
-
         output.from = function (callback) {
           if (is.function(callback)) {
             from = callback;
           }
-
           return output;
         };
+
         /**
          * Sets a default value to be used when a value is not given for this property
          * @param {any} defaultValue - the value to use when this property is null or undefined
          */
-
-
         output.withDefault = function (defaultValue) {
           defaultVal = defaultValue;
           return output;
         };
-
         return output;
       };
+
       /**
        * Fluent interface to support optional function based validators
        * (i.e. like gt, lt, range, custom), and to use default values when
        * the value presented is null, or undefined.
        * @param {any} comparator - the name of the validator, or a function that performs validation
        */
-
-
       var required = function required(comparator) {
         var from;
         var validator = comparatorToValidator(comparator);
-
         var output = function output(ctx) {
           var context;
-
           if (from) {
             context = _objectSpread(_objectSpread({}, ctx), {
               value: from(ctx)
@@ -587,26 +520,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           } else {
             context = ctx;
           }
-
           return validator(context);
         };
+
         /**
          * A value factory for producing a value, given the constructor context
          * @param {function} callback - a callback function that accepts IValidationContext and produces a value
          */
-
-
         output.from = function (callback) {
           if (is.function(callback)) {
             from = callback;
           }
-
           return output;
         };
-
         return output;
       };
-
       return {
         blueprint: blueprint,
         registerValidator: registerValidator,
@@ -670,187 +598,151 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         }
       };
       var primitives = ['boolean', 'null', 'undefined', 'number', 'bigint', 'string', 'symbol'];
+
       /**
        * Produces the printed type (i.e. [object Object], [object Function]),
        * removes everything except for the type, and returns the lowered form.
        * (i.e. boolean, number, string, function, asyncfunction, promise, array,
        * date, regexp, object)
        */
-
       is.getType = function (obj) {
         return Object.prototype.toString.call(obj).replace(/(^\[object )|(\]$)/g, '').toLowerCase();
       };
-
       is.defined = function (obj) {
         return is.getType(obj) !== 'undefined';
       };
-
       is.not.defined = function (obj) {
         return is.defined(obj) === false;
       };
-
       is.nullOrUndefined = function (obj) {
         return is.not.defined(obj) || obj === null;
       };
-
       is.not.nullOrUndefined = function (obj) {
         return is.nullOrUndefined(obj) === false;
       };
-
       is.not.nullOrWhitespace = function (str) {
         if (typeof str === 'undefined' || str === null) {
           return false;
         } else if (Array.isArray(str)) {
           return true;
-        } // ([^\s]*) = is not whitespace
-        // /^$|\s+/ = is empty or whitespace
+        }
 
+        // ([^\s]*) = is not whitespace
+        // /^$|\s+/ = is empty or whitespace
 
         return /([^\s])/.test(str);
       };
-
       is.nullOrWhitespace = function (str) {
         return is.not.nullOrWhitespace(str) === false;
       };
-
       is.function = function (obj) {
         var type = is.getType(obj);
         return type === 'function' || type === 'asyncfunction' || type === 'promise';
       };
-
       is.func = is.function; // typescript support
 
       is.not.function = function (obj) {
         return is.function(obj) === false;
       };
-
       is.not.func = is.not.function; // typescript support
 
       is.promise = function (obj) {
         var type = is.getType(obj);
         return type === 'asyncfunction' || type === 'promise';
       };
-
       is.not.promise = function (obj) {
         return is.promise(obj) === false;
       };
-
       is.asyncFunction = function (obj) {
         return is.promise(obj);
       };
-
       is.asyncFunc = is.asyncFunction; // consistency for typescript
 
       is.not.asyncFunction = function (obj) {
         return is.asyncFunction(obj) === false;
       };
-
       is.not.asyncFunc = is.not.asyncFunction; // consistency for typescript
 
       is.object = function (obj) {
         return is.getType(obj) === 'object';
       };
-
       is.not.object = function (obj) {
         return is.object(obj) === false;
       };
-
       is.array = function (obj) {
         return is.getType(obj) === 'array';
       };
-
       is.not.array = function (obj) {
         return is.array(obj) === false;
       };
-
       is.string = function (obj) {
         return is.getType(obj) === 'string';
       };
-
       is.not.string = function (obj) {
         return is.string(obj) === false;
       };
-
       is.boolean = function (obj) {
         return is.getType(obj) === 'boolean';
       };
-
       is.not.boolean = function (obj) {
         return is.boolean(obj) === false;
       };
-
       is.date = function (obj) {
         return is.getType(obj) === 'date' && is.function(obj.getTime) && !isNaN(obj.getTime());
       };
-
       is.not.date = function (obj) {
         return is.date(obj) === false;
       };
-
       is.regexp = function (obj) {
         return is.getType(obj) === 'regexp';
       };
-
       is.not.regexp = function (obj) {
         return is.regexp(obj) === false;
       };
-
       is.number = function (obj) {
         return is.getType(obj) === 'number';
       };
-
       is.not.number = function (obj) {
         return is.number(obj) === false;
       };
-
       is.decimal = function (num, places) {
         if (is.not.number(num)) {
           return false;
         }
-
         if (!places && is.number(num)) {
           return true;
         }
-
         var padded = +(+num || 0).toFixed(20); // pad to the right for whole numbers
 
         return padded.toFixed(places) === "".concat(+num);
       };
-
       is.not.decimal = function (val, places) {
         return is.decimal(val, places) === false;
       };
-
       is.primitive = function (input) {
         return primitives.indexOf(is.getType(input)) > -1;
       };
-
       is.not.primitive = function (input) {
         return is.primitive(input) === false;
       };
-
       is.arrayOf = function (type) {
         if (!is[type]) {
           throw new Error("is does not support evaluation of {".concat(type, "}"));
         }
-
         return function (input) {
           return input.find(function (v) {
             return is.not[type](v);
           }) === undefined;
         };
       };
-
       is.not.arrayOf = function (type) {
         if (!is[type]) {
           throw new Error("is does not support evaluation of {".concat(type, "}"));
         }
-
         return function (input) {
           return is.arrayOf(type)(input) === false;
         };
       };
-
       return is;
     }
   };
@@ -862,23 +754,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       var makeErrorMessage = function makeErrorMessage(options) {
         return "expected `".concat(options.key, "` to be ").concat(options.comparator, " ").concat(options.boundary);
       };
-
       var gt = function gt(min) {
         if (is.not.number(min)) {
           throw new Error('gt requires a minimum number to compare values to');
         }
-
         return function (_ref3) {
           var key = _ref3.key,
-              value = _ref3.value;
-
+            value = _ref3.value;
           if (is.number(value) && value > min) {
             return {
               err: null,
               value: value
             };
           }
-
           return {
             err: new Error(makeErrorMessage({
               key: key,
@@ -889,23 +777,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         };
       };
-
       var gte = function gte(min) {
         if (is.not.number(min)) {
           throw new Error('gte requires a minimum number to compare values to');
         }
-
         return function (_ref4) {
           var key = _ref4.key,
-              value = _ref4.value;
-
+            value = _ref4.value;
           if (is.number(value) && value >= min) {
             return {
               err: null,
               value: value
             };
           }
-
           return {
             err: new Error(makeErrorMessage({
               key: key,
@@ -916,23 +800,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         };
       };
-
       var lt = function lt(max) {
         if (is.not.number(max)) {
           throw new Error('lt requires a maximum number to compare values to');
         }
-
         return function (_ref5) {
           var key = _ref5.key,
-              value = _ref5.value;
-
+            value = _ref5.value;
           if (is.number(value) && value < max) {
             return {
               err: null,
               value: value
             };
           }
-
           return {
             err: new Error(makeErrorMessage({
               key: key,
@@ -943,23 +823,19 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         };
       };
-
       var lte = function lte(max) {
         if (is.not.number(max)) {
           throw new Error('lte requires a maximum number to compare values to');
         }
-
         return function (_ref6) {
           var key = _ref6.key,
-              value = _ref6.value;
-
+            value = _ref6.value;
           if (is.number(value) && value <= max) {
             return {
               err: null,
               value: value
             };
           }
-
           return {
             err: new Error(makeErrorMessage({
               key: key,
@@ -970,7 +846,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         };
       };
-
       var range = function range(options) {
         if (!options) {
           throw new Error('You must specify a range');
@@ -979,26 +854,21 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         } else if (is.not.number(options.lt) && is.not.number(options.lte)) {
           throw new Error('You must specify `lt`, or `lte` {number} when defining a range');
         }
-
         var gtExpression = options.gt ? gt(options.gt) : gte(options.gte);
         var ltExpression = options.lt ? lt(options.lt) : lte(options.lte);
         return function (input) {
           var ltOutcome = ltExpression(input);
-
           if (ltOutcome.err) {
             return ltOutcome;
           }
-
           return gtExpression(input);
         };
       };
-
       var optional = function optional(comparator) {
         return function (input) {
           var validator = comparator(input);
           return function (context) {
             var value = context.value;
-
             if (is.nullOrUndefined(value)) {
               return {
                 value: value
@@ -1009,7 +879,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           };
         };
       };
-
       return {
         gt: gt,
         gte: gte,
@@ -1033,7 +902,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       'use strict';
 
       var registerType = Blueprint.registerType;
-      var types = ['function', 'asyncFunction', 'promise', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp', 'primitive' // 'string' registered separately, below
+      var types = ['function', 'asyncFunction', 'promise', 'object', 'array', 'boolean', 'date', 'number', 'decimal', 'regexp', 'primitive'
+      // 'string' registered separately, below
       ];
 
       var errorMessage = function errorMessage(type) {
@@ -1041,11 +911,10 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           return "expected `".concat(key, "` {").concat(is.getType(value), "} to be {").concat(type, "}");
         };
       };
-
       types.forEach(function (type) {
         registerType(type, function (_ref7) {
           var key = _ref7.key,
-              value = _ref7.value;
+            value = _ref7.value;
           return is[type](value) ? {
             err: null,
             value: value
@@ -1056,17 +925,14 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       });
       registerType('string', function (_ref8) {
         var key = _ref8.key,
-            value = _ref8.value;
-
+          value = _ref8.value;
         if (is.string(value)) {
           var trimmed = value.trim();
-
           if (trimmed.length) {
             return {
               value: trimmed
             };
           }
-
           return {
             err: new Error("expected `".concat(key, "` {").concat(is.getType(value), "} to not be an empty string"))
           };
@@ -1078,7 +944,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       });
       registerType('any', function (_ref9) {
         var key = _ref9.key,
-            value = _ref9.value;
+          value = _ref9.value;
         return is.not.nullOrUndefined(value) ? {
           err: null,
           value: value
@@ -1093,12 +959,13 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
     factory: function factory(is, Blueprint) {
       'use strict';
 
-      var registerValidator = Blueprint.registerValidator; // support up to 15 decimal places for decimal precision
+      var registerValidator = Blueprint.registerValidator;
 
+      // support up to 15 decimal places for decimal precision
       var _loop = function _loop(i) {
         registerValidator("decimal:".concat(i), function (_ref10) {
           var key = _ref10.key,
-              value = _ref10.value;
+            value = _ref10.value;
           return is.decimal(value, i) ? {
             err: null,
             value: value
@@ -1109,8 +976,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
         });
         registerValidator("decimal:".concat(i, "?"), function (_ref11) {
           var key = _ref11.key,
-              value = _ref11.value;
-
+            value = _ref11.value;
           if (is.nullOrUndefined(value)) {
             return {
               err: null,
@@ -1129,7 +995,6 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
           }
         });
       };
-
       for (var i = 1; i <= 15; i += 1) {
         _loop(i);
       }
@@ -1144,7 +1009,7 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
       registerValidator('expression', function (regex) {
         return function (_ref12) {
           var key = _ref12.key,
-              value = _ref12.value;
+            value = _ref12.value;
           return regex.test(value) === true ? {
             value: value
           } : {
@@ -1156,8 +1021,9 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   };
   var is = module.factories.is();
   var numberValidators = module.factories.numberValidators(is);
-  var blueprint = module.factories.blueprint(is); // backward compatibility - can be removed in v3
+  var blueprint = module.factories.blueprint(is);
 
+  // backward compatibility - can be removed in v3
   Object.keys(numberValidators.__optional).forEach(function (key) {
     blueprint.optional[key] = numberValidators.__optional[key];
   });
@@ -1168,7 +1034,8 @@ function _classCallCheck(instance, Constructor) { if (!(instance instanceof Cons
   }, numberValidators, blueprint));
   module.factories.registerCommonTypes(is, root.polyn.blueprint);
   module.factories.registerDecimals(is, root.polyn.blueprint);
-  module.factories.registerExpressions(root.polyn.blueprint); // we don't need these anymore
+  module.factories.registerExpressions(root.polyn.blueprint);
 
+  // we don't need these anymore
   delete module.factories;
 })(window);

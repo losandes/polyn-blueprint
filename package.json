@@ -2,23 +2,48 @@
   "name": "@polyn/blueprint",
   "version": "2.6.0",
   "description": "An easy to use, flexible, and powerful validation library for nodejs and browsers",
-  "main": "index.js",
   "types": "index.d.ts",
-  "scripts": {
-    "build": "node build.js",
-    "pre-push": "npm run lint && npm test && node pre-push.js",
-    "lint": "eslint .",
-    "lint:fix": "eslint . --fix",
-    "test": "node test.js -r nyan && node test-browser.js -r nyan && npm run test:ts",
-    "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
-    "test:coverage": "nyc node test.js",
-    "test:coverage:ci": "mkdir ./coverage && touch ./coverage/lcov.info && node test-browser.js -r tap && npm run test:ts && nyc node test.js -r tap,summary && nyc report --reporter=text-lcov > ./coverage/lcov.info",
-    "test:coveralls": "nyc node test.js && nyc report --reporter=text-lcov | coveralls",
-    "watch": "nodemon -e js --exec 'node test.js --tap | tap-nyan'"
+  "exports": {
+    "node": {
+      "import": "./index-esmodule.mjs",
+      "require": "./index.cjs"
+    },
+    "browser": {
+      "import": "./index-esmodule.mjs",
+      "require": "./index.cjs",
+      "default": "./dist/blueprint.min.js"
+    },
+    "default": "./index.cjs"
   },
   "pre-push": [
-    "pre-push"
+    "lint",
+    "test:ci"
   ],
+  "scripts": {
+    "// dev": "json comment =============================================",
+    "build": "node build.js",
+    "pre-push": "pnpm run lint && pnpm test && node pre-push.js",
+    "// lint": "json comment =============================================",
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "// test": "json comment =============================================",
+    "dev": "nodemon -e js --exec 'pnpm run test:cjs'",
+    "test": "pnpm run test:cjs && pnpm run test:mjs:default && pnpm run test:mjs:exports && pnpm run test:browser && pnpm run test:ts",
+    "test:ci": "pnpm run test:ts && pnpm run test:mjs:default:ci && pnpm run test:mjs:exports:ci && pnpm run test:browser:ci && pnpm run test:coverage",
+    "test:browser": "node --conditions=browser test-browser.js -r nyan",
+    "test:browser:ci": "node --conditions=browser test-browser.js -r tap,summary --no-color",
+    "test:cjs": "node test.cjs -r nyan",
+    "test:cjs:ci": "node test.cjs -r tap,summary --no-color",
+    "test:mjs:default": "node test-default.mjs -r nyan",
+    "test:mjs:default:ci": "node test-default.mjs -r tap,summary --no-color",
+    "test:mjs:exports": "node test-exports.mjs -r nyan",
+    "test:mjs:exports:ci": "node test-exports.mjs -r tap,summary --no-color",
+    "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
+    "// coverage": "json comment =============================================",
+    "test:coverage": "nyc --reporter=text --reporter=text-summary pnpm run test:cjs:ci",
+    "test:coverage:ci": "mkdir -p ./coverage && touch ./coverage/lcov.info; nyc report --reporter=text-lcov > ./coverage/lcov.info",
+    "test:coveralls": "pnpm run test:coverage; nyc report --reporter=text-lcov | coveralls"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/losandes/polyn-blueprint.git"
@@ -37,23 +62,24 @@
     "hilary"
   ],
   "devDependencies": {
-    "@babel/core": "~7.13.16",
-    "@babel/preset-env": "~7.13.15",
+    "@babel/core": "^7.21.0",
+    "@babel/preset-env": "^7.20.2",
     "@polyn/blueprint": "link:",
-    "@types/chai": "~4.2.22",
-    "chai": "~4.3.4",
-    "coveralls": "~3.1.1",
-    "eslint": "~7.23.0",
-    "eslint-config-standard": "~16.0.3",
-    "eslint-plugin-import": "~2.22.1",
-    "eslint-plugin-node": "~11.1.0",
-    "eslint-plugin-promise": "~4.3.1",
-    "nodemon": "~2.0.14",
-    "nyc": "~15.1.0",
-    "pre-push": "~0.1.1",
-    "puppeteer": "~8.0.0",
-    "supposed": "~1.1.1",
-    "terminal-adventure": "~1.0.2",
-    "typescript": "~4.2.4"
+    "@types/chai": "^4.3.4",
+    "chai": "^4.3.7",
+    "coveralls": "^3.1.1",
+    "eslint": "^8.34.0",
+    "eslint-config-standard": "^17.0.0",
+    "eslint-plugin-import": "^2.27.5",
+    "eslint-plugin-n": "^15.6.1",
+    "eslint-plugin-node": "^11.1.0",
+    "eslint-plugin-promise": "^6.1.1",
+    "nodemon": "^2.0.20",
+    "nyc": "^15.1.0",
+    "pre-push": "^0.1.4",
+    "puppeteer": "^19.7.2",
+    "supposed": "^1.1.6",
+    "terminal-adventure": "^1.0.2",
+    "typescript": "^4.9.5"
   }
 }

@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const babel = require('@babel/core')
-const ignoreExpression = /.([-.]test(s?)\.js)|([-.]spec(s?)\.js)|(index.browser.js)$/i
+const ignoreExpression = /.([-.]test(s?)\.js)|([-.]spec(s?)\.js)|(index-browser.js)$/i
 const walkSync = (dir) =>
   fs.readdirSync(dir).reduce((files, file) => {
     if (ignoreExpression.test(file)) {
@@ -13,7 +13,7 @@ const walkSync = (dir) =>
     return isDirectory ? [...files, ...walkSync(name)] : [...files, name]
   }, [])
 
-const template = fs.readFileSync('./index.browser.js').toString().split('// MODULES_HERE')
+const template = fs.readFileSync('./index-browser.js').toString().split('// MODULES_HERE')
 const beginning = template[0]
 const end = template[1]
 const modules = [beginning]

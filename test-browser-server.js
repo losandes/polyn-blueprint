@@ -1,11 +1,17 @@
 const { expect } = require('chai')
 const path = require('path')
 const puppeteer = require('puppeteer')
-const suite = require('supposed')
-  .Suite({ assertionLibrary: expect })
-const __projectdir = process.cwd()
+const { Suite } = require('supposed')
+const blueprint = require('@polyn/blueprint')
 
-suite.sut = require('./index.js')
+const __projectdir = process.cwd()
+const suiteConfig = {
+  name: 'test:browser',
+  assertionLibrary: expect,
+  sut: blueprint,
+}
+const suite = Suite(suiteConfig)
+
 module.exports = suite.runner({
   title: 'polyn-blueprint',
   directories: ['./src'],
@@ -24,7 +30,10 @@ module.exports = suite.runner({
       try {
         const json = JSON.parse(txt)
         context.lastEvent = json
-        suite.config.reporters.forEach((reporter) => reporter.write(json))
+        suite.config.reporters.forEach((reporter) => reporter.write({
+          ...json,
+          ...{ suiteId: suiteConfig.name },
+        }))
 
         if (json.type === 'END' && json.totals.failed > 0) {
           // maybe print a PDF that someone can review if this is being automated

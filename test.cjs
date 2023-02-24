@@ -1,10 +1,13 @@
 const { expect } = require('chai')
+const blueprint = require('@polyn/blueprint')
+
 const suite = require('supposed')
   .Suite({
+    name: 'test:node (cjs)',
     assertionLibrary: expect,
     inject: {
       expect,
-      sut: require('./index.js'),
+      sut: blueprint,
     },
   })
 
