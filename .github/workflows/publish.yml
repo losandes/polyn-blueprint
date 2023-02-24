@@ -1,0 +1,68 @@
+# This workflow will publish the npm package when a release is created
+
+name: NPM publish
+
+on:
+  release:
+    # This specifies that the build will be triggered when we publish a release
+    types: [published]
+
+jobs:
+  build:
+
+    # Run on latest version of ubuntu
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        # "ref" specifies the branch to check out.
+        # "github.event.release.target_commitish" is a global variable and specifies the branch the release targeted
+        ref: ${{ github.event.release.target_commitish }}
+    # install Node.js
+    - name: Use Node.js 18
+      uses: actions/setup-node@v1
+      with:
+        node-version: 18
+        # Specifies the registry, this field is required for publishing below!
+        registry-url: https://registry.npmjs.org/
+
+    - name: ENVVARS
+      env:
+        EVENT_CONTEXT: ${{ toJson(github.event) }}
+      run: |
+        git config --global user.name "losandes cicd"
+        git config --global user.email "andes.collab+ghcicd@gmail.com"
+        echo "node: $(node --version)"
+        echo "npm: $(npm --version)"
+      # echo "EVENT_CONTEXT:"
+      # echo "$EVENT_CONTEXT"
+
+    - name: Install packages
+      run: |
+        npm i -g pnpm
+        pnpm install
+
+    - name: Run tests
+      env:
+        CI: true
+      run: pnpm run test:ci
+
+    # upgrade npm version in package.json to the tag used in the release.
+    - name: Set package version
+      run: npm version ${{ github.event.release.tag_name }}
+
+    # publish the package to NPM and set the tag name to the branch name that
+    # the release is targeting (i.e. latest, latest-v1, etc.)
+    # Note that npm publish commits a tag to git
+    # alsosee: https://michaelzanggl.com/articles/github-actions-cd-setup/
+    - name: Publish to NPM
+      env:
+        NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+      run: npm publish --tag ${{ github.event.release.target_commitish }}
+
+    - name: Push version change to latest
+      env:
+        # The secret is passed automatically. Nothing to configure.
+        github-token: ${{ secrets.GITHUB_TOKEN }}
+      run: git push
