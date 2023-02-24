@@ -240,7 +240,7 @@ module.exports = {
         registerValidator(`${name}?`, (context) => {
           const { key, value } = context
           if (is.nullOrUndefined(value)) {
-            return { err: null, value: value }
+            return { err: null, value }
           } else {
             return test(context, makeDefaultErrorMessage({
               key,
@@ -316,7 +316,7 @@ module.exports = {
           const { key, value } = context
 
           if (is.nullOrUndefined(value)) {
-            return { err: null, value: value }
+            return { err: null, value }
           } else {
             return validateMany(
               context,
@@ -399,7 +399,7 @@ module.exports = {
 
       return registerType(name, ({ key, value }) => {
         return regex.test(value) === true
-          ? new ValueOrError({ value: value })
+          ? new ValueOrError({ value })
           : new ValueOrError({ err: new Error(`expected \`${key}\` to match ${regex.toString()}`) })
       })
     }

@@ -32,7 +32,7 @@ module.exports = suite.runner({
         context.lastEvent = json
         suite.config.reporters.forEach((reporter) => reporter.write({
           ...json,
-          ...{ suiteId: suiteConfig.name }
+          ...{ suiteId: suiteConfig.name },
         }))
 
         if (json.type === 'END' && json.totals.failed > 0) {

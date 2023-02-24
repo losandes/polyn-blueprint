@@ -45,7 +45,7 @@ module.exports = {
 
     registerType('any', ({ key, value }) => {
       return is.not.nullOrUndefined(value)
-        ? { err: null, value: value }
+        ? { err: null, value }
         : { err: new Error(errorMessage('any')(key, value)) }
     })
   },
