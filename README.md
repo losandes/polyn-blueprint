@@ -1,7 +1,8 @@
 # @polyn/blueprint
 
-![tests](https://github.com/losandes/polyn-blueprint/workflows/tests/badge.svg)
-[![Coverage Status](https://coveralls.io/repos/github/losandes/polyn-blueprint/badge.svg?branch=master)](https://coveralls.io/github/losandes/polyn-blueprint?branch=master)
+[![tests](https://github.com/losandes/polyn-blueprint/actions/workflows/pull-request.yml/badge.svg)](https://github.com/losandes/polyn-blueprint/actions/workflows/pull-request.yml)
+[![coverage](https://coveralls.io/repos/github/losandes/polyn-blueprint/badge.svg?branch=master)](https://coveralls.io/github/losandes/polyn-blueprint?branch=master)
+[![vulnerabilities](https://snyk.io/test/github/losandes/polyn-blueprint/badge.svg)](https://snyk.io/test/github/losandes/polyn-blueprint)
 
 @polyn/blueprint is an easy to use, extensible, and powerful validation library for nodejs and browsers.
 
