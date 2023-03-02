@@ -25,7 +25,7 @@
     "// test": "json comment =============================================",
     "dev": "nodemon -e js --exec 'pnpm run test:cjs'",
     "test": "pnpm run test:cjs && pnpm run test:mjs:default && pnpm run test:mjs:exports && pnpm run test:browser && pnpm run test:ts",
-    "test:ci": "pnpm run test:ts && pnpm run test:mjs:default:ci && pnpm run test:mjs:exports:ci && pnpm run test:browser:ci && pnpm run test:coverage",
+    "test:ci": "pnpm run test:ts && pnpm run test:mjs:default:ci && pnpm run test:mjs:exports:ci && pnpm run test:browser:ci && pnpm run test:coverage:ci",
     "test:browser": "node --conditions=browser test-browser.js -r nyan",
     "test:browser:ci": "node --conditions=browser test-browser.js -r tap,summary --no-color",
     "test:cjs": "node test.cjs -r nyan",
@@ -36,9 +36,9 @@
     "test:mjs:exports:ci": "node test-exports.mjs -r tap,summary --no-color",
     "test:ts": "tsc -p ./tsconfig.json && node examples-typescript.js",
     "// coverage": "json comment =============================================",
-    "test:coverage": "nyc --reporter=text --reporter=text-summary pnpm run test:cjs:ci",
-    "test:coverage:ci": "mkdir -p ./coverage && touch ./coverage/lcov.info; nyc report --reporter=text-lcov > ./coverage/lcov.info",
-    "test:coveralls": "pnpm run test:coverage; nyc report --reporter=text-lcov | coveralls"
+    "test:coverage:ci": "c8 --reporter=text --reporter=text-summary pnpm run test:cjs:ci",
+    "coverage:ci": "mkdir -p ./coverage && touch ./coverage/lcov.info; c8 report --reporter=text-lcov > ./coverage/lcov.info",
+    "coveralls": "c8 report --reporter=text-lcov | coveralls"
   },
   "pre-push": [
     "lint",
@@ -67,6 +67,7 @@
     "@babel/preset-env": "^7.20.2",
     "@polyn/blueprint": "link:",
     "@types/chai": "^4.3.4",
+    "c8": "^7.13.0",
     "chai": "^4.3.7",
     "coveralls": "^3.1.1",
     "eslint": "^8.34.0",
@@ -76,7 +77,6 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-promise": "^6.1.1",
     "nodemon": "^2.0.20",
-    "nyc": "^15.1.0",
     "pre-push": "^0.1.4",
     "puppeteer": "^19.7.2",
     "supposed": "^1.1.6",

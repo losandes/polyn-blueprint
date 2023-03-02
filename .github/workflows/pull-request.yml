@@ -1,7 +1,7 @@
 # This workflow will do a clean install of node dependencies, build the source code and run tests across different versions of node
 # For more information see: https://help.github.com/actions/language-and-framework-guides/using-nodejs-with-github-actions
 
-name: Pull Request Verification
+name: tests
 
 on:
   push:
@@ -41,14 +41,14 @@ jobs:
       run: pnpm run build --if-present
 
     - name: Run tests
+      env:
+        CI: true
       run: pnpm run test:ci
-      env:
-        CI: true
 
-    - name: Run coverage
-      run: pnpm run test:coverage:ci
+    - name: Produce coverage report
       env:
         CI: true
+      run: pnpm run coverage:ci
 
     - name: Coveralls
       uses: coverallsapp/github-action@master
