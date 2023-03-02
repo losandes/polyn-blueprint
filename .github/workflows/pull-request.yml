@@ -37,9 +37,6 @@ jobs:
     - name: Lint the code
       run: pnpm run lint
 
-    - name: Build browser distribution
-      run: pnpm run build --if-present
-
     - name: Run tests
       env:
         CI: true
