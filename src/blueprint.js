@@ -441,13 +441,13 @@ module.exports = {
       let from
       const validator = comparatorToValidator(comparator)
 
-      const valueOrDefaultValue = (value) => {
+      const valueOrDefaultValue = (context) => {
         if (is.function(defaultVal)) {
-          return { value: defaultVal() }
+          return { value: defaultVal(context) }
         } else if (is.defined(defaultVal)) {
           return { value: defaultVal }
         } else {
-          return { value }
+          return { value: context.value }
         }
       }
 
@@ -465,9 +465,8 @@ module.exports = {
           context = ctx
         }
 
-        const { value } = context
-        if (is.nullOrUndefined(value)) {
-          return valueOrDefaultValue(value)
+        if (is.nullOrUndefined(context.value)) {
+          return valueOrDefaultValue(context)
         } else {
           return validator(context)
         }
